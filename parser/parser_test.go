@@ -42,16 +42,6 @@ func TestParse(t *testing.T) {
 		`,
 		`#Def: {b: "2", ...}, ..., #Def2: {..., b: "2"}, #Def3: {..., _}, ...`,
 	}, {
-		"if else", `
-if cond {
-	field: 1
-} else if cond2 {
-	field: 2
-} else {
-    field: 3
-}
-`, `{if cond {field: 1}, if !cond&&cond2 {field: 2}, if !cond&&!cond2&&true {field: 3}}`,
-	}, {
 		"empty file", "", "",
 	}, {
 		"empty struct", "{}", "{}",
@@ -284,10 +274,10 @@ if cond {
 	}, {
 		"calls",
 		`{
-			a: b(a.b, c.d)
+			a: std.b(a.b, c.d)
 			b: a.b(c)
 		}`,
-		`{a: b&{_args: [a.b, c.d]}.out, b: a.b&{_args: [c]}.out}`,
+		`{a: (std.b&{_args: [a.b, c.d]}).out, b: a.b(c)}`,
 	}, {
 		"lists",
 		`{
@@ -643,7 +633,7 @@ bar: 2
 	}, {
 		desc: "call comments",
 		in: `
-		funcArg1: foo(
+		funcArg1: std.foo(
 			{},
 	
 			// Comment1
@@ -653,7 +643,7 @@ bar: 2
 	
 			// Comment3
 		)`,
-		out: "funcArg1: foo&{_args: [<[1// Comment1] {}>, <[d0// Comment2] [d1// Comment3] {}>]}.out",
+		out: "funcArg1: (std.foo&{_args: [<[1// Comment1] {}>, <[d0// Comment2] [d1// Comment3] {}>]}).out",
 	}, {
 		desc: "front-style commas",
 		in: `
@@ -666,13 +656,13 @@ bar: 2
 	}}
 	for _, tc := range testCases {
 		if map[string]bool{
-			"package file":           true,
-			"imports group":          true,
-			"imports single":         true,
-			"file comments":          true,
-			"attribute declarations": true,
-			"dot import":             true,
-			"attributes":             true,
+			//"package file":           true,
+			//"imports group":          true,
+			//"imports single":         true,
+			//"file comments":          true,
+			//"attribute declarations": true,
+			//"dot import":             true,
+			//"attributes":             true,
 		}[tc.desc] {
 			continue
 		}

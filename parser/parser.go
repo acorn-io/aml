@@ -22,10 +22,9 @@ import (
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/literal"
+	"cuelang.org/go/cue/scanner"
 	"cuelang.org/go/cue/token"
 	"github.com/acorn-io/aml/astinternal"
-	"github.com/acorn-io/aml/scanner"
-	"github.com/acorn-io/aml/tokenext"
 )
 
 var debugStr = astinternal.DebugStr
@@ -709,34 +708,44 @@ func (p *parser) parseCallOrConversion(fun ast.Expr) (expr ast.Expr) {
 	p.exprLev--
 	rparen := p.expectClosing(token.RPAREN, "argument list")
 
-	return &ast.SelectorExpr{
-		X: &ast.BinaryExpr{
-			X:     fun,
-			Op:    token.AND,
-			OpPos: lparen,
-			Y: &ast.StructLit{
-				Lbrace: lparen,
-				Elts: []ast.Decl{
-					&ast.Field{
-						Label: &ast.Ident{
-							Name: "_args",
+	if f, ok := fun.(*ast.SelectorExpr); ok {
+		if l, ok := f.X.(*ast.Ident); ok && l.Name == "std" {
+			return &ast.SelectorExpr{
+				X: &ast.ParenExpr{
+					X: &ast.BinaryExpr{
+						X:     fun,
+						Op:    token.AND,
+						OpPos: lparen,
+						Y: &ast.StructLit{
+							Lbrace: lparen,
+							Elts: []ast.Decl{
+								&ast.Field{
+									TokenPos: lparen,
+									Label: &ast.Ident{
+										Name: "_args",
+									},
+									Token: token.COLON,
+									Value: ast.NewList(list...),
+								},
+							},
+							Rbrace: rparen,
 						},
-						Token: token.COLON,
-						Value: ast.NewList(list...),
 					},
 				},
-				Rbrace: rparen,
-			},
-		},
-		Sel: &ast.Ident{
-			Name: "out",
-		},
+				Sel: &ast.Ident{
+					NamePos: lparen,
+					Name:    "out",
+				},
+			}
+		}
 	}
-	//return &ast.CallExpr{
-	//	Fun:    fun,
-	//	Lparen: lparen,
-	//	Args:   list,
-	//	Rparen: rparen}
+
+	return &ast.CallExpr{
+		Fun:    fun,
+		Lparen: lparen,
+		Args:   list,
+		Rparen: rparen}
+
 }
 
 // TODO: inline this function in parseFieldList once we no longer user comment
@@ -810,7 +819,7 @@ func (p *parser) parseLetDecl() (decl ast.Decl, ident *ast.Ident) {
 	}, nil
 }
 
-func (p *parser) parseComprehension(next ...token.Token) (decl ast.Decl, ident *ast.Ident) {
+func (p *parser) parseComprehension() (decl ast.Decl, ident *ast.Ident) {
 	if p.trace {
 		defer un(trace(p, "Comprehension"))
 	}
@@ -834,7 +843,7 @@ func (p *parser) parseComprehension(next ...token.Token) (decl ast.Decl, ident *
 	expr := p.parseStruct()
 	sc.closeExpr(p, expr)
 
-	if p.atComma("struct literal", append(next, token.RBRACE)...) { // TODO: may be EOF
+	if p.atComma("struct literal", token.RBRACE) { // TODO: may be EOF
 		p.next()
 	}
 
@@ -994,7 +1003,7 @@ func (p *parser) parseLabel(rhs bool) (label ast.Label, expr ast.Expr, decl ast.
 	tok := p.tok
 	switch tok {
 
-	case token.FOR:
+	case token.FOR, token.IF:
 		if rhs {
 			expr = p.parseExpr()
 			break
@@ -1002,23 +1011,6 @@ func (p *parser) parseLabel(rhs bool) (label ast.Label, expr ast.Expr, decl ast.
 		comp, ident := p.parseComprehension()
 		if comp != nil {
 			return nil, nil, comp, false
-		}
-		expr = ident
-
-	case token.IF:
-		if rhs {
-			expr = p.parseExpr()
-			break
-		}
-		comp, ident := p.parseComprehension(tokenext.ELSE)
-		if comp != nil {
-			elses := []ast.Decl{comp}
-			for p.tok == tokenext.ELSE {
-				p.next()
-				newComp, _ := p.parseComprehension(tokenext.ELSE)
-				elses = append(elses, newComp)
-			}
-			return nil, nil, buildElse(elses), false
 		}
 		expr = ident
 
@@ -1659,17 +1651,44 @@ func (p *parser) parseFile() *ast.File {
 		p.consumeDeclComma()
 	}
 
+	// The package clause is not a declaration: it does not appear in any
+	// scope.
+	if p.tok == token.IDENT && p.lit == "package" {
+		c := p.openComments()
+
+		pos := p.pos
+		var name *ast.Ident
+		p.expect(token.IDENT)
+		name = p.parseIdent()
+		if name.Name == "_" && p.mode&declarationErrorsMode != 0 {
+			p.errf(p.pos, "invalid package name _")
+		}
+
+		pkg := &ast.Package{
+			PackagePos: pos,
+			Name:       name,
+		}
+		decls = append(decls, pkg)
+		p.expectComma()
+		c.closeNode(p, pkg)
+	}
+
+	for p.tok == token.ATTRIBUTE {
+		decls = append(decls, p.parseAttribute())
+		p.consumeDeclComma()
+	}
+
 	if p.mode&packageClauseOnlyMode == 0 {
+		// import decls
+		for p.tok == token.IDENT && p.lit == "import" {
+			decls = append(decls, p.parseImports())
+		}
+
 		if p.mode&importsOnlyMode == 0 {
 			// rest of package decls
 			// TODO: loop and allow multiple expressions.
 			decls = append(decls, p.parseFieldList()...)
 			p.expect(token.EOF)
-		}
-
-		// import decls
-		for p.tok == token.IDENT && p.lit == "import" {
-			decls = append(decls, p.parseImports())
 		}
 	}
 	p.closeList()
