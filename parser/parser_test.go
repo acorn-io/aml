@@ -275,9 +275,9 @@ func TestParse(t *testing.T) {
 		"calls",
 		`{
 			a: std.b(a.b, c.d)
-			b: a.b(c)
+			b: len(c)
 		}`,
-		`{a: (std.b&{_args: [a.b, c.d]}).out, b: a.b(c)}`,
+		`{a: (std.b&{_args: [a.b, c.d]}).out, b: len(c)}`,
 	}, {
 		"lists",
 		`{

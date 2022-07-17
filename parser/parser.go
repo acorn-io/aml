@@ -29,6 +29,17 @@ import (
 
 var debugStr = astinternal.DebugStr
 
+var builtin = map[string]bool{
+	"len":   true,
+	"close": true,
+	"and":   true,
+	"or":    true,
+	"div":   true,
+	"mod":   true,
+	"quo":   true,
+	"rem":   true,
+}
+
 // The parser structure holds the parser's internal state.
 type parser struct {
 	file    *token.File
@@ -708,44 +719,41 @@ func (p *parser) parseCallOrConversion(fun ast.Expr) (expr ast.Expr) {
 	p.exprLev--
 	rparen := p.expectClosing(token.RPAREN, "argument list")
 
-	if f, ok := fun.(*ast.SelectorExpr); ok {
-		if l, ok := f.X.(*ast.Ident); ok && l.Name == "std" {
-			return &ast.SelectorExpr{
-				X: &ast.ParenExpr{
-					X: &ast.BinaryExpr{
-						X:     fun,
-						Op:    token.AND,
-						OpPos: lparen,
-						Y: &ast.StructLit{
-							Lbrace: lparen,
-							Elts: []ast.Decl{
-								&ast.Field{
-									TokenPos: lparen,
-									Label: &ast.Ident{
-										Name: "_args",
-									},
-									Token: token.COLON,
-									Value: ast.NewList(list...),
-								},
-							},
-							Rbrace: rparen,
-						},
-					},
-				},
-				Sel: &ast.Ident{
-					NamePos: lparen,
-					Name:    "out",
-				},
-			}
-		}
+	if l, ok := fun.(*ast.Ident); ok && builtin[l.Name] {
+		return &ast.CallExpr{
+			Fun:    fun,
+			Lparen: lparen,
+			Args:   list,
+			Rparen: rparen}
 	}
 
-	return &ast.CallExpr{
-		Fun:    fun,
-		Lparen: lparen,
-		Args:   list,
-		Rparen: rparen}
-
+	return &ast.SelectorExpr{
+		X: &ast.ParenExpr{
+			X: &ast.BinaryExpr{
+				X:     fun,
+				Op:    token.AND,
+				OpPos: lparen,
+				Y: &ast.StructLit{
+					Lbrace: lparen,
+					Elts: []ast.Decl{
+						&ast.Field{
+							TokenPos: lparen,
+							Label: &ast.Ident{
+								Name: "_args",
+							},
+							Token: token.COLON,
+							Value: ast.NewList(list...),
+						},
+					},
+					Rbrace: rparen,
+				},
+			},
+		},
+		Sel: &ast.Ident{
+			NamePos: lparen,
+			Name:    "out",
+		},
+	}
 }
 
 // TODO: inline this function in parseFieldList once we no longer user comment
