@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue/ast"
-	"github.com/acorn-io/aml/source"
+	"github.com/acorn-io/aml/pkg/source"
 )
 
 func Test_readSource(t *testing.T) {

@@ -1,16 +1,17 @@
-package aml
+package amlparser
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
-	amlparser "github.com/acorn-io/aml/parser"
+	amlparser "github.com/acorn-io/aml/pkg/parser"
+	"github.com/acorn-io/aml/pkg/std"
 	"github.com/acorn-io/baaah/pkg/merr"
 	"github.com/acorn-io/baaah/pkg/typed"
 	"github.com/agnivade/levenshtein"
-	"github.com/pkg/errors"
 )
 
 type needStd struct {
@@ -224,14 +225,7 @@ func (a *argsOptional) walkFields(f *ast.Field) bool {
 	return false
 }
 
-type StdDef struct {
-	Imports    []*ast.ImportSpec
-	Unresolved []*ast.Ident
-	Decls      []ast.Decl
-	Functions  map[string]bool
-}
-
-func ParseFile(name string, src interface{}, std *StdDef) (f *ast.File, err error) {
+func ParseFile(name string, src interface{}) (f *ast.File, err error) {
 	file, err := amlparser.ParseFile(name, src, amlparser.ParseComments)
 	if err != nil {
 		return nil, err
@@ -240,16 +234,16 @@ func ParseFile(name string, src interface{}, std *StdDef) (f *ast.File, err erro
 		return nil, fmt.Errorf("import keyword is not supported")
 	}
 	args := argsOptional{}
-	needStd := needStd{functions: std.Functions}
+	needStd := needStd{functions: std.Library.Functions}
 	for _, decl := range file.Decls {
 		ast.Walk(decl, args.Walk, nil)
 		ast.Walk(decl, needStd.Walk, nil)
 	}
 
 	if needStd.Needed() {
-		file.Imports = std.Imports
-		file.Decls = append(file.Decls, std.Decls...)
-		file.Unresolved = append(file.Unresolved, std.Unresolved...)
+		file.Imports = std.Library.Imports
+		file.Decls = append(file.Decls, std.Library.Decls...)
+		file.Unresolved = append(file.Unresolved, std.Library.Unresolved...)
 	}
 	return file, merr.NewErrors(args.Err(), needStd.Err())
 }

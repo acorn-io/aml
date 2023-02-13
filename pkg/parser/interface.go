@@ -21,7 +21,7 @@ import (
 	"cuelang.org/go/cue/ast/astutil"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/token"
-	"github.com/acorn-io/aml/source"
+	"github.com/acorn-io/aml/pkg/source"
 )
 
 // Option specifies a parse option.
@@ -83,10 +83,6 @@ func FromVersion(version int) Option {
 	return func(p *parser) { p.version = version }
 }
 
-func version0(minor, patch int) int {
-	return -1000 + 100*minor + patch
-}
-
 // DeprecationError is a sentinel error to indicate that an error is
 // related to an unsupported old CUE syntax.
 type DeprecationError struct {
@@ -97,11 +93,21 @@ func (e *DeprecationError) Error() string {
 	return "try running `cue fix` (possibly with an earlier version, like v0.2.2) to upgrade"
 }
 
-// Latest specifies the latest version of the parser, effectively setting
-// the strictest implementation.
-const Latest = latest
+const (
+	MinorCurrent = 5
 
-const latest = -600
+	// Latest specifies the latest version of the parser, effectively setting
+	// the strictest implementation.
+	Latest = latest
+
+	latest = -1000 + (100 * MinorCurrent) + 0
+
+	// FullBackwardCompatibility enables all deprecated features that are
+	// currently still supported by the parser.
+	FullBackwardCompatibility = fullCompatibility
+
+	fullCompatibility = -1000
+)
 
 // FileOffset specifies the File position info to use.
 func FileOffset(pos int) Option {

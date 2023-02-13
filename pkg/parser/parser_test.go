@@ -42,6 +42,7 @@ func TestParse(t *testing.T) {
 		`,
 		`#Def: {b: "2", ...}, ..., #Def2: {..., b: "2"}, #Def3: {..., _}, ...`,
 	}, {
+
 		"empty file", "", "",
 	}, {
 		"empty struct", "{}", "{}",
@@ -211,12 +212,12 @@ func TestParse(t *testing.T) {
 		`package k8s, import a "foo", import "bar/baz"`,
 	}, {
 		"collapsed fields",
-		`a: b:: c?: [Name=_]: d: 1
+		`a: b: c?: [Name=_]: d: 1
 		"g\("en")"?: 4
 		 // job foo { bar: 1 } // TODO error after foo
 		 job: "foo": [_]: { bar: 1 }
 		`,
-		`a: {b :: {c?: {[Name=_]: {d: 1}}}}, "g\("en")"?: 4, job: {"foo": {[_]: {bar: 1}}}`,
+		`a: {b: {c?: {[Name=_]: {d: 1}}}}, "g\("en")"?: 4, job: {"foo": {[_]: {bar: 1}}}`,
 	}, {
 		"identifiers",
 		`// 	$_: 1,
