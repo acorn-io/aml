@@ -16,6 +16,7 @@ package v1
 
 #Container: {
 	#ContainerBase
+	#WorkloadBase
 	labels:                       [string]: string
 	annotations:                  [string]: string
 	scale?: >=0
@@ -24,10 +25,15 @@ package v1
 
 #Job: {
 	#ContainerBase
+	#WorkloadBase
 	labels:                       [string]: string
 	annotations:                  [string]: string
 	schedule: string | *""
 	sidecars: [string]: #Sidecar
+}
+
+#WorkloadBase: {
+	class?: string
 }
 
 #ProbeMap: {
