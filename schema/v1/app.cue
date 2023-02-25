@@ -168,8 +168,8 @@ package v1
 	labels:      [string]: string
 	annotations: [string]: string
 	class:       string | *""
-	size:        int | *10 | string
-	accessModes: [#AccessMode, ...#AccessMode] | #AccessMode | *"readWriteOnce"
+	size:        int | *"" | string
+	accessModes?: [#AccessMode, ...#AccessMode] | #AccessMode
 }
 
 #SecretBase: {
