@@ -1,5 +1,11 @@
 package v1
 
+#AcornBuild: {
+	buildArgs: [string]: #Args
+	context:   string | *"."
+	acornfile: string | *"Acornfile"
+}
+
 #Build: {
 	buildArgs: [string]: string
 	context:    string | *"."
@@ -17,17 +23,24 @@ package v1
 #Container: {
 	#ContainerBase
 	#WorkloadBase
-	labels:                       [string]: string
-	annotations:                  [string]: string
+	labels: [string]:      string
+	annotations: [string]: string
 	scale?: >=0
 	sidecars: [string]: #Sidecar
+}
+
+#ServiceDestroyJob: {
+	#ContainerBase
+	labels: [string]:      string
+	annotations: [string]: string
+	sidecars: [string]:    #Sidecar
 }
 
 #Job: {
 	#ContainerBase
 	#WorkloadBase
-	labels:                       [string]: string
-	annotations:                  [string]: string
+	labels: [string]:      string
+	annotations: [string]: string
 	schedule: string | *""
 	sidecars: [string]: #Sidecar
 }
@@ -36,14 +49,27 @@ package v1
 	class?: string
 }
 
+#Service: {
+	labels: [string]:      string
+	annotations: [string]: string
+	default:   bool | *false
+	external:  string | *""
+	address:   string | *""
+	ports:     #PortSingle | *[...#Port] | #PortMap
+	container: =~#DNSName | *""
+	containerLabels: [string]: string
+	secrets: [...=~#DNSName]
+	attributes: {...}
+	destroy: #ServiceDestroyJob
+}
+
 #ProbeMap: {
 	[=~"ready|readiness|liveness|startup"]: string | #ProbeSpec
 }
 
 #PortMap: {
-	internal: #PortSingle | *[...#Port]
-	expose:   #PortSingle | *[...#Port]
-	publish:  #PortSingle | *[...#Port]
+	expose:  #PortSingle | *[...#Port]
+	publish: #PortSingle | *[...#Port]
 }
 
 #ProbeSpec: {
@@ -117,16 +143,13 @@ package v1
 
 #PortSingle: (>0 & <65536) | =~#PortRegexp
 #Port:       (>0 & <65536) | =~#PortRegexp | #PortSpec
-#PortRegexp: #"^([a-z][-a-z0-9]+:)?([0-9]+:)?([a-z][-a-z0-9]+:)?([0-9]+)(/(tcp|udp|http))?$"#
+#PortRegexp: #"^([a-z][-a-z0-9.]+:)?([0-9]+:)?([a-z][-a-z0-9]+:)?([0-9]+)(/(tcp|udp|http))?$"#
 
 #PortSpec: {
-	publish:           bool | *false
-	expose:            bool | *false
-	port:              int | *targetPort
-	targetPort:        int
-	targetServiceName: string | *""
-	serviceName:       string | *""
-	protocol:          *"" | "tcp" | "udp" | "http"
+	publish:    bool | *false
+	port:       int | *targetPort
+	targetPort: int
+	protocol:   *"" | "tcp" | "udp" | "http"
 }
 
 // Allowing [resourceType:][resourceName:][some.random/key]
@@ -138,7 +161,6 @@ package v1
 	key:          =~"[a-z][-a-z0-9./][a-z]*"
 	value:        string | *""
 }
-
 
 #RuleSpec: {
 	verbs: [...string]
@@ -165,16 +187,18 @@ package v1
 #AccessMode: "readWriteMany" | "readWriteOnce" | "readOnlyMany"
 
 #Volume: {
-	labels:      [string]: string
+	external: string | *""
+	labels: [string]:      string
 	annotations: [string]: string
-	class:       string | *""
-	size:        int | *"" | string
+	class:        string | *""
+	size:         int | *"" | string
 	accessModes?: [#AccessMode, ...#AccessMode] | #AccessMode
 }
 
 #SecretBase: {
-	labels:       [string]: string
-	annotations:  [string]: string
+	external: string | *""
+	labels: [string]:      string
+	annotations: [string]: string
 }
 
 #SecretOpaque: {
@@ -225,6 +249,30 @@ package v1
 
 #Secret: *#SecretOpaque | #SecretBasicAuth | #SecretGenerated | #SecretTemplate | #SecretToken
 
+#AcornSecretBinding: {
+	secret: string
+	target: string
+} | string
+
+#AcornServiceBinding: {
+	target:  string
+	service: string
+} | string
+
+#AcornVolumeBinding: {
+	volume: string
+	target: string
+} | string
+
+#AcornPublishPortBinding: {
+	publish:           true
+	port:              int | *targetPort
+	hostname:          string | *""
+	targetPort:        int
+	targetServiceName: =~#DNSName
+	protocol:          *"" | "tcp" | "udp" | "http"
+} | string | int
+
 #Router: {
 	labels: [string]:      string
 	annotations: [string]: string
@@ -246,6 +294,30 @@ package v1
 	=~#RouteTargetName | #RouteTarget
 }
 
+#Acorn: {
+	labels:                *[...#ScopedLabel] | #ScopedLabelMap
+	annotations:           *[...#ScopedLabel] | #ScopedLabelMap
+	image?:                string
+	build?:                string | #AcornBuild
+	publish:               int | string | *[...#AcornPublishPortBinding]
+	volumes:               string | *[...#AcornVolumeBinding]
+	secrets:               string | *[...#AcornSecretBinding]
+	links:                 string | *[...#AcornServiceBinding]
+	autoUpgrade:           bool | *false
+	autoUpgradeInterval:   string | *""
+	notifyUpgrade:         bool | *false
+	workloadClasses:       string | *{[=~#DNSName]: string}
+	[=~"mem|memory"]:      int | *{[=~#DNSName]:    int}
+	[=~"env|environment"]: #EnvVars
+	deployArgs: [string]: #Args
+	profiles: [...string]
+	permissions: [...{
+		serviceName: string | *""
+		rules: [...#RuleSpec]
+		clusterRules: [...#ClusterRuleSpec]
+	}]
+}
+
 #RouteTargetName: "[a-z][-a-z0-9]*(:[0-9]+)?"
 
 #PathName: "/.*"
@@ -263,7 +335,9 @@ package v1
 	images: [=~#DNSName]:     #Image
 	volumes: [=~#DNSName]:    #Volume
 	secrets: [=~#DNSName]:    #Secret
+	acorns: [=~#DNSName]:     #Acorn
 	routers: [=~#DNSName]:    #Router
+	services: [=~#DNSName]:   #Service
 	labels: [string]:         string
 	annotations: [string]:    string
 }
