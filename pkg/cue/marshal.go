@@ -10,6 +10,18 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+func FmtCUEInPlace(file string) ([]byte, error) {
+	data, err := ReadCUE(file)
+	if err != nil {
+		return nil, err
+	}
+	ext := filepath.Ext(file)
+	if ext == ".yaml" || ext == ".json" {
+		return data, nil
+	}
+	return data, Fmt(file)
+}
+
 func ReadCUE(file string) ([]byte, error) {
 	fileData, err := os.ReadFile(file)
 	if err != nil {
