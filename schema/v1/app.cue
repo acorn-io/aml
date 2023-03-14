@@ -318,11 +318,11 @@ package v1
 	}]
 }
 
-#RouteTargetName: "[a-z][-a-z0-9]*(:[0-9]+)?"
+#RouteTargetName: "^[a-z][-a-z0-9]*(:[0-9]+)?$"
 
-#PathName: "/.*"
+#PathName: "^/.*$"
 
-#DNSName: "[a-z][-a-z0-9]*"
+#DNSName: "^[a-z][-a-z0-9]*$"
 
 #Args: string | int | float | bool | [...string] | {...}
 
