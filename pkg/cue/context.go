@@ -206,6 +206,18 @@ func (c *Context) Decode(v *cue.Value, obj any) error {
 	return json.Unmarshal(data, obj)
 }
 
+type Errer interface {
+	Err() error
+}
+
+func CheckErr(o Errer) error {
+	err := o.Err()
+	if err != nil {
+		return WrapErr(err)
+	}
+	return nil
+}
+
 func WrapErr(err error) error {
 	if err == nil {
 		return nil
