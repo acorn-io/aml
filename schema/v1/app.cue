@@ -157,7 +157,7 @@ package v1
 #ScopedLabelMap: {[#ScopedLabelMapKey]: string}
 #ScopedLabel: {
 	resourceType: =~#DNSName | *""
-	resourceName: =~#DNSName | *""
+	resourceName: string | *""
 	key:          =~"[a-z][-a-z0-9./][a-z]*"
 	value:        string | *""
 }
