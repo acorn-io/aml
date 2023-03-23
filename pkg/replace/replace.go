@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-type ReplacerFunc func(string) (string, error)
+type ReplacerFunc func(string) (string, bool, error)
 
 func Replace(s, startToken, endToken string, replacer ReplacerFunc) (string, error) {
 	result := &strings.Builder{}
@@ -24,12 +24,18 @@ func Replace(s, startToken, endToken string, replacer ReplacerFunc) (string, err
 			continue
 		}
 
-		replaced, err := replacer(expr)
+		replaced, ok, err := replacer(expr)
 		if err != nil {
 			return "", err
 		}
+		if ok {
+			result.WriteString(replaced)
+		} else {
+			result.WriteString(startToken)
+			result.WriteString(expr)
+			result.WriteString(endToken)
+		}
 
-		result.WriteString(replaced)
 		s = after
 	}
 

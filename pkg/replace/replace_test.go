@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func countReplacer() func(string) (string, error) {
+func countReplacer() func(string) (string, bool, error) {
 	i := 0
-	return func(s string) (string, error) {
+	return func(s string) (string, bool, error) {
 		i++
-		return fmt.Sprintf("%s:%d", s, i), nil
+		return fmt.Sprintf("%s:%d", s, i), true, nil
 	}
 }
 
@@ -18,7 +18,7 @@ func TestReplace(t *testing.T) {
 		s          string
 		startToken string
 		endToken   string
-		replace    func(string) (string, error)
+		replace    func(string) (string, bool, error)
 	}
 	tests := []struct {
 		name    string
@@ -75,6 +75,18 @@ func TestReplace(t *testing.T) {
 				replace:    countReplacer(),
 			},
 			want: "start:1end",
+		},
+		{
+			name: "no replace var",
+			args: args{
+				s:          "start@{inner}end",
+				startToken: "@{",
+				endToken:   "}",
+				replace: func(s string) (string, bool, error) {
+					return "", false, nil
+				},
+			},
+			want: "start@{inner}end",
 		},
 	}
 	for _, tt := range tests {

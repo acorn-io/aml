@@ -16,20 +16,20 @@ func Interpolate(data any, s string) (string, error) {
 		return "", cue.WrapErr(model.Err())
 	}
 
-	return replace.Replace(s, "@{", "}", func(s string) (string, error) {
+	return replace.Replace(s, "@{", "}", func(s string) (string, bool, error) {
 		path := cuelang.ParsePath(s)
 		if err := cue.CheckErr(path); err != nil {
-			return "", err
+			return "", true, err
 		}
 
 		v := model.LookupPath(path)
 		if err := cue.CheckErr(v); err != nil {
-			return "", err
+			return "", true, err
 		}
 		s, err := v.String()
 		if err == nil {
-			return s, nil
+			return s, true, nil
 		}
-		return fmt.Sprint(v), nil
+		return fmt.Sprint(v), true, nil
 	})
 }
