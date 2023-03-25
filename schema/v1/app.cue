@@ -59,7 +59,7 @@ package v1
 	container: =~#DNSName | *""
 	containerLabels: [string]: string
 	secrets: [...=~#DNSName]
-	attributes: {...}
+	data: {...}
 	destroy: #ServiceDestroyJob
 }
 
