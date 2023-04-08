@@ -29,13 +29,6 @@ package v1
 	sidecars: [string]: #Sidecar
 }
 
-#ServiceDestroyJob: {
-	#ContainerBase
-	labels: [string]:      string
-	annotations: [string]: string
-	sidecars: [string]:    #Sidecar
-}
-
 #Job: {
 	#ContainerBase
 	#WorkloadBase
@@ -49,7 +42,7 @@ package v1
 	class?: string
 }
 
-#Service: {
+#Service: *{
 	labels: [string]:      string
 	annotations: [string]: string
 	default:   bool | *false
@@ -60,7 +53,27 @@ package v1
 	containerLabels: [string]: string
 	secrets: [...=~#DNSName]
 	data: {...}
-	destroy: #ServiceDestroyJob
+} | {
+	labels: [string]:      string
+	annotations: [string]: string
+	default: bool | *false
+	generated: {
+		job: =~#DNSName
+	}
+} | {
+	labels:                *[...#ScopedLabel] | #ScopedLabelMap
+	annotations:           *[...#ScopedLabel] | #ScopedLabelMap
+	default:               bool | *false
+	image?:                string
+	build?:                string | #AcornBuild
+	secrets:               string | *[...#AcornSecretBinding]
+	links:                 string | *[...#AcornServiceBinding]
+	autoUpgrade:           bool | *false
+	autoUpgradeInterval:   string | *""
+	notifyUpgrade:         bool | *false
+	[=~"mem|memory"]:      int | *{[=~#DNSName]: int}
+	[=~"env|environment"]: #EnvVars
+	serviceArgs: [string]: #Args
 }
 
 #ProbeMap: {
@@ -127,7 +140,6 @@ package v1
 	[=~"mem|memory"]:               int
 	permissions: {
 		rules: [...#RuleSpec]
-		clusterRules: [...#ClusterRuleSpec]
 	}
 }
 
@@ -148,7 +160,7 @@ package v1
 #PortSpec: {
 	publish:    bool | *false
 	port:       int | *targetPort
-	targetPort: int
+	targetPort: int | *port
 	protocol:   *"" | "tcp" | "udp" | "http"
 }
 
@@ -164,24 +176,22 @@ package v1
 
 #RuleSpec: {
 	verbs: [...string]
+	verb?: string
 	apiGroups: [...string]
+	apiGroup?: string
 	resources: [...string]
+	resource?: string
 	resourceNames: [...string]
+	resourceName?: string
 	nonResourceURLs: [...string]
-} | string
-
-#ClusterRuleSpec: {
-	verbs: [...string]
-	namespaces: [...string]
-	apiGroups: [...string]
-	resources: [...string]
-	resourceNames: [...string]
-	nonResourceURLs: [...string]
+	scopes: [...string]
+	scope?: string
 } | string
 
 #Image: {
-	image:  string | *""
-	build?: string | *#Build
+	image:           string | *""
+	build:           string | *#AcornBuild
+	containerBuild?: string | *#Build
 }
 
 #AccessMode: "readWriteMany" | "readWriteOnce" | "readOnlyMany"
@@ -260,15 +270,17 @@ package v1
 } | string
 
 #AcornVolumeBinding: {
-	volume: string
-	target: string
+	target:       string
+	class:        string | *""
+	size:         int | *"" | string
+	accessModes?: [#AccessMode, ...#AccessMode] | #AccessMode
 } | string
 
 #AcornPublishPortBinding: {
 	publish:           true
 	port:              int | *targetPort
 	hostname:          string | *""
-	targetPort:        int
+	targetPort:        int | *port
 	targetServiceName: =~#DNSName
 	protocol:          *"" | "tcp" | "udp" | "http"
 } | string | int
@@ -306,16 +318,10 @@ package v1
 	autoUpgrade:           bool | *false
 	autoUpgradeInterval:   string | *""
 	notifyUpgrade:         bool | *false
-	workloadClasses:       string | *{[=~#DNSName]: string}
-	[=~"mem|memory"]:      int | *{[=~#DNSName]:    int}
+	[=~"mem|memory"]:      int | *{[=~#DNSName]: int}
 	[=~"env|environment"]: #EnvVars
 	deployArgs: [string]: #Args
 	profiles: [...string]
-	permissions: [...{
-		serviceName: string | *""
-		rules: [...#RuleSpec]
-		clusterRules: [...#ClusterRuleSpec]
-	}]
 }
 
 #RouteTargetName: "^[a-z][-a-z0-9]*(:[0-9]+)?$"
