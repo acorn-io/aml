@@ -7,6 +7,10 @@ import (
 	"cuelang.org/go/cue/format"
 )
 
+func FmtBytes(data []byte) ([]byte, error) {
+	return format.Source(data, format.Simplify(), format.TabIndent(true))
+}
+
 func Fmt(file string) error {
 	data, err := os.ReadFile(file)
 	if err != nil {
