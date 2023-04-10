@@ -185,6 +185,8 @@ package v1
 	resourceNames: [...string]
 	resourceName?: string
 	nonResourceURLs: [...string]
+	scope?: string
+	scopes: [...string]
 } | string
 
 #ClusterRuleSpec: {
