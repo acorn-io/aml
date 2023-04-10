@@ -140,6 +140,7 @@ package v1
 	[=~"mem|memory"]:               int
 	permissions: {
 		rules: [...#RuleSpec]
+		clusterRules: [...#ClusterRuleSpec]
 	}
 }
 
@@ -184,13 +185,20 @@ package v1
 	resourceNames: [...string]
 	resourceName?: string
 	nonResourceURLs: [...string]
-	scopes: [...string]
-	scope?: string
+} | string
+
+#ClusterRuleSpec: {
+	verbs: [...string]
+	namespaces: [...string]
+	apiGroups: [...string]
+	resources: [...string]
+	resourceNames: [...string]
+	nonResourceURLs: [...string]
 } | string
 
 #Image: {
 	image:           string | *""
-	build?:          string | *#AcornBuild
+	acornBuild?:     string | *#AcornBuild
 	containerBuild?: string | *#Build
 }
 
