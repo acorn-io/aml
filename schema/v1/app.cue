@@ -190,7 +190,7 @@ package v1
 
 #Image: {
 	image:           string | *""
-	build:           string | *#AcornBuild
+	build?:          string | *#AcornBuild
 	containerBuild?: string | *#Build
 }
 
