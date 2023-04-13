@@ -104,7 +104,7 @@ package v1
 	failureThreshold:    uint32 | *3
 }
 
-#Probes: string | #ProbeMap | [...#ProbeSpec]
+#Probes: string | #ProbeMap | [...#ProbeSpec] | null
 
 #FileSecretSpec: {
 	name:     string
