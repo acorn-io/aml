@@ -121,7 +121,7 @@ package v1
 	}
 }
 
-#FileContent: {!~"^secret://"} | {=~"^secret://[a-z][-a-z0-9]*/[a-z][-a-z0-9]*(.onchange=(redeploy|no-action)|.mode=[0-7]{3,4})*$"} | #FileSpec
+#FileContent: {!~"^secret://"} | {=~"^secret://[a-z][-a-z0-9.]*/[a-z][-a-z0-9]*(.onchange=(redeploy|no-action)|.mode=[0-7]{3,4})*$"} | #FileSpec
 
 #ContainerBase: {
 	files: [string]:                  #FileContent
@@ -152,7 +152,7 @@ package v1
 
 // The below should work but doesn't. So instead we use the log regexp. This seems like a cue bug
 // #Dir: #ShortVolumeRef | #VolumeRef | #EphemeralRef | #ContextDirRef | #SecretRef
-#Dir: =~"^[a-z][-a-z0-9]*$|^volume://.+$|^ephemeral://.*$|^$|^\\./.*$|^secret://[a-z][-a-z0-9]*(.onchange=(redeploy|no-action))?$"
+#Dir: =~"^[a-z][-a-z0-9]*$|^volume://.+$|^ephemeral://.*$|^$|^\\./.*$|^secret://[a-z][-a-z0-9.]*(.onchange=(redeploy|no-action))?$"
 
 #PortSingle: (>0 & <65536) | =~#PortRegexp
 #Port:       (>0 & <65536) | =~#PortRegexp | #PortSpec
@@ -262,7 +262,7 @@ package v1
 	type: "generated"
 	params: {
 		job:    string
-		format: *"text" | "json"
+		format: *"" | "text" | "json" | "aml"
 	}
 	data: {}
 }
