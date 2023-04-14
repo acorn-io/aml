@@ -287,7 +287,6 @@ package v1
 } | string
 
 #AcornPublishPortBinding: {
-	publish:           true
 	port:              int | *targetPort
 	hostname:          string | *""
 	targetPort:        int | *port
