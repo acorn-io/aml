@@ -18,7 +18,7 @@ func Replace(s, startToken, endToken string, replacer ReplacerFunc) (string, err
 		result.WriteString(before)
 
 		expr, after, ok := strings.Cut(tail, endToken)
-		if !ok || strings.HasSuffix(before, startToken[:1]) {
+		if !ok {
 			result.WriteString(startToken)
 			s = tail
 			continue
