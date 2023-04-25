@@ -2,9 +2,11 @@ package aml
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 
 	"cuelang.org/go/cue/literal"
+	"github.com/acorn-io/aml/pkg/cue"
 )
 
 func Unmarshal(data []byte, v any) error {
@@ -26,4 +28,13 @@ func ParseInt(numString string) (int64, error) {
 	}
 
 	return quantity, nil
+}
+
+func Marshal(v any) ([]byte, error) {
+	val, err := cue.NewContext().Encode(v)
+	if err != nil {
+		return nil, err
+	}
+	s := fmt.Sprintf("%v", val)
+	return cue.FmtBytes([]byte(s))
 }
