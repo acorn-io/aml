@@ -118,7 +118,7 @@ func (a *Definition) Decode(spec interface{}) error {
 	}
 
 	objs := map[string]any{}
-	for _, key := range []string{"containers", "jobs", "acorns", "secrets", "volumes", "images", "routers", "labels", "annotations", "services"} {
+	for _, key := range []string{"containers", "jobs", "acorns", "secrets", "volumes", "images", "imageAllowRules", "routers", "labels", "annotations", "services"} {
 		v := app.LookupPath(cuelang.ParsePath(key))
 		if v.Exists() {
 			objs[key] = v

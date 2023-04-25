@@ -204,6 +204,35 @@ package v1
 	containerBuild?: string | *#Build
 }
 
+#ImageAllowRule: {
+	signatures: #ImageAllowRulesSignatures
+}
+
+#ImageAllowRulesSignatures: {
+	rules: [...#SignatureRules]
+}
+
+#SignatureRules: {
+	signedBy: #SignedBy
+	annotations: #SignatureAnnotations
+}
+
+#SignedBy: {
+	anyOf: [...string]
+	allOf: [...string]
+}
+
+#SignatureAnnotations: {
+	match: [string]: string
+	expressions: [...#LabelSelector]
+}
+
+#LabelSelector: {
+	key: string
+	operator: "In" | "NotIn" | "Exists" | "DoesNotExist"
+	values: [...string]
+}
+
 #AccessMode: "readWriteMany" | "readWriteOnce" | "readOnlyMany"
 
 #Volume: {
@@ -348,6 +377,7 @@ package v1
 	containers: [=~#DNSName]: #Container
 	jobs: [=~#DNSName]:       #Job
 	images: [=~#DNSName]:     #Image
+	[=~"image[aA]llow[rR]ules"]: [=~#DNSName]: #ImageAllowRule
 	volumes: [=~#DNSName]:    #Volume
 	secrets: [=~#DNSName]:    #Secret
 	acorns: [=~#DNSName]:     #Acorn
