@@ -35,6 +35,7 @@ package v1
 	labels: [string]:      string
 	annotations: [string]: string
 	schedule: string | *""
+	onDelete: bool | *false
 	sidecars: [string]: #Sidecar
 }
 
