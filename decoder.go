@@ -8,8 +8,13 @@ import (
 )
 
 type Options struct {
-	Args     map[string]any
-	Profiles []string
+	Args      map[string]any
+	Profiles  []string
+	Acornfile bool
+}
+
+func (d *Options) IsAcornfile() bool {
+	return d != nil && d.Acornfile
 }
 
 func (d Options) ApplyTo(opts *Options) {
@@ -23,6 +28,10 @@ func (d Options) ApplyTo(opts *Options) {
 	}
 
 	opts.Profiles = append(opts.Profiles, d.Profiles...)
+
+	if d.Acornfile {
+		opts.Acornfile = d.Acornfile
+	}
 }
 
 type Option interface {
@@ -76,9 +85,21 @@ func (d *Decoder) Decode(v any) error {
 	if err != nil {
 		return err
 	}
-	def, err := definition.NewDefinition(files)
-	if err != nil {
-		return err
+
+	var (
+		def *definition.Definition
+	)
+
+	if d.opts.IsAcornfile() {
+		def, err = definition.NewDefinition(files)
+		if err != nil {
+			return err
+		}
+	} else {
+		def, err = definition.NewData(files)
+		if err != nil {
+			return err
+		}
 	}
 
 	def, _, err = def.WithArgs(d.opts.Args, d.opts.Profiles)

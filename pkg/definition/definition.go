@@ -25,7 +25,8 @@ profiles: dev: dev: bool | *true
 `)
 
 type Definition struct {
-	ctx *cue.Context
+	ctx  *cue.Context
+	data bool
 }
 
 func NewAcornfile(data []byte) []cue.File {
@@ -35,6 +36,19 @@ func NewAcornfile(data []byte) []cue.File {
 		Data:        append(data, Defaults...),
 		Parser:      amlparser.ParseFile,
 	}}
+}
+
+func NewData(files []cue.File) (*Definition, error) {
+	ctx := cue.NewContext()
+	ctx = ctx.WithFiles(files...)
+	_, err := ctx.Value()
+	if err != nil {
+		return nil, err
+	}
+	return &Definition{
+		ctx:  ctx,
+		data: true,
+	}, nil
 }
 
 func NewDefinition(files []cue.File) (*Definition, error) {
@@ -111,10 +125,14 @@ func (a *Definition) WithArgs(args map[string]any, profiles []string) (*Definiti
 	}, args, nil
 }
 
-func (a *Definition) Decode(spec interface{}) error {
+func (a *Definition) Decode(out interface{}) error {
 	app, err := a.ctx.Value()
 	if err != nil {
 		return err
+	}
+
+	if a.data {
+		return a.ctx.Decode(app, out)
 	}
 
 	objs := map[string]any{}
@@ -130,5 +148,5 @@ func (a *Definition) Decode(spec interface{}) error {
 		return err
 	}
 
-	return a.ctx.Decode(newApp, spec)
+	return a.ctx.Decode(newApp, out)
 }
