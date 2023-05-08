@@ -53,7 +53,8 @@ package v1
 	ports:     #PortSingle | *[...#Port] | #PortMap
 	container: =~#DNSName | *""
 	containerLabels: [string]: string
-	secrets: [...=~#DNSName]
+	secrets: string | *[...#AcornSecretBinding]
+	links:   string | *[...#AcornServiceBinding]
 	data: {...}
 } | {
 	labels: [string]:      string
@@ -324,6 +325,7 @@ package v1
 	image?:                string
 	build?:                string | #AcornBuild
 	publish:               int | string | *[...#AcornPublishPortBinding]
+	publishMode:           "all" | "none" | "defined" | *""
 	volumes:               string | *[...#AcornVolumeBinding]
 	secrets:               string | *[...#AcornSecretBinding]
 	links:                 string | *[...#AcornServiceBinding]
