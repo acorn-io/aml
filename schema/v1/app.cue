@@ -48,6 +48,7 @@ package v1
 	annotations: [string]: string
 	default:   bool | *false
 	external:  string | *""
+	alias:     string | *""
 	address:   string | *""
 	ports:     #PortSingle | *[...#Port] | #PortMap
 	container: =~#DNSName | *""
@@ -218,6 +219,7 @@ package v1
 
 #SecretBase: {
 	external: string | *""
+	alias:    string | *""
 	labels: [string]:      string
 	annotations: [string]: string
 }
