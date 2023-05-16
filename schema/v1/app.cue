@@ -84,8 +84,11 @@ package v1
 }
 
 #PortMap: {
-	expose:  #PortSingle | *[...#Port]
-	publish: #PortSingle | *[...#Port]
+	expose:   #PortSingle | *[...#Port]
+	publish:  #PortSingle | *[...#Port]
+	dev:      #PortSingle | *[...#Port]
+	// Deprecated, use expose instead
+	internal: #PortSingle | *[...#Port]
 }
 
 #ProbeSpec: {
@@ -163,6 +166,8 @@ package v1
 
 #PortSpec: {
 	publish:    bool | *false
+	dev:        bool | *false
+	hostname:   string | *""
 	port:       int | *targetPort
 	targetPort: int | *port
 	protocol:   *"" | "tcp" | "udp" | "http"
