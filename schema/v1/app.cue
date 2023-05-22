@@ -29,13 +29,15 @@ package v1
 	sidecars: [string]: #Sidecar
 }
 
+#JobEventName: "create" | "update" | "delete"
+
 #Job: {
 	#ContainerBase
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
 	schedule: string | *""
-	onDelete: bool | *false
+	events: [...#JobEventName]
 	sidecars: [string]: #Sidecar
 }
 
@@ -84,9 +86,9 @@ package v1
 }
 
 #PortMap: {
-	expose:   #PortSingle | *[...#Port]
-	publish:  #PortSingle | *[...#Port]
-	dev:      #PortSingle | *[...#Port]
+	expose:  #PortSingle | *[...#Port]
+	publish: #PortSingle | *[...#Port]
+	dev:     #PortSingle | *[...#Port]
 	// Deprecated, use expose instead
 	internal: #PortSingle | *[...#Port]
 }
