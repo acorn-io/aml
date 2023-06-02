@@ -29,7 +29,7 @@ package v1
 	sidecars: [string]: #Sidecar
 }
 
-#JobEventName: "create" | "update" | "delete"
+#JobEventName: "create" | "update" | "stop" | "delete"
 
 #Job: {
 	#ContainerBase
