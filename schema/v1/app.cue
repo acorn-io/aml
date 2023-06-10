@@ -25,6 +25,7 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
+	metrics?: #Metrics
 	scale?: >=0
 	sidecars: [string]: #Sidecar
 }
@@ -36,6 +37,7 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
+	metrics?: #Metrics
 	schedule: string | *""
 	events: [...#JobEventName]
 	sidecars: [string]: #Sidecar
@@ -173,6 +175,11 @@ package v1
 	port:       int | *targetPort
 	targetPort: int | *port
 	protocol:   *"" | "tcp" | "udp" | "http"
+}
+
+#Metrics: {
+	port: int
+	path: string
 }
 
 // Allowing [resourceType:][resourceName:][some.random/key]
