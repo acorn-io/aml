@@ -217,7 +217,6 @@ package v1
 #AccessMode: "readWriteMany" | "readWriteOnce" | "readOnlyMany"
 
 #Volume: {
-	external: string | *""
 	labels: [string]:      string
 	annotations: [string]: string
 	class:        string | *""
