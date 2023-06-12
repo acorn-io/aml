@@ -1,8 +1,6 @@
 package aml
 
 import (
-	"fmt"
-
 	cuelang "cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/acorn-io/aml/pkg/cue"
@@ -30,6 +28,10 @@ func Interpolate(data any, s string) (string, error) {
 		if err == nil {
 			return s, true, nil
 		}
-		return fmt.Sprint(v), true, nil
+		data, err := v.MarshalJSON()
+		if err != nil {
+			return "", false, err
+		}
+		return string(data), true, nil
 	})
 }
