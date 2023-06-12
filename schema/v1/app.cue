@@ -43,6 +43,7 @@ package v1
 
 #WorkloadBase: {
 	class?: string
+	metrics?: #Metrics
 }
 
 #Service: *{
@@ -173,6 +174,11 @@ package v1
 	port:       int | *targetPort
 	targetPort: int | *port
 	protocol:   *"" | "tcp" | "udp" | "http"
+}
+
+#Metrics: {
+	port: int
+	path: string
 }
 
 // Allowing [resourceType:][resourceName:][some.random/key]
