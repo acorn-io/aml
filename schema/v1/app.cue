@@ -25,7 +25,6 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
-	metrics?: #Metrics
 	scale?: >=0
 	sidecars: [string]: #Sidecar
 }
@@ -37,7 +36,6 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
-	metrics?: #Metrics
 	schedule: string | *""
 	events: [...#JobEventName]
 	sidecars: [string]: #Sidecar
@@ -45,6 +43,7 @@ package v1
 
 #WorkloadBase: {
 	class?: string
+	metrics?: #Metrics
 }
 
 #Service: *{
