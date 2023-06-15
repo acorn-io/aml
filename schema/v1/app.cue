@@ -177,8 +177,8 @@ package v1
 }
 
 #Metrics: {
-	port: int
-	path: string
+	port: uint16 & >0 & <65536
+	path: =~"^/.*"
 }
 
 // Allowing [resourceType:][resourceName:][some.random/key]
