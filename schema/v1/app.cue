@@ -80,6 +80,9 @@ package v1
 	[=~"mem|memory"]:      int | *{[=~#DNSName]: int}
 	[=~"env|environment"]: #EnvVars
 	serviceArgs: [string]: #Args
+	permissions: [string]: {
+		rules: [...#RuleSpec]
+	}
 }
 
 #ProbeMap: {
@@ -348,6 +351,9 @@ package v1
 	[=~"env|environment"]: #EnvVars
 	deployArgs: [string]: #Args
 	profiles: [...string]
+	permissions: [string]: {
+		rules: [...#RuleSpec]
+	}
 }
 
 #RouteTargetName: "^[a-z][-a-z0-9]*(:[0-9]+)?$"
