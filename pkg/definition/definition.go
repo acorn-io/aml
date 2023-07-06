@@ -21,7 +21,9 @@ const (
 var Defaults = []byte(`
 
 args: dev: bool | *false
-profiles: dev: dev: bool | *true
+args: autoUpgrade: bool | *false
+profiles: devMode: dev: bool | *true
+profiles: autoUpgrade: autoUpgrade: bool | *true
 `)
 
 type Definition struct {
