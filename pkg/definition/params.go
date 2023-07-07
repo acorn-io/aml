@@ -74,7 +74,7 @@ func (a *Definition) args(section string) (*ParamSpec, error) {
 
 	for i, o := range s.Elts {
 		f := o.(*ast.Field)
-		if fmt.Sprint(f.Label) == "dev" {
+		if fmt.Sprint(f.Label) == "dev" || fmt.Sprint(f.Label) == "autoUpgrade" {
 			continue
 		}
 		com := strings.Builder{}
