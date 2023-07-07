@@ -20,10 +20,14 @@ const (
 
 var Defaults = []byte(`
 
-args: dev: bool | *false
-args: autoUpgrade: bool | *false
-profiles: devMode: dev: bool | *true
-profiles: autoUpgrade: autoUpgrade: bool | *true
+args: {
+	dev: bool | *false
+	autoUpgrade: bool | *false
+}
+profiles: {
+	devMode: dev: bool | *true
+	autoUpgrade: autoUpgrade: bool | *true
+}
 `)
 
 type Definition struct {
