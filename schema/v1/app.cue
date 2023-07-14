@@ -8,7 +8,8 @@ package v1
 
 #Build: {
 	buildArgs: [string]: string
-	context:    string | *"."
+	context: string | *"."
+	additionalContexts: [string]: string
 	dockerfile: string | *""
 	target:     string | *""
 }
