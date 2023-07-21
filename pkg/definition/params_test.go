@@ -37,6 +37,23 @@ args: {
 	assert.Equal(t, "object", spec.Params[6].Type)
 }
 
+func TestParamProfiles(t *testing.T) {
+	acornCue := `
+args: {}
+`
+	def, err := NewDefinition(NewAcornfile([]byte(acornCue)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	spec, err := def.Args()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Len(t, spec.Profiles, 0)
+}
+
 func TestParamSpec(t *testing.T) {
 	acornCue := `
 args: {

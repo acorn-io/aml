@@ -27,7 +27,7 @@ type Profile struct {
 }
 
 func (a *Definition) Args() (*ParamSpec, error) {
-	return a.addProfiles(a.args("args"))
+	return a.addProfiles(a.args("args", "dev"))
 }
 
 func (a *Definition) addProfiles(paramSpec *ParamSpec, err error) (*ParamSpec, error) {
@@ -35,7 +35,7 @@ func (a *Definition) addProfiles(paramSpec *ParamSpec, err error) (*ParamSpec, e
 		return nil, err
 	}
 
-	profiles, err := a.args("profiles")
+	profiles, err := a.args("profiles", "devMode")
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (a *Definition) addProfiles(paramSpec *ParamSpec, err error) (*ParamSpec, e
 	return paramSpec, nil
 }
 
-func (a *Definition) args(section string) (*ParamSpec, error) {
+func (a *Definition) args(section, devName string) (*ParamSpec, error) {
 	app, err := a.ctx.ValueNoSchema()
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (a *Definition) args(section string) (*ParamSpec, error) {
 
 	for i, o := range s.Elts {
 		f := o.(*ast.Field)
-		if fmt.Sprint(f.Label) == "dev" || fmt.Sprint(f.Label) == "autoUpgrade" {
+		if fmt.Sprint(f.Label) == devName || fmt.Sprint(f.Label) == "autoUpgrade" {
 			continue
 		}
 		com := strings.Builder{}

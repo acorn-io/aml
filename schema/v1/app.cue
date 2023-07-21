@@ -43,7 +43,7 @@ package v1
 }
 
 #WorkloadBase: {
-	class?: string
+	class?:   string
 	metrics?: #Metrics
 }
 
@@ -363,7 +363,7 @@ package v1
 
 #DNSName: "^[a-z][-a-z0-9]*$"
 
-#Args: string | int | float | bool | [...string] | {...}
+#Args: string | int | float | bool | [...] | {...}
 
 #App: {
 	args: [string]: #Args

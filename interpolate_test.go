@@ -50,7 +50,7 @@ func TestInterpolate(t *testing.T) {
 				data: testData,
 				s:    "before @{a.c} after",
 			},
-			want: "before {\n\tx: 1\n} after",
+			want: "before {\"x\":1} after",
 		},
 		{
 			name: "Slice replace",
