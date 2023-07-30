@@ -9,6 +9,18 @@ import (
 	"github.com/acorn-io/aml/pkg/amlparser"
 )
 
+var (
+	implicitArgs = map[string]struct{}{
+		"autoUpgrade": {},
+		"dev":         {},
+		"profiles":    {},
+	}
+	implicitProfiles = map[string]struct{}{
+		"devMode":     {},
+		"autoUpgrade": {},
+	}
+)
+
 type ParamSpec struct {
 	Params   []Param   `json:"params,omitempty"`
 	Profiles []Profile `json:"profiles,omitempty"`
@@ -27,7 +39,7 @@ type Profile struct {
 }
 
 func (a *Definition) Args() (*ParamSpec, error) {
-	return a.addProfiles(a.args("args", "dev"))
+	return a.addProfiles(a.args("args", implicitArgs))
 }
 
 func (a *Definition) addProfiles(paramSpec *ParamSpec, err error) (*ParamSpec, error) {
@@ -35,7 +47,7 @@ func (a *Definition) addProfiles(paramSpec *ParamSpec, err error) (*ParamSpec, e
 		return nil, err
 	}
 
-	profiles, err := a.args("profiles", "devMode")
+	profiles, err := a.args("profiles", implicitProfiles)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +62,7 @@ func (a *Definition) addProfiles(paramSpec *ParamSpec, err error) (*ParamSpec, e
 	return paramSpec, nil
 }
 
-func (a *Definition) args(section, devName string) (*ParamSpec, error) {
+func (a *Definition) args(section string, ignore map[string]struct{}) (*ParamSpec, error) {
 	app, err := a.ctx.ValueNoSchema()
 	if err != nil {
 		return nil, err
@@ -74,7 +86,7 @@ func (a *Definition) args(section, devName string) (*ParamSpec, error) {
 
 	for i, o := range s.Elts {
 		f := o.(*ast.Field)
-		if fmt.Sprint(f.Label) == devName || fmt.Sprint(f.Label) == "autoUpgrade" {
+		if _, ok := ignore[fmt.Sprint(f.Label)]; ok {
 			continue
 		}
 		com := strings.Builder{}

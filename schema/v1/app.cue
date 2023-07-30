@@ -26,7 +26,8 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
-	scale?: >=0
+	description?: string
+	scale?:       >=0
 	sidecars: [string]: #Sidecar
 }
 
@@ -37,7 +38,8 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
-	schedule: string | *""
+	description?: string
+	schedule:     string | *""
 	events: [...#JobEventName]
 	sidecars: [string]: #Sidecar
 }
@@ -50,12 +52,13 @@ package v1
 #Service: *{
 	labels: [string]:      string
 	annotations: [string]: string
-	default:   bool | *false
-	external:  string | *""
-	alias:     string | *""
-	address:   string | *""
-	ports:     #PortSingle | *[...#Port] | #PortMap
-	container: =~#DNSName | *""
+	description?: string
+	default:      bool | *false
+	external:     string | *""
+	alias:        string | *""
+	address:      string | *""
+	ports:        #PortSingle | *[...#Port] | #PortMap
+	container:    =~#DNSName | *""
 	containerLabels: [string]: string
 	secrets: string | *[...#AcornSecretBinding]
 	links:   string | *[...#AcornServiceBinding]
@@ -63,13 +66,15 @@ package v1
 } | {
 	labels: [string]:      string
 	annotations: [string]: string
-	default: bool | *false
+	description?: string
+	default:      bool | *false
 	generated: {
 		job: =~#DNSName
 	}
 } | {
 	labels:                *[...#ScopedLabel] | #ScopedLabelMap
 	annotations:           *[...#ScopedLabel] | #ScopedLabelMap
+	description?:          string
 	default:               bool | *false
 	image?:                string
 	build?:                string | #AcornBuild
@@ -229,6 +234,7 @@ package v1
 #Volume: {
 	labels: [string]:      string
 	annotations: [string]: string
+	description?: string
 	class:        string | *""
 	size:         int | *"" | string
 	accessModes?: [#AccessMode, ...#AccessMode] | #AccessMode
@@ -239,6 +245,7 @@ package v1
 	alias:    string | *""
 	labels: [string]:      string
 	annotations: [string]: string
+	description?: string
 }
 
 #SecretOpaque: {
@@ -317,7 +324,8 @@ package v1
 #Router: {
 	labels: [string]:      string
 	annotations: [string]: string
-	routes: [...#Route] | #RouteMap
+	description?: string
+	routes:       [...#Route] | #RouteMap
 }
 
 #Route: {
@@ -338,6 +346,7 @@ package v1
 #Acorn: {
 	labels:                *[...#ScopedLabel] | #ScopedLabelMap
 	annotations:           *[...#ScopedLabel] | #ScopedLabelMap
+	description?:          string
 	image?:                string
 	build?:                string | #AcornBuild
 	publish:               int | string | *[...#AcornPublishPortBinding]
@@ -379,4 +388,9 @@ package v1
 	services: [=~#DNSName]:   #Service
 	labels: [string]:         string
 	annotations: [string]:    string
+	readme?:      string
+	info?:        string
+	icon?:        string
+	name?:        string
+	description?: string
 }

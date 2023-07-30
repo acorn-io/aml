@@ -18,10 +18,29 @@ const (
 	AppType      = "#App"
 )
 
-var Defaults = []byte(`
+var (
+	TopFields = []string{
+		"labels",
+		"annotations",
+		"name",
+		"description",
+		"readme",
+		"info",
+		"icon",
+		"containers",
+		"jobs",
+		"acorns",
+		"secrets",
+		"volumes",
+		"images",
+		"routers",
+		"services",
+	}
+	Defaults = []byte(`
 
 args: {
 	dev: bool | *false
+	profiles: [...string]
 	autoUpgrade: bool | *false
 }
 profiles: {
@@ -29,6 +48,7 @@ profiles: {
 	autoUpgrade: autoUpgrade: bool | *true
 }
 `)
+)
 
 type Definition struct {
 	ctx  *cue.Context
@@ -77,6 +97,7 @@ func (a *Definition) getArgsForProfile(args map[string]any, profiles []string) (
 	if err != nil {
 		return nil, err
 	}
+	var profileList []string
 	for _, profile := range profiles {
 		optional := false
 		if strings.HasSuffix(profile, "?") {
@@ -96,6 +117,8 @@ func (a *Definition) getArgsForProfile(args map[string]any, profiles []string) (
 			args = map[string]any{}
 		}
 
+		profileList = append(profileList, profile)
+
 		inValue, err := a.ctx.Encode(args)
 		if err != nil {
 			return nil, err
@@ -107,6 +130,14 @@ func (a *Definition) getArgsForProfile(args map[string]any, profiles []string) (
 			return nil, cue.WrapErr(err)
 		}
 		args = newArgs
+	}
+
+	existingProfiles, _ := args["profiles"].([]string)
+	if len(existingProfiles) == 0 && len(profileList) > 0 {
+		if args == nil {
+			args = map[string]any{}
+		}
+		args["profiles"] = profileList
 	}
 
 	return args, nil
@@ -142,7 +173,7 @@ func (a *Definition) Decode(out interface{}) error {
 	}
 
 	objs := map[string]any{}
-	for _, key := range []string{"containers", "jobs", "acorns", "secrets", "volumes", "images", "routers", "labels", "annotations", "services"} {
+	for _, key := range TopFields {
 		v := app.LookupPath(cuelang.ParsePath(key))
 		if v.Exists() {
 			objs[key] = v
