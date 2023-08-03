@@ -35,6 +35,9 @@ func Marshal(v any) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := fmt.Sprintf("%v", val)
-	return cue.FmtBytes([]byte(s))
+	s := []byte(fmt.Sprintf("%v", val))
+	if len(s) > 2 && s[0] == '{' && s[len(s)-1] == '}' {
+		s = s[1 : len(s)-1]
+	}
+	return cue.FmtBytes(s)
 }

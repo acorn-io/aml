@@ -97,7 +97,7 @@ func (a *Definition) getArgsForProfile(args map[string]any, profiles []string) (
 	if err != nil {
 		return nil, err
 	}
-	var profileList []string
+	var profileList []any
 	for _, profile := range profiles {
 		optional := false
 		if strings.HasSuffix(profile, "?") {
