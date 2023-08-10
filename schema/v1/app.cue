@@ -63,6 +63,17 @@ package v1
 	secrets: string | *[...#AcornSecretBinding]
 	links:   string | *[...#AcornServiceBinding]
 	data: {...}
+	consumer: {
+		permissions: {
+			rules: [...#RuleSpec]
+		}
+		[=~"env|environment"]: #EnvVars
+		files: [string]:                  #FileContent
+		[=~"dirs|directories"]: [string]: #Dir
+	}
+	permissions: [string]: {
+		rules: [...#RuleSpec]
+	}
 } | {
 	labels: [string]:      string
 	annotations: [string]: string
@@ -70,6 +81,11 @@ package v1
 	default:      bool | *false
 	generated: {
 		job: =~#DNSName
+	}
+	consumer: {
+		permissions: {
+			rules: [...#RuleSpec]
+		}
 	}
 } | {
 	labels:                *[...#ScopedLabel] | #ScopedLabelMap
@@ -145,17 +161,17 @@ package v1
 	files: [string]:                  #FileContent
 	[=~"dirs|directories"]: [string]: #Dir
 	// 1 or both of image or build is required
-	image?:                         string
-	build?:                         string | #Build
-	entrypoint:                     string | *[...string]
-	[=~"command|cmd"]:              string | *[...string]
-	[=~"env|environment"]:          #EnvVars
-	[=~"work[dD]ir|working[dD]ir"]: string | *""
-	[=~"interactive|tty|stdin"]:    bool | *false
-	ports:                          #PortSingle | *[...#Port] | #PortMap
-	[=~"probes|probe"]:             #Probes
-	[=~"depends[oO]n|depends_on"]:  string | *[...string]
-	[=~"mem|memory"]:               int
+	image?:                                 string
+	build?:                                 string | #Build
+	entrypoint:                             string | *[...string]
+	[=~"command|cmd"]:                      string | *[...string]
+	[=~"env|environment"]:                  #EnvVars
+	[=~"work[dD]ir|working[dD]ir"]:         string | *""
+	[=~"interactive|tty|stdin"]:            bool | *false
+	ports:                                  #PortSingle | *[...#Port] | #PortMap
+	[=~"probes|probe"]:                     #Probes
+	[=~"depends[oO]n|depends_on|consumes"]: string | *[...string]
+	[=~"mem|memory"]:                       int
 	permissions: {
 		rules: [...#RuleSpec]
 		clusterRules: [...#ClusterRuleSpec]
