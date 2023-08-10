@@ -68,8 +68,7 @@ package v1
 			rules: [...#RuleSpec]
 		}
 		[=~"env|environment"]: #EnvVars
-		files: [string]:                  #FileContent
-		[=~"dirs|directories"]: [string]: #Dir
+		files: [string]: #FileContent
 	}
 	permissions: [string]: {
 		rules: [...#RuleSpec]
