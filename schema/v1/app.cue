@@ -26,6 +26,7 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 	scale?:       >=0
 	sidecars: [string]: #Sidecar
@@ -38,6 +39,7 @@ package v1
 	#WorkloadBase
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 	schedule:     string | *""
 	events: [...#JobEventName]
@@ -52,6 +54,7 @@ package v1
 #Service: *{
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 	default:      bool | *false
 	external:     string | *""
@@ -76,6 +79,7 @@ package v1
 } | {
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 	default:      bool | *false
 	generated: {
@@ -89,6 +93,7 @@ package v1
 } | {
 	labels:                *[...#ScopedLabel] | #ScopedLabelMap
 	annotations:           *[...#ScopedLabel] | #ScopedLabelMap
+	name?:                 string
 	description?:          string
 	default:               bool | *false
 	image?:                string
@@ -249,6 +254,7 @@ package v1
 #Volume: {
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 	class:        string | *""
 	size:         int | *"" | string
@@ -260,6 +266,7 @@ package v1
 	alias:    string | *""
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 }
 
@@ -339,6 +346,7 @@ package v1
 #Router: {
 	labels: [string]:      string
 	annotations: [string]: string
+	name?:        string
 	description?: string
 	routes:       [...#Route] | #RouteMap
 }
@@ -361,6 +369,7 @@ package v1
 #Acorn: {
 	labels:                *[...#ScopedLabel] | #ScopedLabelMap
 	annotations:           *[...#ScopedLabel] | #ScopedLabelMap
+	name?:                 string
 	description?:          string
 	image?:                string
 	build?:                string | #AcornBuild
