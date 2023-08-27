@@ -103,7 +103,8 @@ package v1
 	autoUpgrade:           bool | *false
 	autoUpgradeInterval:   string | *""
 	notifyUpgrade:         bool | *false
-	[=~"mem|memory"]:      int | *{[=~#DNSName]: int}
+	[=~"mem|memory"]:      int | *{[=~#DNSName]:    int}
+	class:                 string | *{[=~#DNSName]: string}
 	[=~"env|environment"]: #EnvVars
 	serviceArgs: [string]: #Args
 	permissions: [string]: {
@@ -381,7 +382,8 @@ package v1
 	autoUpgrade:           bool | *false
 	autoUpgradeInterval:   string | *""
 	notifyUpgrade:         bool | *false
-	[=~"mem|memory"]:      int | *{[=~#DNSName]: int}
+	[=~"mem|memory"]:      int | *{[=~#DNSName]:    int}
+	class:                 string | *{[=~#DNSName]: string}
 	[=~"env|environment"]: #EnvVars
 	deployArgs: [string]: #Args
 	profiles: [...string]
