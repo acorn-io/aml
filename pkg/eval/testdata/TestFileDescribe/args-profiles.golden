@@ -1,0 +1,26 @@
+{
+  "Args": {
+    "path": "args",
+    "fields": [
+      {
+        "name": "foo",
+        "description": "A bool",
+        "type": {
+          "kind": "string",
+          "default": "la"
+        }
+      }
+    ],
+    "allowNewKeys": true
+  },
+  "ProfileNames": [
+    {
+      "Name": "one",
+      "Description": "Describe one"
+    },
+    {
+      "Name": "two",
+      "Description": ""
+    }
+  ]
+}

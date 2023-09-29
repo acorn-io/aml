@@ -1,0 +1,14 @@
+test: function {
+    args: first: 2
+		args: last: string
+		args: third: 3
+    profiles: one: third: 4
+    profiles: second: third: 5
+    return: "\(args.last)": args.first + args.third
+}
+
+{
+	four: test(1, last: "foo")
+	five: test(1, last: "foo", profiles: ["one"])
+	six: test(1, last: "foo", profiles: ["one", "second", "missing?"])
+}

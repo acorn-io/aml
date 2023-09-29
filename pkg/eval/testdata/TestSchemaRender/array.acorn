@@ -1,0 +1,8 @@
+// Array field
+arr: [{
+		x: 1
+},
+{
+	y: number
+}
+]

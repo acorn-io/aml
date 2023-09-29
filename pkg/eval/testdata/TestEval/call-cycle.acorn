@@ -1,0 +1,7 @@
+a: function {
+	return: f()
+}
+f: function {
+	return: a()
+}
+b: f()

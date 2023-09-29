@@ -1,0 +1,7 @@
+schema {
+    a: {
+        [number, string]
+    }
+}
+
+a: ["hi"]

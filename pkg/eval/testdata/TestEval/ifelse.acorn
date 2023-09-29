@@ -1,0 +1,15 @@
+y: 2
+x: if y == 1 {
+	0
+} else if y == 2 {
+	1
+} else {
+	2
+}
+z: if y == 1 {
+	0
+} else if y == 3 {
+	1
+} else {
+	2
+}

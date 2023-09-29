@@ -1,0 +1,7 @@
+{
+  "compare": 1,
+  "union": {
+    "hi": "str",
+    "second": true
+  }
+}

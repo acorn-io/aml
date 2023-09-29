@@ -1,0 +1,19 @@
+Test: schema {
+	match ".*": 2
+	a: number
+	missing: string
+}
+
+let x: 1
+
+{
+	Test
+	{
+		blah: 5
+		f: 11
+		a: 3
+		y: x
+		missing: "nope it's here"
+		blah2: blah
+	}
+}

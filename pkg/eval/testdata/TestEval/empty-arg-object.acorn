@@ -1,0 +1,4 @@
+args: foo: {}
+{
+	out: args.foo
+}

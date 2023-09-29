@@ -1,0 +1,10 @@
+bin: 1 + 1
+uni: !3
+parens: (!false)
+ref: foo
+sel: foo.bar
+index: "string"[0]
+slice: "str"[0:1]
+slice: "str"[:1]
+slice: "str"[1:]
+slice: "str"[:]

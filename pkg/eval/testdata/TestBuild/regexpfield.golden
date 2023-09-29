@@ -1,0 +1,28 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "regexpfield.acorn",
+		Offset:   6,
+		Line:     1,
+		Column:   7,
+	},
+	Fields: []eval.Field{&eval.KeyValue{
+		Key: eval.FieldKey{
+			Match: eval.Value{
+				Value: value.String("hi"),
+			},
+			Pos: eval.Position{
+				Filename: "regexpfield.acorn",
+				Offset:   6,
+				Line:     1,
+				Column:   7,
+			},
+		},
+		Value: eval.Value{Value: value.String("foo")},
+		Pos: eval.Position{
+			Filename: "regexpfield.acorn",
+			Offset:   6,
+			Line:     1,
+			Column:   7,
+		},
+	}},
+}}

@@ -1,0 +1,17 @@
+{
+  "acorns": {
+    "ac1": {
+      "build": "./afoo"
+    }
+  },
+  "containers": {
+    "a1": {
+      "build": "./foo"
+    }
+  },
+  "services": {
+    "sc1": {
+      "build": "./afoo"
+    }
+  }
+}

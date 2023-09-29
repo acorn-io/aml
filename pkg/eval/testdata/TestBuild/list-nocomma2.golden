@@ -1,0 +1,17 @@
+&errors.joinError{errs: []error{
+	&errors.ParserError{
+		Position: token.Pos{
+			file: &token.File{
+				name: "list-nocomma2.acorn",
+				base: token.index(1),
+				size: token.index(6),
+				lines: []token.index{
+					token.index(0),
+					token.index(3),
+				},
+			},
+			offset: 68,
+		},
+		Format: "missing ',' before newline in list literal",
+	},
+}}

@@ -1,0 +1,8 @@
+x: function {
+	args: {
+		input: string
+	}
+	return: "\(args.input)": "foo"
+}
+
+two: x("args")

@@ -1,0 +1,20 @@
+{
+  "fields": [
+    {
+      "name": "a",
+      "type": {
+        "kind": "string",
+        "constraint": [
+          {
+            "op": "=~",
+            "right": "hi.*"
+          },
+          {
+            "op": "!~",
+            "right": "bye.*"
+          }
+        ]
+      }
+    }
+  ]
+}

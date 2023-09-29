@@ -1,0 +1,8 @@
+Schema: schema {
+    foo: "bar"
+}
+
+{
+    Schema
+    {}
+}

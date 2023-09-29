@@ -1,0 +1,5 @@
+[for x in {} {y, x: 1}]
+[for x in [x, x] if x > 1 {
+	y
+	x: 1
+}]

@@ -1,0 +1,6 @@
+args: foo: "la"
+profiles: one: {}
+profiles: {
+	// Two profile
+	two: {}
+}

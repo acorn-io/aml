@@ -1,0 +1,41 @@
+{
+  "fields": [
+    {
+      "name": "y",
+      "type": {
+        "kind": "object",
+        "object": {
+          "path": "embedded.0.y",
+          "fields": [
+            {
+              "name": "b",
+              "type": {
+                "kind": "number",
+                "default": 1
+              }
+            }
+          ]
+        }
+      },
+      "optional": true
+    },
+    {
+      "name": "a",
+      "type": {
+        "kind": "object",
+        "object": {
+          "path": "a",
+          "fields": [
+            {
+              "name": "b",
+              "type": {
+                "kind": "number",
+                "default": 2
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

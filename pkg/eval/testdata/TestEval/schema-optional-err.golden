@@ -1,0 +1,1 @@
+"schema violation Schema.foo: expected kind number but got string with value (str) (schema-optional-err.acorn:1:16)"

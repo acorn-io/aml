@@ -1,0 +1,51 @@
+{
+  "fields": [
+    {
+      "name": "x",
+      "type": {
+        "kind": "number",
+        "default": 1
+      }
+    },
+    {
+      "name": "a",
+      "type": {
+        "kind": "number"
+      }
+    },
+    {
+      "name": "b",
+      "type": {
+        "kind": "number",
+        "default": 2
+      }
+    },
+    {
+      "name": "y",
+      "type": {
+        "kind": "object",
+        "object": {
+          "path": "embedded.0.y",
+          "fields": [
+            {
+              "name": "a",
+              "type": {
+                "kind": "array",
+                "array": {
+                  "item": {
+                    "kind": "number",
+                    "default": 1,
+                    "alternate": {
+                      "kind": "number",
+                      "default": 2
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

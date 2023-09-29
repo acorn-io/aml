@@ -1,0 +1,13 @@
+{
+  "array": [
+    1,
+    2
+  ],
+  "bool": true,
+  "int": 1,
+  "nil": null,
+  "obj": {
+    "x": "y"
+  },
+  "string": "str"
+}

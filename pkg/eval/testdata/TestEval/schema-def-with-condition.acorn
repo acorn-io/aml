@@ -1,0 +1,8 @@
+schema {
+	a: string != "hi" || default "bye"
+	b: string != "hi" || default "bye"
+	c: string != "hi" || "bye"
+}
+
+a: "hello"
+b: "bye"

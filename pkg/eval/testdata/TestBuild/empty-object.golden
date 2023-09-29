@@ -1,0 +1,19 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "empty-object.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{&eval.Embedded{
+		Pos: eval.Position{
+			Filename: "empty-object.acorn",
+			Line:     1,
+			Column:   1,
+		},
+		Expression: &eval.Struct{Position: eval.Position{
+			Filename: "empty-object.acorn",
+			Line:     1,
+			Column:   1,
+		}},
+	}},
+}}

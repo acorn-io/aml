@@ -1,0 +1,10 @@
+args: foo: "la"
+args: {
+	// A bool
+	foo: true
+}
+profiles: {
+	// Describe one
+	one: {}
+}
+profiles: two: {}

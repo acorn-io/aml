@@ -1,0 +1,1 @@
+`schema violation .a: expected kind object but got array with value (["hi"]) (schema-array-embed.acorn:2:8) (schema-array-embed.acorn:1:8)`

@@ -1,0 +1,123 @@
+{
+  "containers": {
+    "default": {
+      "files": {
+        "a": "anum: \"4\"\natoi: \"4\"\nbase64: aGVsbG8=\nbase64decode: hello\nbasename: b\ncontains: true\ndirname: a\nendsWith: false\nfileExt: .bat\nfromHex: hi\nfromJSON:\n    foo: bar\nfromYAML:\n    foo: bar\nifelse: is not one\nindexOf: \"2\"\nindexOf2: \"1\"\nisa: true\nisanot: false\nitoa: \"4\"\njoin: a,b\njoinHostPort: '[1::1]:443'\nkys:\n    - a\n    - c\nmerge:\n    a: b1\n    c: d\n    d: e\n    f:\n        a: b\n        l:\n            - \"1\"\n            - \"2\"\n            - \"3\"\n        x: y1\nmod1: \"1\"\npathJoin: a/b/c\nrange:\n    - \"0\"\n    - \"1\"\n    - \"2\"\n    - \"3\"\n    - \"4\"\nrange2:\n    - \"0\"\n    - \"2\"\n    - \"4\"\nrangef:\n    - \"0\"\n    - \"1\"\n    - \"2\"\n    - \"3\"\n    - \"4\"\nrangef2:\n    - \"0.1\"\n    - \"1.1\"\n    - \"2.1\"\n    - \"3.1\"\n    - \"4.1\"\nreplace: bbb\nreplace2: bbbhh\nsha1sum: c22b5f9178342609428d6f51b2c5af4c0bde6a42\nsha256sum: 8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4\nsha512sum: 150a14ed5bea6cc731cf86c41566ac427a8db48ef1b9fd626664b3bfbb99071fa4c922f33dde38719b8c8354e2b7ab9d77e0e67fc12843920a712e73d558e197\nsort:\n    - \"5\"\n    - \"4\"\n    - \"2\"\nsort2:\n    - \"2\"\n    - \"4\"\n    - \"5\"\nsplit:\n    - hi\n    - bye\nsplit2:\n    - hi\n    - bye,foo\nsplitHostPort:\n    - example.com\n    - \"443\"\nsplitHostPort2:\n    - 1::1\n    - \"443\"\nstartsWith: true\nt: true\ntoHex: \"6869\"\ntoJSON: '{\"foo\":\"bar\"}'\ntoLower: hi\ntoTitle: Hello\ntoUpper: HI\ntrim: hi\ntrimPrefix: df\ntrimSuffix: as\n"
+      },
+      "image": "public.ecr.aws/docker/library/nginx:latest"
+    }
+  },
+  "localData": {
+    "anum": 4,
+    "atoi": 4,
+    "base64": "aGVsbG8=",
+    "base64decode": "hello",
+    "basename": "b",
+    "contains": true,
+    "dirname": "a",
+    "endsWith": false,
+    "fileExt": ".bat",
+    "fromHex": "hi",
+    "fromJSON": {
+      "foo": "bar"
+    },
+    "fromYAML": {
+      "foo": "bar"
+    },
+    "ifelse": "is not one",
+    "indexOf": 2,
+    "indexOf2": 1,
+    "isa": true,
+    "isanot": false,
+    "itoa": "4",
+    "join": "a,b",
+    "joinHostPort": "[1::1]:443",
+    "kys": [
+      "a",
+      "c"
+    ],
+    "merge": {
+      "a": "b1",
+      "c": "d",
+      "d": "e",
+      "f": {
+        "a": "b",
+        "l": [
+          1,
+          2,
+          3
+        ],
+        "x": "y1"
+      }
+    },
+    "mod1": 1,
+    "pathJoin": "a/b/c",
+    "range": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "range2": [
+      0,
+      2,
+      4
+    ],
+    "rangef": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "rangef2": [
+      0.1,
+      1.1,
+      2.1,
+      3.1,
+      4.1
+    ],
+    "replace": "bbb",
+    "replace2": "bbbhh",
+    "sha1sum": "c22b5f9178342609428d6f51b2c5af4c0bde6a42",
+    "sha256sum": "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4",
+    "sha512sum": "150a14ed5bea6cc731cf86c41566ac427a8db48ef1b9fd626664b3bfbb99071fa4c922f33dde38719b8c8354e2b7ab9d77e0e67fc12843920a712e73d558e197",
+    "sort": [
+      5,
+      4,
+      2
+    ],
+    "sort2": [
+      2,
+      4,
+      5
+    ],
+    "split": [
+      "hi",
+      "bye"
+    ],
+    "split2": [
+      "hi",
+      "bye,foo"
+    ],
+    "splitHostPort": [
+      "example.com",
+      "443"
+    ],
+    "splitHostPort2": [
+      "1::1",
+      "443"
+    ],
+    "startsWith": true,
+    "t": true,
+    "toHex": "6869",
+    "toJSON": "{\"foo\":\"bar\"}",
+    "toLower": "hi",
+    "toTitle": "Hello",
+    "toUpper": "HI",
+    "trim": "hi",
+    "trimPrefix": "df",
+    "trimSuffix": "as"
+  }
+}

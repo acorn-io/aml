@@ -1,0 +1,84 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "let-error.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{
+					Value: value.String("Test"),
+				},
+				Pos: eval.Position{
+					Filename: "let-error.acorn",
+					Offset:   4,
+					Line:     1,
+					Column:   5,
+				},
+			},
+			Value: &eval.Schema{Struct: &eval.Struct{
+				Position: eval.Position{
+					Filename: "let-error.acorn",
+					Offset:   17,
+					Line:     1,
+					Column:   18,
+				},
+				Fields: []eval.Field{&eval.KeyValue{
+					Key: eval.FieldKey{
+						Key: eval.Value{
+							Value: value.String("a"),
+						},
+						Pos: eval.Position{
+							Filename: "let-error.acorn",
+							Offset:   20,
+							Line:     2,
+							Column:   2,
+						},
+					},
+					Value: eval.Value{Value: value.Number("1")},
+					Pos: eval.Position{
+						Filename: "let-error.acorn",
+						Offset:   20,
+						Line:     2,
+						Column:   2,
+					},
+				}},
+			}},
+			Local: true,
+		},
+		&eval.Embedded{
+			Pos: eval.Position{
+				Filename: "let-error.acorn",
+				Offset:   28,
+				Line:     5,
+				Column:   1,
+			},
+			Expression: &eval.Struct{
+				Position: eval.Position{
+					Filename: "let-error.acorn",
+					Offset:   28,
+					Line:     5,
+					Column:   1,
+				},
+				Fields: []eval.Field{&eval.Embedded{
+					Pos: eval.Position{
+						Filename: "let-error.acorn",
+						Offset:   31,
+						Line:     6,
+						Column:   2,
+					},
+					Expression: &eval.Lookup{
+						Pos: eval.Position{
+							Filename: "let-error.acorn",
+							Offset:   31,
+							Line:     6,
+							Column:   2,
+						},
+						Key: "Test",
+					},
+				}},
+			},
+		},
+	},
+}}

@@ -1,0 +1,24 @@
+// doc header
+// doc header
+
+// a string
+stringkey: "stringvalue"
+// a number
+number: 1
+// an int
+int: 1
+// a float
+float: 1.0
+// a bool
+bool: true
+// a nested
+nested: obj: 1
+// a list
+list: [2, {}]
+
+// comment on embedded
+{
+	// comment on field
+	x: 1
+}
+4

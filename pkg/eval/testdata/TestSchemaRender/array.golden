@@ -1,0 +1,42 @@
+{
+  "fields": [
+    {
+      "name": "arr",
+      "description": "Array field",
+      "type": {
+        "kind": "array",
+        "array": {
+          "item": {
+            "kind": "object",
+            "object": {
+              "path": "arr.0",
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "number",
+                    "default": 1
+                  }
+                }
+              ]
+            },
+            "alternate": {
+              "kind": "object",
+              "object": {
+                "path": "arr.1",
+                "fields": [
+                  {
+                    "name": "y",
+                    "type": {
+                      "kind": "number"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

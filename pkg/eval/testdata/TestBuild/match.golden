@@ -1,0 +1,74 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "match.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{&eval.KeyValue{
+		Key: eval.FieldKey{
+			Key: eval.Value{
+				Value: value.String("x"),
+			},
+			Pos: eval.Position{
+				Filename: "match.acorn",
+				Line:     1,
+				Column:   1,
+			},
+		},
+		Value: &eval.Struct{
+			Position: eval.Position{
+				Filename: "match.acorn",
+				Offset:   3,
+				Line:     1,
+				Column:   4,
+			},
+			Fields: []eval.Field{&eval.KeyValue{
+				Key: eval.FieldKey{
+					Match: eval.Value{Value: value.String("foo")},
+					Pos: eval.Position{
+						Filename: "match.acorn",
+						Offset:   15,
+						Line:     2,
+						Column:   11,
+					},
+				},
+				Value: &eval.Struct{
+					Position: eval.Position{
+						Filename: "match.acorn",
+						Offset:   22,
+						Line:     2,
+						Column:   18,
+					},
+					Fields: []eval.Field{&eval.Embedded{
+						Pos: eval.Position{
+							Filename: "match.acorn",
+							Offset:   32,
+							Line:     3,
+							Column:   9,
+						},
+						Expression: &eval.Lookup{
+							Pos: eval.Position{
+								Filename: "match.acorn",
+								Offset:   32,
+								Line:     3,
+								Column:   9,
+							},
+							Key: "y",
+						},
+					}},
+				},
+				Pos: eval.Position{
+					Filename: "match.acorn",
+					Offset:   15,
+					Line:     2,
+					Column:   11,
+				},
+			}},
+		},
+		Pos: eval.Position{
+			Filename: "match.acorn",
+			Line:     1,
+			Column:   1,
+		},
+	}},
+}}

@@ -1,0 +1,75 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "strings.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{
+					Value: value.String("ml"),
+				},
+				Pos: eval.Position{
+					Filename: "strings.acorn",
+					Line:     1,
+					Column:   1,
+				},
+			},
+			Value: eval.Value{Value: value.String("xxx")},
+			Pos: eval.Position{
+				Filename: "strings.acorn",
+				Line:     1,
+				Column:   1,
+			},
+		},
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{Value: value.String("mlinline")},
+				Pos: eval.Position{
+					Filename: "strings.acorn",
+					Offset:   24,
+					Line:     4,
+					Column:   1,
+				},
+			},
+			Value: eval.Value{Value: value.String(`xxxx""x`)},
+			Pos: eval.Position{
+				Filename: "strings.acorn",
+				Offset:   24,
+				Line:     4,
+				Column:   1,
+			},
+		},
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{Value: value.String("mlinlineescape")},
+				Pos: eval.Position{
+					Filename: "strings.acorn",
+					Offset:   50,
+					Line:     5,
+					Column:   1,
+				},
+			},
+			Value: eval.Value{Value: value.String(`xxx"""x`)},
+			Pos: eval.Position{
+				Filename: "strings.acorn",
+				Offset:   50,
+				Line:     5,
+				Column:   1,
+			},
+		},
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{Value: value.String("mlinlineescape")},
+				Pos: eval.Position{
+					Filename: "strings.acorn",
+					Offset:   83,
+					Line:     6,
+					Column:   1,
+				},
+			},
+			Value: eval.Value{Value: value.String("xxx\\")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 83, Line: 6, Column: 1},
+		}, &eval.KeyValue{Key: eval.FieldKey{Key: eval.Value{Value: value.String("ml")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 112, Line: 8, Column: 1}}, Value: eval.Value{Value: value.String("\nxxx\n    ")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 112, Line: 8, Column: 1}}, &eval.KeyValue{Key: eval.FieldKey{Key: eval.Value{Value: value.String("mlinline")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 132, Line: 11, Column: 1}}, Value: eval.Value{Value: value.String(`xxxx""x`)}, Pos: eval.Position{Filename: "strings.acorn", Offset: 132, Line: 11, Column: 1}}, &eval.KeyValue{Key: eval.FieldKey{Key: eval.Value{Value: value.String("mlinlineescape")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 156, Line: 12, Column: 1}}, Value: eval.Value{Value: value.String("xxx\\```x")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 156, Line: 12, Column: 1}}, &eval.KeyValue{Key: eval.FieldKey{Key: eval.Value{Value: value.String("mlinline")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 189, Line: 14, Column: 1}}, Value: eval.Value{Value: value.String("x\\xxx")}, Pos: eval.Position{Filename: "strings.acorn", Offset: 189, Line: 14, Column: 1}},
+	},
+}}

@@ -1,0 +1,9 @@
+test: function {
+    args: {
+        first: 2
+        last: string
+    }
+    return: "\(args.last)": args.first
+}
+
+test(1, last: "foo")

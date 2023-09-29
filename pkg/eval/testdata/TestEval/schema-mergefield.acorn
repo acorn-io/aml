@@ -1,0 +1,6 @@
+schema {
+		foo: string
+		foo: string == "hi"
+}
+
+foo: "hi"

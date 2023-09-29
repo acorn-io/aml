@@ -1,0 +1,9 @@
+Schema: schema {
+    foo: string
+}
+
+{
+    Schema
+    {
+    }
+}

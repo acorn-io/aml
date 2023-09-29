@@ -1,0 +1,12 @@
+a: """multiline"""
+ab: """
+multiline
+"""
+ac: """
+  multiline
+"""
+adi: `not multi`
+ad: ```
+  multiline
+
+  ```

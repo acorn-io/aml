@@ -1,0 +1,16 @@
+&errors.joinError{errs: []error{
+	&errors.ParserError{
+		Position: token.Pos{
+			file: &token.File{
+				name: "expr-binary-err.acorn",
+				base: token.index(1),
+				size: token.index(18),
+				lines: []token.index{
+					token.index(0),
+				},
+			},
+			offset: 67,
+		},
+		Format: "invalid expression",
+	},
+}}

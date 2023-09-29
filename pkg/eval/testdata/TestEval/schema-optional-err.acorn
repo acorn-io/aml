@@ -1,0 +1,12 @@
+Schema: schema {
+    foo?: 1
+    bar: "hi"
+}
+
+{
+    Schema
+    {
+        foo: "str"
+        bar: "bye"
+    }
+}

@@ -1,0 +1,8 @@
+int: 1
+"string": "str"
+bool: true
+nil: null
+obj: {
+    x: "y"
+}
+array: [1, 2]

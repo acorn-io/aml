@@ -1,0 +1,5 @@
+schema {
+    a: enum("a", "b", "c")
+}
+
+a: "f"

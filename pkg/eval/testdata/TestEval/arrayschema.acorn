@@ -1,0 +1,16 @@
+schema {
+	f: array
+	f: [
+			{
+				a: string
+			},
+			{
+				b: number
+			}
+	]
+	f: array
+}
+
+{
+	f: [{b: 2}]
+}

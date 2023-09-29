@@ -1,0 +1,316 @@
+let internal: builtin["__internal"]
+
+itoa: function {
+		args: {
+			a: number
+		}
+		return: "\(args.a)"
+}
+
+atoi: function {
+		args: {
+			a: string
+		}
+		return: number
+		return: internal.atoi(args.a)
+}
+
+fileExt: function {
+		args: {
+			filename: string
+		}
+		return: internal.fileExt(args.filename)
+}
+
+dirname: function {
+		args: {
+			path: string
+		}
+		return: internal.dirname(args.path)
+}
+
+basename: function {
+		args: {
+			path: string
+		}
+		return: internal.basename(args.path)
+}
+
+pathJoin: function {
+		args: {
+			paths: array
+			separator: string || "/"
+		}
+		return: internal.pathJoin(args.paths, args.separator)
+}
+
+splitHostPort: function {
+		args: {
+			address: string
+		}
+		return: internal.splitHostPort(args.address)
+}
+
+joinHostPort: function {
+		args: {
+			address: string
+			port: string || number
+		}
+		return: internal.joinHostPort(args.address, args.port)
+}
+
+	base64decode: function {
+		args: {
+			content: string
+		}
+		return: internal.base64decode(args.content)
+	}
+
+	base64: function {
+		args: {
+			content: string
+		}
+		return: internal.base64(args.content)
+	}
+
+	sha1sum: function {
+		args: {
+			content: string
+		}
+		return: internal.sha1sum(args.content)
+	}
+
+	sha256sum: function {
+		args: {
+			content: string
+		}
+		return: internal.sha256sum(args.content)
+	}
+
+	sha512sum: function {
+		args: {
+			content: string
+		}
+		return: internal.sha512sum(args.content)
+	}
+
+	toHex: function {
+		args: {
+			content: string
+		}
+		return: internal.toHex(args.content)
+	}
+
+	fromHex: function {
+		args: {
+			content: string
+		}
+		return: internal.fromHex(args.content)
+	}
+
+	toJSON: function {
+		args: {
+			content: any
+		}
+		return: internal.toJSON(args.content)
+	}
+
+	fromJSON: function {
+		args: {
+			content: string
+		}
+		return: internal.fromJSON(args.content)
+	}
+
+toYAML: function {
+		args: {
+			content: any
+		}
+		return: internal.toYAML(args.content)
+}
+
+	fromYAML: function {
+		args: {
+			content: string
+		}
+		return: internal.fromYAML(args.content)
+	}
+
+	ifelse: function {
+		args: {
+			condition: bool
+			onTrue: any
+			onFalse: any
+		}
+		if args.condition {
+			return: args.onTrue
+		} else {
+			return: args.onFalse
+		}
+	}
+
+	reverse: function {
+		args: {
+			collection: array
+		}
+		return: [for i in range(len(args.collection)-1, -1, -1) {
+			args.collection[i]
+		}]
+	}
+
+mod: function {
+	args: {
+		a: number
+		b: number
+	}
+	return: internal.mod(args.a, args.b)
+}
+
+sort: function {
+	args: {
+		collection: array
+		less: func || default null
+	}
+	return: internal.sort(args.collection, args.less)
+}
+
+	range: function {
+		args: {
+			start: number
+			end: number || default null
+			step: 1
+		}
+		return: internal.range(args.start, args.end, args.step)
+	}
+
+	toTitle: function {
+		args: {
+			content: string
+		}
+		return: internal.toTitle(args.content)
+	}
+
+	isA: function {
+		args: {
+			value: any
+			check: type
+		}
+		return: internal.isA(args.value, args.check)
+	}
+
+contains: function {
+	args: {
+		collection: array || object || string
+		keyOrValue: any
+	}
+
+	if isA(args.collection, object) {
+		let keys: [for k, v in args.collection { k }]
+		return: contains(keys, args.keyOrValue)
+	} else if isA(args.collection, array) {
+		let list: [for i, v in args.collection if v == args.keyOrValue { v }]
+		return: len(list) > 0
+	} else {
+		return: indexOf(args.collection, args.keyOrValue) != -1
+	}
+}
+
+debug: internal.debug
+
+error: internal.error
+
+split: function {
+	args: {
+		content: string
+		separator: string
+		limit: number || default -1
+	}
+	return: internal.split(args.content, args.separator, args.limit)
+}
+
+join: function {
+	args: {
+		content: [string]
+		separator: string
+	}
+	return: internal.join(args.content, args.separator)
+}
+
+endsWith: function {
+	args: {
+		content: string
+		suffix: string
+	}
+	return: internal.endsWith(args.content, args.suffix)
+}
+
+startsWith: function {
+	args: {
+		content: string
+		prefix: string
+	}
+	return: internal.startsWith(args.content, args.prefix)
+}
+
+toUpper: function {
+	args: {
+		content: string
+	}
+	return: internal.toUpper(args.content)
+}
+
+toLower: function {
+	args: {
+		content: string
+	}
+	return: internal.toLower(args.content)
+}
+
+trim: function {
+	args: {
+		content: string
+	}
+	return: internal.trim(args.content)
+}
+
+trimSuffix: function {
+	args: {
+		content: string
+		suffix: string
+	}
+	return: internal.trimSuffix(args.content, args.suffix)
+}
+
+trimPrefix: function {
+	args: {
+		content: string
+		prefix: string
+	}
+	return: internal.trimPrefix(args.content, args.prefix)
+}
+
+replace: function {
+	args: {
+		content: string
+		old: string
+		new: string
+		count: number || default -1
+	}
+	return: internal.replace(args.content, args.old, args.new, args.count)
+}
+
+indexOf: function {
+	args: {
+		content: string || array
+		item: any
+	}
+	return: internal.indexOf(args.content, args.item)
+}
+
+merge: function {
+	args: {
+		left: any
+		right: any
+	}
+	return: internal.merge(args.left, args.right)
+}

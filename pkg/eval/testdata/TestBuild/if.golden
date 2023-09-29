@@ -1,0 +1,47 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "if.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{&eval.Embedded{
+		Pos: eval.Position{
+			Filename: "if.acorn",
+			Line:     1,
+			Column:   1,
+		},
+		Expression: &eval.If{
+			Condition: eval.Value{
+				Value: value.Boolean(true),
+			},
+			Value: &eval.Struct{
+				Position: eval.Position{
+					Filename: "if.acorn",
+					Offset:   8,
+					Line:     1,
+					Column:   9,
+				},
+				Fields: []eval.Field{&eval.KeyValue{
+					Key: eval.FieldKey{
+						Key: eval.Value{
+							Value: value.String("a"),
+						},
+						Pos: eval.Position{
+							Filename: "if.acorn",
+							Offset:   11,
+							Line:     2,
+							Column:   2,
+						},
+					},
+					Value: eval.Value{Value: value.Number("1")},
+					Pos: eval.Position{
+						Filename: "if.acorn",
+						Offset:   11,
+						Line:     2,
+						Column:   2,
+					},
+				}},
+			},
+		},
+	}},
+}}

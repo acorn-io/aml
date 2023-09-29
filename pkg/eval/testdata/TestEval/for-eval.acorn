@@ -1,0 +1,6 @@
+args: scale: 1
+for i in std.range(1,args.scale+1) {
+	containers: "a\(i)": build: "./foo"
+	acorns: "ac\(i)": build: "./afoo"
+	services: "sc\(i)": build: "./afoo"
+}

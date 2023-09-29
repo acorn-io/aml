@@ -1,0 +1,17 @@
+node: schema {
+    data: string
+    next?: node
+}
+
+{
+    // embedding here will cause the schema to be enforced
+    node
+
+    data: "first"
+    next: {
+        data: "second"
+        next: {
+            data: "third"
+        }
+    }
+}

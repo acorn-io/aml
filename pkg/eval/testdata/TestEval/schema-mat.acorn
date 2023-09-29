@@ -1,0 +1,6 @@
+schema {
+    a: string =~ "hi.*"
+    a: string !~ "bye.*"
+}
+
+a: "high"

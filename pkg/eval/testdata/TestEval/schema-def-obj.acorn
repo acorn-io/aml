@@ -1,0 +1,8 @@
+schema {
+		foo: default {
+			a: 1
+		}
+}
+
+{
+}

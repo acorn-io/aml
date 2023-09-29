@@ -1,0 +1,7 @@
+let Test: schema {
+	a: 1
+}
+
+{
+	Test
+}

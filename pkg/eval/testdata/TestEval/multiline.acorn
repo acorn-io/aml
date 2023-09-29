@@ -1,0 +1,23 @@
+x: """
+    asfd	j
+    """
+x1: """
+    asfd	j
+
+    """
+z: """
+ 	"""
+// This should still be an empty string
+z1: """
+
+"""
+q: """
+		"hi"
+		"""
+// This is what ya gotta do to get just a newline
+z2: """
+
+
+"""
+y: """asdf\(x)
+fff"""

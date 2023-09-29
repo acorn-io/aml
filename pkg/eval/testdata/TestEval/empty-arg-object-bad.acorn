@@ -1,0 +1,4 @@
+args: foo: object
+{
+	out: args.foo
+}

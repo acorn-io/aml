@@ -1,0 +1,33 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "object-comments.acorn",
+		Offset:   81,
+		Line:     7,
+		Column:   1,
+	},
+	Comments: eval.Comments{Comments: [][]string{
+		{
+			"Block 1 line 1",
+			"Block 1 line 2",
+		},
+		{"Block 2 line 1"},
+	}},
+	Fields: []eval.Field{&eval.Embedded{
+		Pos: eval.Position{
+			Filename: "object-comments.acorn",
+			Offset:   81,
+			Line:     7,
+			Column:   1,
+		},
+		Comments: eval.Comments{Comments: [][]string{
+			{"Block 3 before Object"},
+			{"After object"},
+		}},
+		Expression: &eval.Struct{Position: eval.Position{
+			Filename: "object-comments.acorn",
+			Offset:   81,
+			Line:     7,
+			Column:   1,
+		}},
+	}},
+}}

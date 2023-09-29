@@ -1,0 +1,12 @@
+schema {
+	a: array.validate(function {
+		args: {
+			input: array
+		}
+		return: len(array) > 0
+	})
+}
+
+{
+	a: [1, 2]
+}

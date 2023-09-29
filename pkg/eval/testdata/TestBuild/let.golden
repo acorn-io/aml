@@ -1,0 +1,34 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "let.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{&eval.Embedded{
+		Pos: eval.Position{
+			Filename: "let.acorn",
+			Line:     1,
+			Column:   1,
+		},
+		Expression: &eval.Struct{
+			Position: eval.Position{
+				Filename: "let.acorn",
+				Line:     1,
+				Column:   1,
+			},
+			Fields: []eval.Field{&eval.KeyValue{
+				Key: eval.FieldKey{
+					Key: eval.Value{Value: value.String("a")},
+					Pos: eval.Position{
+						Filename: "let.acorn",
+						Offset:   7,
+						Line:     2,
+						Column:   6,
+					},
+				},
+				Value: eval.Value{Value: value.Number("1")},
+				Local: true,
+			}},
+		},
+	}},
+}}
