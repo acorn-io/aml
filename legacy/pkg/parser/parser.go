@@ -24,8 +24,8 @@ import (
 	"cuelang.org/go/cue/literal"
 	"cuelang.org/go/cue/scanner"
 	"cuelang.org/go/cue/token"
-	"github.com/acorn-io/aml/pkg/astinternal"
-	"github.com/acorn-io/aml/pkg/internal"
+	"github.com/acorn-io/aml/legacy/pkg/astinternal"
+	"github.com/acorn-io/aml/legacy/pkg/internal"
 )
 
 var debugStr = astinternal.DebugStr

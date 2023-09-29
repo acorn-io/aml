@@ -39,7 +39,7 @@ import (
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/scanner"
 	"cuelang.org/go/cue/token"
-	"github.com/acorn-io/aml/pkg/source"
+	"github.com/acorn-io/aml/legacy/pkg/source"
 )
 
 func getPos(f *token.File, offset int) token.Pos {

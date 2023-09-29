@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"cuelang.org/go/cue/literal"
-	"github.com/acorn-io/aml/pkg/cue"
+	"github.com/acorn-io/aml/legacy/pkg/cue"
 )
 
 func Unmarshal(data []byte, v any) error {

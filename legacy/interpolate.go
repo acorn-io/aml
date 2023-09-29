@@ -3,8 +3,8 @@ package aml
 import (
 	cuelang "cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
-	"github.com/acorn-io/aml/pkg/cue"
-	"github.com/acorn-io/aml/pkg/replace"
+	"github.com/acorn-io/aml/legacy/pkg/cue"
+	"github.com/acorn-io/aml/legacy/pkg/replace"
 )
 
 func Interpolate(data any, s string) (string, error) {

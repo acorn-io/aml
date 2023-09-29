@@ -3,8 +3,8 @@ package aml
 import (
 	"io"
 
-	"github.com/acorn-io/aml/pkg/definition"
-	"github.com/acorn-io/aml/pkg/loader"
+	"github.com/acorn-io/aml/legacy/pkg/definition"
+	"github.com/acorn-io/aml/legacy/pkg/loader"
 )
 
 type Options struct {

@@ -1,4 +1,4 @@
-module github.com/acorn-io/aml
+module github.com/acorn-io/aml/legacy
 
 go 1.18
 

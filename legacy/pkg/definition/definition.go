@@ -6,15 +6,15 @@ import (
 	"strings"
 
 	cuelang "cuelang.org/go/cue"
-	cue_mod "github.com/acorn-io/aml/cue.mod"
-	"github.com/acorn-io/aml/pkg/amlparser"
-	"github.com/acorn-io/aml/pkg/cue"
-	"github.com/acorn-io/aml/schema"
+	cue_mod "github.com/acorn-io/aml/legacy/cue.mod"
+	"github.com/acorn-io/aml/legacy/pkg/amlparser"
+	"github.com/acorn-io/aml/legacy/pkg/cue"
+	"github.com/acorn-io/aml/legacy/schema"
 )
 
 const (
 	AcornCueFile = "Acornfile"
-	Schema       = "github.com/acorn-io/aml/schema/v1"
+	Schema       = "github.com/acorn-io/aml/legacy/schema/v1"
 	AppType      = "#App"
 )
 

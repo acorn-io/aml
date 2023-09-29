@@ -6,7 +6,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
-	"github.com/acorn-io/aml/pkg/amlparser"
+	"github.com/acorn-io/aml/legacy/pkg/amlparser"
 )
 
 var (

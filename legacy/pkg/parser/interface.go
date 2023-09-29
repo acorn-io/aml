@@ -21,7 +21,7 @@ import (
 	"cuelang.org/go/cue/ast/astutil"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/token"
-	"github.com/acorn-io/aml/pkg/source"
+	"github.com/acorn-io/aml/legacy/pkg/source"
 )
 
 // Option specifies a parse option.

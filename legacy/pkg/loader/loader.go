@@ -12,9 +12,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/acorn-io/aml/pkg/amlparser"
-	"github.com/acorn-io/aml/pkg/cue"
-	"github.com/acorn-io/aml/pkg/definition"
+	"github.com/acorn-io/aml/legacy/pkg/amlparser"
+	"github.com/acorn-io/aml/legacy/pkg/cue"
+	"github.com/acorn-io/aml/legacy/pkg/definition"
 )
 
 func CreateReader(path string) (io.ReadCloser, error) {

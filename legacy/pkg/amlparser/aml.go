@@ -7,8 +7,8 @@ import (
 
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
-	amlparser "github.com/acorn-io/aml/pkg/parser"
-	"github.com/acorn-io/aml/pkg/std"
+	amlparser "github.com/acorn-io/aml/legacy/pkg/parser"
+	"github.com/acorn-io/aml/legacy/pkg/std"
 	"github.com/acorn-io/baaah/pkg/merr"
 	"github.com/acorn-io/baaah/pkg/typed"
 	"github.com/agnivade/levenshtein"

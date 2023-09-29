@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
-	cue_mod "github.com/acorn-io/aml/cue.mod"
-	"github.com/acorn-io/aml/schema"
+	cue_mod "github.com/acorn-io/aml/legacy/cue.mod"
+	"github.com/acorn-io/aml/legacy/schema"
 	"github.com/stretchr/testify/assert"
 )
 
 var testAcornfile = []byte(`
-import "github.com/acorn-io/aml/schema/v1"
+import "github.com/acorn-io/aml/legacy/schema/v1"
 
 v1.#App & {
   containers: test: {
