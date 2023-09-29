@@ -14,7 +14,7 @@ import (
 
 const (
 	AcornCueFile = "Acornfile"
-	Schema       = "github.com/acorn-io/aml/legacy/schema/v1"
+	Schema       = "github.com/acorn-io/aml/schema/v1"
 	AppType      = "#App"
 )
 
