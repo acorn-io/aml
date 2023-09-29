@@ -110,7 +110,7 @@ type IsArgumentDefinition interface {
 type Function struct {
 	Pos            Position
 	Scope          Scope
-	Body           Expression
+	Body           *Struct
 	ArgsSchema     value.Value
 	ArgNames       Names
 	ProfilesSchema value.Value
@@ -243,17 +243,6 @@ func (e *ErrInvalidArgument) Error() string {
 	return fmt.Sprintf("invalid arguments: %v", e.Err)
 }
 
-type rootLookup struct {
-	f *Function
-}
-
-func (r rootLookup) ScopeLookup(scope Scope, key string) (value.Value, bool, error) {
-	if key == "$" {
-		return r.f.Body.ToValue(scope)
-	}
-	return nil, false, nil
-}
-
 type depthKey struct{}
 
 const MaxCallDepth = 100
@@ -281,16 +270,17 @@ func (c *Function) Call(ctx context.Context, args []value.CallArgument) (value.V
 		path = "()"
 	}
 
-	scope := c.Scope.Push(ScopeData(map[string]any{
+	rootData := map[string]any{
 		"args": argsValue,
-	}), ScopeOption{
+	}
+
+	scope := c.Scope.Push(ScopeData(rootData), ScopeOption{
 		Path:    path,
 		Context: ctx,
 	})
+
 	if c.AssignRoot {
-		scope = scope.Push(rootLookup{
-			f: c,
-		})
+		scope = NewRootScope(c.Pos, scope)
 	}
 
 	ret, ok, err := c.Body.ToValue(scope)

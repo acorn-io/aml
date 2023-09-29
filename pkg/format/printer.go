@@ -21,7 +21,6 @@ import (
 
 	"github.com/acorn-io/aml/pkg/ast"
 	"github.com/acorn-io/aml/pkg/errors"
-	"github.com/acorn-io/aml/pkg/literal"
 	"github.com/acorn-io/aml/pkg/token"
 )
 
@@ -115,18 +114,6 @@ func (p *printer) Print(v interface{}) {
 
 	case *ast.BasicLit:
 		data = x.Value
-		switch x.Kind {
-		case token.STRING:
-			// TODO: only do this when simplifying. Right now this does not
-			// give the right result, but it should be better if:
-			// 1) simplification is done as a separate step
-			// 2) simplified structs are explicitly referenced separately
-			//    in the AST.
-			if p.indent < 6 {
-				data = literal.IndentTabs(data, p.cfg.Indent+p.indent+1)
-			}
-		}
-
 		isLit = true
 		impliedComma = true
 		p.lastTok = x.Kind

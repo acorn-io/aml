@@ -228,7 +228,8 @@ func (f *formatter) decl(decl ast.Decl) {
 		if mem := f.inlineField(n); mem != nil {
 			switch {
 			default:
-				fallthrough
+				f.print(blank, nooverride)
+				f.decl(mem)
 
 			case mem.Label.Pos().IsNewline():
 				f.print(indent, formfeed)
