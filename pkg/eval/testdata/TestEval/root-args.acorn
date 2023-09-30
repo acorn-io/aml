@@ -1,0 +1,2 @@
+args: foo: 1
+b: $.args.foo

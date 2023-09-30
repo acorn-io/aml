@@ -280,7 +280,7 @@ func (c *Function) Call(ctx context.Context, args []value.CallArgument) (value.V
 	})
 
 	if c.AssignRoot {
-		scope = NewRootScope(c.Pos, scope)
+		scope = NewRootScope(c.Pos, scope, rootData)
 	}
 
 	ret, ok, err := c.Body.ToValue(scope)

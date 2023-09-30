@@ -5,18 +5,20 @@ import "github.com/acorn-io/aml/pkg/value"
 // NewRootScope will create a scope that allow "$" key to be looked. It is expected that
 // this scope be passed to the ToValue method of a eval.Struct instance. Any other
 // usage is undefined
-func NewRootScope(pos Position, parent Scope) Scope {
+func NewRootScope(pos Position, parent Scope, data map[string]any) Scope {
 	return &rootScopeFactory{
-		Pos:   pos,
-		Scope: parent,
+		Pos:            pos,
+		Scope:          parent,
+		additionalData: value.NewObject(data),
 	}
 }
 
 type deferredLookup struct {
-	Pos    Position
-	scope  Scope
-	lookup ScopeLookuper
-	cycle  map[string]struct{}
+	Pos            Position
+	scope          Scope
+	lookup         ScopeLookuper
+	cycle          map[string]struct{}
+	additionalData value.Value
 }
 
 func (d deferredLookup) LookupValue(key value.Value) (value.Value, bool, error) {
@@ -34,6 +36,15 @@ func (d deferredLookup) LookupValue(key value.Value) (value.Value, bool, error) 
 	d.cycle[s] = struct{}{}
 	defer delete(d.cycle, s)
 
+	if d.additionalData != nil {
+		v, ok, err := value.Lookup(d.additionalData, key)
+		if err != nil {
+			return nil, false, err
+		} else if ok {
+			return v, true, nil
+		}
+	}
+
 	return d.lookup.ScopeLookup(d.scope, s)
 }
 
@@ -43,9 +54,10 @@ func (d deferredLookup) Kind() value.Kind {
 
 type rootScopeFactory struct {
 	Scope
-	Pos    Position
-	child  Scope
-	lookup ScopeLookuper
+	Pos            Position
+	child          Scope
+	lookup         ScopeLookuper
+	additionalData value.Value
 }
 
 func (r *rootScopeFactory) Push(lookup ScopeLookuper, opts ...ScopeOption) Scope {
@@ -62,10 +74,11 @@ func (r *rootScopeFactory) Push(lookup ScopeLookuper, opts ...ScopeOption) Scope
 func (r *rootScopeFactory) Get(key string) (value.Value, bool, error) {
 	if key == "$" && r.child != nil {
 		return deferredLookup{
-			Pos:    r.Pos,
-			scope:  r.child,
-			lookup: r.lookup,
-			cycle:  map[string]struct{}{},
+			Pos:            r.Pos,
+			scope:          r.child,
+			lookup:         r.lookup,
+			cycle:          map[string]struct{}{},
+			additionalData: r.additionalData,
 		}, true, nil
 	}
 	return r.Scope.Get(key)
