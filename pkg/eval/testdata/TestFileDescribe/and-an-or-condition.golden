@@ -1,0 +1,90 @@
+{
+  "Args": {
+    "path": "args",
+    "fields": [
+      {
+        "name": "a_number_with_a_default",
+        "type": {
+          "kind": "union",
+          "constraint": [
+            {
+              "op": "type",
+              "right": {
+                "kind": "union",
+                "alternates": [
+                  {
+                    "kind": "number",
+                    "constraint": [
+                      {
+                        "op": "\u003e",
+                        "right": 5
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "string",
+                    "constraint": [
+                      {
+                        "op": "type",
+                        "right": {
+                          "kind": "string",
+                          "constraint": [
+                            {
+                              "op": "!=",
+                              "right": "foo"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "op": "type",
+                        "right": {
+                          "kind": "string",
+                          "constraint": [
+                            {
+                              "op": "==",
+                              "right": "foo"
+                            }
+                          ],
+                          "default": "foo"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "op": "type",
+              "right": {
+                "kind": "union",
+                "alternates": [
+                  {
+                    "kind": "number",
+                    "constraint": [
+                      {
+                        "op": "\u003e",
+                        "right": 3
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "string",
+                    "constraint": [
+                      {
+                        "op": "!=",
+                        "right": "bar"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "allowNewKeys": true
+  },
+  "ProfileNames": null
+}

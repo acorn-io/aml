@@ -1,0 +1,2 @@
+first: one && two || three
+second: one || two && three

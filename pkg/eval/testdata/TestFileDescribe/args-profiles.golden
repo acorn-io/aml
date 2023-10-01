@@ -6,8 +6,32 @@
         "name": "foo",
         "description": "A bool",
         "type": {
-          "kind": "string",
+          "kind": "union",
+          "constraint": [
+            {
+              "op": "type",
+              "right": {
+                "kind": "string",
+                "default": "la"
+              }
+            },
+            {
+              "op": "type",
+              "right": {
+                "kind": "bool",
+                "default": true
+              }
+            }
+          ],
           "default": "la"
+        }
+      },
+      {
+        "name": "bar",
+        "description": "Another bool",
+        "type": {
+          "kind": "bool",
+          "default": true
         }
       }
     ],
@@ -20,7 +44,7 @@
     },
     {
       "Name": "two",
-      "Description": ""
+      "Description": "Describe two"
     }
   ]
 }

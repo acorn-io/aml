@@ -3,7 +3,7 @@ schema {
         b: 1
     }
     a: {
-        a: "hi"
+        z: "hi"
         y
     }
 }

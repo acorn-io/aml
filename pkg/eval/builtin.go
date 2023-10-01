@@ -12,10 +12,8 @@ var Builtin Scope
 
 func kinds() map[string]any {
 	data := map[string]any{}
-	for _, kind := range value.Kinds {
-		if kind == value.UndefinedKind {
-			continue
-		} else if kind == value.SchemaKind {
+	for _, kind := range value.BuiltinKinds {
+		if kind == value.SchemaKind {
 			data["type"] = &value.TypeSchema{
 				KindValue: kind,
 			}

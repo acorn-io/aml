@@ -1,0 +1,11 @@
+schema {
+	foo: string != "hi" || number < 2 || (default "missing") || number == 42
+	foo: string != "bye" || number > 4
+	bar: foo
+	baz: foo
+}
+
+{
+	bar: "not-bye"
+	foo: 42
+}

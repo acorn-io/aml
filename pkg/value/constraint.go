@@ -8,7 +8,6 @@ type Checker interface {
 	Check(left Value) error
 	Description() string
 	OpString() string
-	LeftNative() (any, bool, error)
 	RightNative() (any, bool, error)
 }
 
@@ -41,10 +40,6 @@ func (c *CustomConstraint) OpString() string {
 	return "custom"
 }
 
-func (c *CustomConstraint) LeftNative() (any, bool, error) {
-	return nil, false, nil
-}
-
 func (c *CustomConstraint) RightNative() (any, bool, error) {
 	return nil, false, nil
 }
@@ -62,11 +57,10 @@ func (c *Constraint) OpString() string {
 	return c.Op
 }
 
-func (c *Constraint) LeftNative() (any, bool, error) {
-	return nil, false, nil
-}
-
 func (c *Constraint) RightNative() (any, bool, error) {
+	if ts, ok := c.Right.(*TypeSchema); ok {
+		return ts, true, nil
+	}
 	return NativeValue(c.Right)
 }
 
@@ -108,6 +102,9 @@ func (c *Constraint) Check(left Value) error {
 	switch Operator(c.Op) {
 	case GtOp, GeOp, LtOp, LeOp, EqOp, NeqOp, MatOp, NmatOp:
 		return c.check(Operator(c.Op), left, c.Right)
+	case Operator("type"):
+		_, err := Merge(c.Right, left)
+		return err
 	default:
 		return fmt.Errorf("unknown operator for constraint: %s", c.Op)
 	}

@@ -32,14 +32,16 @@
               "type": {
                 "kind": "array",
                 "array": {
-                  "item": {
-                    "kind": "number",
-                    "default": 1,
-                    "alternate": {
+                  "types": [
+                    {
+                      "kind": "number",
+                      "default": 1
+                    },
+                    {
                       "kind": "number",
                       "default": 2
                     }
-                  }
+                  ]
                 }
               }
             }

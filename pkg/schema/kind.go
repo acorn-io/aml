@@ -8,4 +8,5 @@ var (
 	NumberKind = Kind("number")
 	ArrayKind  = Kind("array")
 	ObjectKind = Kind("object")
+	UnionKind  = Kind("union")
 )

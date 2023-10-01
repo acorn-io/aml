@@ -1,0 +1,9 @@
+args: {
+    // First
+    key: "value1"
+}
+
+args: {
+    // Second
+    key: "value2"
+}

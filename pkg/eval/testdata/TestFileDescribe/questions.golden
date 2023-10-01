@@ -1,0 +1,228 @@
+{
+  "Args": {
+    "path": "args",
+    "fields": [
+      {
+        "name": "a_number_with_a_default",
+        "description": "a description\nsome condidionts",
+        "type": {
+          "kind": "number",
+          "constraint": [
+            {
+              "op": "type",
+              "right": {
+                "kind": "number",
+                "default": 3
+              }
+            },
+            {
+              "op": "type",
+              "right": {
+                "kind": "number",
+                "constraint": [
+                  {
+                    "op": "type",
+                    "right": {
+                      "kind": "number",
+                      "constraint": [
+                        {
+                          "op": "\u003e",
+                          "right": 3
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "op": "type",
+                    "right": {
+                      "kind": "number",
+                      "constraint": [
+                        {
+                          "op": "\u003c",
+                          "right": 10
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "default": 3
+        }
+      },
+      {
+        "name": "a_enum_yeah_weird",
+        "description": "this is what an enum looks like",
+        "type": {
+          "kind": "string",
+          "constraint": [
+            {
+              "op": "==",
+              "right": "one"
+            }
+          ],
+          "alternates": [
+            {
+              "kind": "string",
+              "constraint": [
+                {
+                  "op": "==",
+                  "right": "two"
+                }
+              ]
+            },
+            {
+              "kind": "string",
+              "constraint": [
+                {
+                  "op": "==",
+                  "right": "three"
+                }
+              ]
+            }
+          ]
+        },
+        "optional": true
+      },
+      {
+        "name": "a_custom_condition",
+        "description": "this is a custom condition which you have to just throw your hands up with",
+        "type": {
+          "kind": "number",
+          "constraint": [
+            {
+              "description": "integer",
+              "op": "custom"
+            }
+          ]
+        },
+        "optional": true
+      },
+      {
+        "name": "a_bool_with_default",
+        "description": "a description",
+        "type": {
+          "kind": "bool",
+          "default": false
+        }
+      },
+      {
+        "name": "a_string_with_default",
+        "description": "a description",
+        "type": {
+          "kind": "string",
+          "default": "hi"
+        }
+      },
+      {
+        "name": "an_array_of_strings",
+        "description": "an array of strings",
+        "type": {
+          "kind": "array",
+          "array": {
+            "types": [
+              {
+                "kind": "string"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "an_array_of_numbers",
+        "type": {
+          "kind": "array",
+          "array": {
+            "types": [
+              {
+                "kind": "number"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "an_array_of_objects",
+        "description": "This is an array",
+        "type": {
+          "kind": "array",
+          "array": {
+            "types": [
+              {
+                "kind": "object",
+                "object": {
+                  "path": "args.an_array_of_objects.0",
+                  "fields": [
+                    {
+                      "name": "hi",
+                      "type": {
+                        "kind": "object",
+                        "object": {
+                          "path": "args.an_array_of_objects.0.hi",
+                          "fields": [
+                            {
+                              "name": "foo",
+                              "type": {
+                                "kind": "string",
+                                "default": "bar"
+                              }
+                            }
+                          ],
+                          "allowNewKeys": true
+                        }
+                      },
+                      "match": true
+                    }
+                  ],
+                  "allowNewKeys": true
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "an_object",
+        "description": "This is an object",
+        "type": {
+          "kind": "object",
+          "object": {
+            "path": "args.an_object",
+            "fields": [
+              {
+                "name": "required_field",
+                "description": "This field is required",
+                "type": {
+                  "kind": "string",
+                  "default": "hi"
+                }
+              },
+              {
+                "name": "optional_field",
+                "description": "This field is optional",
+                "type": {
+                  "kind": "string",
+                  "default": "hi"
+                },
+                "optional": true
+              },
+              {
+                "name": "some regexp",
+                "description": "This field matches a regexp",
+                "type": {
+                  "kind": "number",
+                  "default": 2
+                },
+                "match": true
+              }
+            ],
+            "allowNewKeys": true
+          }
+        }
+      }
+    ],
+    "allowNewKeys": true
+  },
+  "ProfileNames": null
+}

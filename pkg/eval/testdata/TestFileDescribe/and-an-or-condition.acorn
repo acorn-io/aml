@@ -1,0 +1,4 @@
+args: {
+		a_number_with_a_default: number > 5 || string != "foo" && default "foo"
+		a_number_with_a_default: number > 3 || string != "bar"
+}

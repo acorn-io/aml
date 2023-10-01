@@ -1,0 +1,33 @@
+{
+  "Args": {
+    "path": "args",
+    "fields": [
+      {
+        "name": "key",
+        "description": "First\nSecond",
+        "type": {
+          "kind": "string",
+          "constraint": [
+            {
+              "op": "type",
+              "right": {
+                "kind": "string",
+                "default": "value1"
+              }
+            },
+            {
+              "op": "type",
+              "right": {
+                "kind": "string",
+                "default": "value2"
+              }
+            }
+          ],
+          "default": "value1"
+        }
+      }
+    ],
+    "allowNewKeys": true
+  },
+  "ProfileNames": null
+}

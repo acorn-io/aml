@@ -14,10 +14,12 @@ func Summarize(obj Object) Summary {
 }
 
 func addType(types map[string]FieldType, fieldType FieldType) FieldType {
-	if fieldType.Alternate != nil {
-		newAlt := addType(types, *fieldType.Alternate)
-		fieldType.Alternate = &newAlt
+	var newAlts []FieldType
+	for _, alt := range fieldType.Alternates {
+		newAlt := addType(types, alt)
+		newAlts = append(newAlts, newAlt)
 	}
+	fieldType.Alternates = newAlts
 
 	if fieldType.Object != nil && !fieldType.Object.Reference && fieldType.Object.Path != "" {
 		cp := fieldType.Object

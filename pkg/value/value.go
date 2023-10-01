@@ -9,10 +9,11 @@ const (
 	ObjectKind    = Kind("object")
 	FuncKind      = Kind("func")
 	SchemaKind    = Kind("schema")
+	UnionKind     = Kind("union")
 	UndefinedKind = Kind("undefined")
 )
 
-var Kinds = []Kind{
+var BuiltinKinds = []Kind{
 	NullKind,
 	StringKind,
 	BoolKind,
@@ -21,7 +22,6 @@ var Kinds = []Kind{
 	ObjectKind,
 	FuncKind,
 	SchemaKind,
-	UndefinedKind,
 }
 
 type Kind string

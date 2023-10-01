@@ -63,19 +63,12 @@ outerLoop:
 
 func (a ArraySchema) DescribeArray(ctx SchemaContext) (*schema.Array, bool, error) {
 	result := &schema.Array{}
-	var last *schema.FieldType
-	for i, v := range a {
+	for _, v := range a {
 		fieldType, err := DescribeFieldType(ctx, v)
 		if err != nil {
 			return nil, false, err
 		}
-		if i == 0 {
-			result.Items = fieldType
-			last = &result.Items
-		} else {
-			last.Alternate = &fieldType
-			last = last.Alternate
-		}
+		result.Types = append(result.Types, fieldType)
 	}
 
 	return result, true, nil

@@ -25,15 +25,16 @@ func (c *contract) Fields(ctx value.SchemaContext) (result []schema.Field, _ err
 		scope = c.scope.Push(c.s)
 	)
 
-	for i, field := range c.s.Fields {
+	for i, structField := range c.s.Fields {
 		ctx.SetIndex(i)
-		schema, err := field.DescribeFields(ctx, scope)
+		schemaFields, err := structField.DescribeFields(ctx, scope)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, schema...)
+		result = append(result, schemaFields...)
 	}
-	return result, nil
+
+	return schema.MergeFields(result)
 }
 
 func (c *contract) Path() string {

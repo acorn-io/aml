@@ -85,29 +85,6 @@ func (n *ObjectSchema) Kind() Kind {
 	return SchemaKind
 }
 
-func (n *ObjectSchema) Fields(ctx SchemaContext) (result []schema.Field, _ error) {
-	fields, err := n.Contract.Fields(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var (
-		fieldNames   = map[string]int{}
-		mergedFields []schema.Field
-	)
-
-	for _, field := range fields {
-		if i, ok := fieldNames[field.Name]; ok {
-			mergedFields[i] = mergedFields[i].Merge(field)
-		} else {
-			fieldNames[field.Name] = len(mergedFields)
-			mergedFields = append(mergedFields, field)
-		}
-	}
-
-	return mergedFields, nil
-}
-
 func (n *ObjectSchema) DescribeObject(ctx SchemaContext) (*schema.Object, bool, error) {
 	if ctx.haveSeen(n.Contract.Path()) {
 		return &schema.Object{
@@ -119,8 +96,8 @@ func (n *ObjectSchema) DescribeObject(ctx SchemaContext) (*schema.Object, bool, 
 	}
 
 	ctx.addSeen(n.Contract.Path())
-
-	fields, err := n.Fields(ctx)
+	fields, err := n.Contract.Fields(ctx)
+	ctx.remoteSeen(n.Contract.Path())
 	if err != nil {
 		return nil, false, err
 	}
@@ -128,8 +105,8 @@ func (n *ObjectSchema) DescribeObject(ctx SchemaContext) (*schema.Object, bool, 
 	return &schema.Object{
 		Description:  n.Contract.Description(),
 		Path:         n.Contract.Path(),
-		Fields:       fields,
 		AllowNewKeys: n.Contract.AllowNewKeys(),
+		Fields:       fields,
 	}, true, nil
 }
 
@@ -169,8 +146,8 @@ func (e *ErrSchemaViolation) Unwrap() error {
 func (e *ErrSchemaViolation) Error() string {
 	bottom := BottomLeftMost(e)
 	s := fmt.Sprintf("schema violation %s.%s: %v", bottom.Path, bottom.Key, bottom.Err)
-	if len(s) > 200 {
-		return s[:200]
+	if len(s) > 1000 {
+		return s[:1000] + "..."
 	}
 	return s
 }
@@ -215,6 +192,15 @@ func BottomLeftMost[T x](start T) T {
 	}
 
 	return last
+}
+
+func (n *ObjectSchema) MergeContract(right *ObjectSchema) *ObjectSchema {
+	return &ObjectSchema{
+		Contract: &mergedContract{
+			Left:  n.Contract,
+			Right: right.Contract,
+		},
+	}
 }
 
 func (n *ObjectSchema) Merge(right Value) (Value, error) {
@@ -356,7 +342,7 @@ func (m *mergedContract) Fields(ctx SchemaContext) ([]schema.Field, error) {
 		return nil, err
 	}
 
-	return append(leftFields, rightFields...), nil
+	return schema.MergeFields(append(leftFields, rightFields...))
 }
 
 func (m *mergedContract) Path() string {

@@ -1,0 +1,7 @@
+schema {
+    foo: "hi"
+    foo: "bye"
+}
+
+foo: "huh"
+

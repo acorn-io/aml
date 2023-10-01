@@ -156,7 +156,9 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 		case field.StringSlice != nil:
 			vals := []any{}
 			for _, str := range *field.StringSlice {
-				val, err := parseValue(str, field.Field.Type.Array.Items.Kind == schema.NumberKind)
+				isNum := len(field.Field.Type.Array.Types) > 0 &&
+					field.Field.Type.Array.Types[0].Kind == schema.NumberKind
+				val, err := parseValue(str, isNum)
 				if err != nil {
 					return nil, nil, err
 				}

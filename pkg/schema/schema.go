@@ -2,6 +2,8 @@
 
 package schema
 
+import "fmt"
+
 type File struct {
 	Args         Object
 	ProfileNames Names
@@ -28,8 +30,46 @@ type Object struct {
 	AllowNewKeys bool    `json:"allowNewKeys,omitempty"`
 }
 
+func (o *Object) Merge(right *Object) (_ *Object, err error) {
+	if o.Reference {
+		return nil, fmt.Errorf("can not merge schema.Object reference, left [%s] is reference", o.Path)
+	}
+	if right.Reference {
+		return nil, fmt.Errorf("can not merge schema.Object reference, right [%s] is reference", right.Path)
+	}
+
+	result := Object{
+		AllowNewKeys: o.AllowNewKeys || right.AllowNewKeys,
+		Description:  mergeDescription(o.Description, right.Description),
+	}
+
+	if o.Path == right.Path {
+		result.Path = o.Path
+	}
+
+	fieldsByIndex := map[string]int{}
+	for i, field := range o.Fields {
+		fieldsByIndex[field.Name] = i
+		result.Fields = append(result.Fields, field)
+	}
+
+	for _, field := range right.Fields {
+		if i, ok := fieldsByIndex[field.Name]; ok {
+			result.Fields[i], err = result.Fields[i].Merge(field)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			fieldsByIndex[field.Name] = len(result.Fields)
+			result.Fields = append(result.Fields, field)
+		}
+	}
+
+	return &result, nil
+}
+
 type Array struct {
-	Items FieldType `json:"item,omitempty"`
+	Types []FieldType `json:"types,omitempty"`
 }
 
 func (o *Object) GetFields() []Field {
@@ -44,19 +84,41 @@ type Field struct {
 	Optional    bool      `json:"optional,omitempty"`
 }
 
-func (f *Field) Merge(right Field) (result Field) {
-	result = *f
-	if right.Description != "" {
-		if result.Description != "" {
-			result.Description = result.Description + "\n" + right.Description
+func MergeFields(fields []Field) (result []Field, err error) {
+	fieldIndex := map[string]int{}
+
+	for _, schemaField := range fields {
+		if i, exists := fieldIndex[schemaField.Name]; exists {
+			result[i], err = result[i].Merge(schemaField)
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			result.Description = right.Description
+			fieldIndex[schemaField.Name] = len(result)
+			result = append(result, schemaField)
 		}
 	}
+
+	return
+}
+
+func mergeDescription(left, right string) string {
+	if left == "" {
+		return right
+	}
+	if right == "" {
+		return left
+	}
+	return left + "\n" + right
+}
+
+func (f *Field) Merge(right Field) (result Field, err error) {
+	result = *f
+	result.Description = mergeDescription(f.Description, right.Description)
 	result.Match = f.Match && right.Match
 	result.Optional = f.Optional && right.Optional
-	result.Type = f.Type.Merge(right.Type)
-	return result
+	result.Type, err = f.Type.Merge(right.Type)
+	return result, err
 }
 
 func (f *Field) GetFields() []Field {
@@ -69,41 +131,54 @@ type FieldType struct {
 	Array      *Array       `json:"array,omitempty"`
 	Constraint []Constraint `json:"constraint,omitempty"`
 	Default    any          `json:"default,omitempty"`
-	Alternate  *FieldType   `json:"alternate,omitempty"`
+	Alternates []FieldType  `json:"alternates,omitempty"`
 }
 
-func mergeAlternate(left, right *FieldType) *FieldType {
-	if left == nil {
-		return right
+func kindOrUnion(left, right Kind) Kind {
+	if left == right {
+		return left
 	}
-
-	cp := *left
-	if cp.Alternate == nil {
-		cp.Alternate = right
-	} else {
-		cp.Alternate = mergeAlternate(left.Alternate, right)
-	}
-	return &cp
+	return UnionKind
 }
 
-// Merge works like doing an AND condition between the two. The Kind is assumed to already match
-func (f FieldType) Merge(right FieldType) (result FieldType) {
-	result = f
-	if right.Object != nil {
-		result.Object = right.Object
+func firstValue(left, right any) any {
+	if left != nil {
+		return left
 	}
-	result.Constraint = append(f.Constraint, right.Constraint...)
-	if right.Default != nil {
-		f.Default = right.Default
-	}
+	return right
+}
 
-	result.Alternate = mergeAlternate(result.Alternate, right.Alternate)
-	return result
+// Merge works like doing an AND condition between the two.
+func (f FieldType) Merge(right FieldType) (result FieldType, err error) {
+	if f.Object != nil && right.Object != nil &&
+		f.Default == nil &&
+		right.Default == nil &&
+		len(f.Constraint) == 0 &&
+		len(right.Constraint) == 0 &&
+		len(f.Alternates) == 0 &&
+		len(right.Alternates) == 0 {
+		result = f
+		result.Object, err = f.Object.Merge(right.Object)
+		return result, err
+	}
+	return FieldType{
+		Kind:    kindOrUnion(f.Kind, right.Kind),
+		Default: firstValue(f.Default, right.Default),
+		Constraint: []Constraint{
+			{
+				Op:    "type",
+				Right: f,
+			},
+			{
+				Op:    "type",
+				Right: right,
+			},
+		},
+	}, nil
 }
 
 type Constraint struct {
 	Description string `json:"description,omitempty"`
 	Op          string `json:"op,omitempty"`
-	Left        any    `json:"left,omitempty"`
 	Right       any    `json:"right,omitempty"`
 }

@@ -26,6 +26,10 @@ func (s *SchemaContext) haveSeen(path string) bool {
 	return ok
 }
 
+func (s *SchemaContext) remoteSeen(path string) {
+	delete(s.seen, path)
+}
+
 func (s *SchemaContext) addSeen(path string) {
 	if s.seen == nil {
 		s.seen = map[string]struct{}{}
@@ -39,8 +43,17 @@ type TypeSchema struct {
 	Object       *ObjectSchema
 	Array        *ArraySchema
 	Constraints  []Checker
-	Alternate    *TypeSchema
+	Alternates   []TypeSchema
 	DefaultValue Value
+}
+
+func (n *TypeSchema) isMergeableObject() bool {
+	return n.KindValue == ObjectKind &&
+		n.Object != nil &&
+		n.Array == nil &&
+		len(n.Constraints) == 0 &&
+		len(n.Alternates) == 0 &&
+		n.DefaultValue == nil
 }
 
 func NewMatchTypeWithDefault(v Value) Value {
@@ -84,7 +97,7 @@ func (n *TypeSchema) TargetKind() Kind {
 	return n.KindValue
 }
 
-func checkerToConstraint(checker Checker) (result schema.Constraint, _ bool, _ error) {
+func checkerToConstraint(ctx SchemaContext, checker Checker) (result schema.Constraint, _ bool, _ error) {
 	right, ok, err := checker.RightNative()
 	if err != nil {
 		return result, false, err
@@ -92,17 +105,17 @@ func checkerToConstraint(checker Checker) (result schema.Constraint, _ bool, _ e
 		right = nil
 	}
 
-	left, ok, err := checker.LeftNative()
-	if err != nil {
-		return result, ok, err
-	} else if !ok {
-		left = nil
+	if ts, ok := right.(*TypeSchema); ok {
+		ft, ok, err := typeSchemaToFieldType(ctx, ts)
+		if err != nil || !ok {
+			return result, ok, err
+		}
+		right = ft
 	}
 
 	return schema.Constraint{
 		Description: checker.Description(),
 		Op:          checker.OpString(),
-		Left:        left,
 		Right:       right,
 	}, true, nil
 }
@@ -119,7 +132,7 @@ func typeSchemaToFieldType(ctx SchemaContext, n *TypeSchema) (result schema.Fiel
 	}
 
 	for _, checker := range n.Constraints {
-		constraint, ok, err := checkerToConstraint(checker)
+		constraint, ok, err := checkerToConstraint(ctx, checker)
 		if err != nil {
 			return result, false, err
 		} else if !ok {
@@ -129,12 +142,12 @@ func typeSchemaToFieldType(ctx SchemaContext, n *TypeSchema) (result schema.Fiel
 		result.Constraint = append(result.Constraint, constraint)
 	}
 
-	if n.Alternate != nil {
-		alt, ok, err := typeSchemaToFieldType(ctx, n.Alternate)
+	for _, alt := range n.Alternates {
+		altType, ok, err := typeSchemaToFieldType(ctx, &alt)
 		if err != nil || !ok {
 			return result, ok, err
 		}
-		result.Alternate = &alt
+		result.Alternates = append(result.Alternates, altType)
 	}
 
 	if n.Object != nil {
@@ -154,31 +167,129 @@ func typeSchemaToFieldType(ctx SchemaContext, n *TypeSchema) (result schema.Fiel
 	return result, true, nil
 }
 
-func (n *TypeSchema) Keys() ([]string, error) {
-	if n.Object != nil {
-		return Keys(n.Object)
-	} else if n.KindValue == ObjectKind {
-		return nil, nil
+func addObjectKeys(keySeen map[string]struct{}, obj Value) (keys []string, _ error) {
+	objKeys, err := Keys(obj)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("schema for kind %s does not support keys call", n.KindValue)
+	for _, key := range objKeys {
+		if _, seen := keySeen[key]; seen {
+			continue
+		}
+		keySeen[key] = struct{}{}
+		keys = append(keys, key)
+	}
+	return
+}
+
+func getTypeSchemaFromChecker(constraint Checker) (*TypeSchema, bool) {
+	if c, ok := constraint.(*Constraint); ok {
+		if ts, ok := c.Right.(*TypeSchema); ok {
+			return ts, true
+		}
+	}
+	return nil, false
+}
+
+func (n *TypeSchema) Keys() ([]string, error) {
+	var (
+		keys    []string
+		keySeen = map[string]struct{}{}
+	)
+
+	if n.Object != nil {
+		newKeys, err := addObjectKeys(keySeen, n.Object)
+		if err != nil {
+			return nil, err
+		}
+		keys = append(keys, newKeys...)
+	} else if n.KindValue == ObjectKind {
+	} else {
+		return nil, fmt.Errorf("schema for kind %s does not support keys call", n.KindValue)
+	}
+
+	for _, checker := range n.Constraints {
+		if ts, ok := getTypeSchemaFromChecker(checker); ok {
+			newKeys, err := addObjectKeys(keySeen, ts)
+			if err != nil {
+				return nil, err
+			}
+			keys = append(keys, newKeys...)
+		}
+	}
+
+	return keys, nil
 }
 
 func (n *TypeSchema) LookupValue(key Value) (Value, bool, error) {
+	var values []Value
 	if n.Object != nil {
-		return Lookup(n.Object, key)
+		v, ok, err := Lookup(n.Object, key)
+		if err != nil {
+			return nil, false, err
+		}
+		if ok {
+			values = append(values, v)
+		}
 	}
-	return nil, false, fmt.Errorf("schema for kind %s does not support lookup", n.KindValue)
+	for _, checker := range n.Constraints {
+		if ts, ok := getTypeSchemaFromChecker(checker); ok {
+			v, ok, err := ts.LookupValue(key)
+			if err != nil {
+				return nil, false, err
+			}
+			if ok {
+				values = append(values, v)
+			}
+		}
+	}
+
+	if len(values) > 0 {
+		v, err := Merge(values...)
+		return v, true, err
+	}
+
+	for _, alt := range n.Alternates {
+		v, ok, err := alt.LookupValue(key)
+		if err != nil {
+			return nil, false, err
+		}
+		if ok {
+			return v, true, nil
+		}
+	}
+
+	return nil, false, nil
 }
 
-func (n *TypeSchema) DescribeObject(ctx SchemaContext) (*schema.Object, bool, error) {
+func (n *TypeSchema) DescribeObject(ctx SchemaContext) (result *schema.Object, ok bool, err error) {
 	if n.Object != nil {
-		return n.Object.DescribeObject(ctx)
+		result, ok, err = n.Object.DescribeObject(ctx)
+		if err != nil || !ok {
+			return nil, ok, err
+		}
 	} else if n.KindValue == ObjectKind {
-		return &schema.Object{
+		result = &schema.Object{
 			AllowNewKeys: true,
-		}, true, nil
+		}
+	} else {
+		return nil, false, nil
 	}
-	return nil, false, nil
+	for _, checker := range n.Constraints {
+		if ts, ok := getTypeSchemaFromChecker(checker); ok {
+			obj, ok, err := ts.DescribeObject(ctx)
+			if err != nil {
+				return nil, false, err
+			} else if !ok {
+				continue
+			}
+			result, err = result.Merge(obj)
+			if err != nil {
+				return nil, false, err
+			}
+		}
+	}
+	return result, true, nil
 }
 
 func (n *TypeSchema) DescribeFieldType(ctx SchemaContext) (result schema.FieldType, _ error) {
@@ -272,6 +383,23 @@ func TargetKind(v Value) Kind {
 	return v.Kind()
 }
 
+func checkNoMultipleDefault(left, right *TypeSchema) error {
+	_, ok, err := left.getDefault(false)
+	if err != nil {
+		return err
+	}
+	if ok {
+		_, ok, err = right.getDefault(false)
+		if err != nil {
+			return err
+		}
+		if ok {
+			return fmt.Errorf("multiple defaults can not be defined")
+		}
+	}
+	return nil
+}
+
 func (n *TypeSchema) And(right Value) (Value, error) {
 	if n.TargetKind() == SchemaKind && right.Kind() == SchemaKind {
 		return right, nil
@@ -285,60 +413,39 @@ func (n *TypeSchema) And(right Value) (Value, error) {
 		return nil, fmt.Errorf("invalid schema condition %s && %s incompatible", n.TargetKind(), rightSchema.TargetKind())
 	}
 
-	cp := *n
-	cp.Alternate = mergeAlternate(&cp, rightSchema.Alternate)
-	cp.Constraints = append(cp.Constraints, rightSchema.Constraints...)
-	if cp.DefaultValue == nil {
-		cp.DefaultValue = rightSchema.DefaultValue
-	} else if rightSchema.DefaultValue != nil {
-		eq, err := Eq(cp.DefaultValue, rightSchema.DefaultValue)
-		if err != nil {
-			return nil, err
-		}
-		b, err := ToBool(eq)
-		if err != nil {
-			return nil, err
-		}
-		if !b {
-			return nil, fmt.Errorf("can not have two default values for schema kind %s, %s and %s", cp.TargetKind(), cp.DefaultValue, rightSchema.DefaultValue)
-		}
+	if err := checkNoMultipleDefault(n, rightSchema); err != nil {
+		return nil, err
 	}
 
-	if n.KindValue == ObjectKind {
-		if n.Object == nil {
-			cp.Object = rightSchema.Object
-		} else if rightSchema.Object != nil {
-			obj, err := Merge(n.Object, rightSchema.Object)
-			if err != nil {
-				return nil, err
-			}
-			cp.Object = obj.(*TypeSchema).Object
-		}
+	if n.isMergeableObject() && rightSchema.isMergeableObject() {
+		return &TypeSchema{
+			Position:  rightSchema.Position,
+			KindValue: ObjectKind,
+			Object:    n.Object.MergeContract(rightSchema.Object),
+		}, nil
 	}
 
-	if n.KindValue == ArrayKind {
-		if n.Array == nil {
-			cp.Array = rightSchema.Array
-		} else if rightSchema.Array != nil {
-			obj, err := Merge(n.Array, rightSchema.Array)
-			if err != nil {
-				return nil, err
-			}
-			cp.Array = obj.(*TypeSchema).Array
-		}
-	}
-
-	return &cp, nil
+	return &TypeSchema{
+		Position:  rightSchema.Position,
+		KindValue: n.KindValue,
+		Constraints: []Checker{
+			&Constraint{
+				Op:    "type",
+				Right: n,
+			},
+			&Constraint{
+				Op:    "type",
+				Right: rightSchema,
+			},
+		},
+	}, nil
 }
 
-func mergeAlternate(left, right *TypeSchema) *TypeSchema {
-	cp := *left
-	if cp.Alternate == nil {
-		cp.Alternate = right
-	} else {
-		cp.Alternate = mergeAlternate(left.Alternate, right)
+func typeOrUnion(left, right Kind) Kind {
+	if left == right {
+		return left
 	}
-	return &cp
+	return UnionKind
 }
 
 func (n *TypeSchema) Or(right Value) (Value, error) {
@@ -346,8 +453,16 @@ func (n *TypeSchema) Or(right Value) (Value, error) {
 	if !ok {
 		rightSchema = NewDefault(right).(*TypeSchema)
 	}
-
-	return mergeAlternate(n, rightSchema), nil
+	if err := checkNoMultipleDefault(n, rightSchema); err != nil {
+		return nil, err
+	}
+	return &TypeSchema{
+		Position:  rightSchema.Position,
+		KindValue: typeOrUnion(n.KindValue, rightSchema.KindValue),
+		Alternates: []TypeSchema{
+			*n, *rightSchema,
+		},
+	}, nil
 }
 
 func (n *TypeSchema) renderDefaultObject() (_ Value, _ bool, retErr error) {
@@ -361,39 +476,62 @@ func (n *TypeSchema) renderDefaultArray() (_ Value, _ bool, retErr error) {
 }
 
 func (n *TypeSchema) Default() (Value, bool, error) {
+	return n.getDefault(true)
+}
+
+func (n *TypeSchema) getDefault(renderImplicit bool) (Value, bool, error) {
 	if n.DefaultValue != nil {
 		return n.DefaultValue, true, nil
 	}
-	if n.Alternate != nil {
-		return n.Alternate.Default()
+
+	for _, checker := range n.Constraints {
+		if ts, ok := getTypeSchemaFromChecker(checker); ok {
+			v, ok, err := ts.getDefault(renderImplicit)
+			if err != nil {
+				return nil, false, err
+			}
+			if ok {
+				return v, true, nil
+			}
+		}
 	}
-	if n.Object != nil {
-		return n.renderDefaultObject()
+
+	for _, alt := range n.Alternates {
+		v, ok, err := alt.getDefault(renderImplicit)
+		if err != nil {
+			return nil, false, err
+		}
+		if ok {
+			return v, true, nil
+		}
 	}
-	if n.Array != nil {
-		return n.renderDefaultArray()
+
+	if renderImplicit {
+		if n.Object != nil {
+			return n.renderDefaultObject()
+		}
+		if n.Array != nil {
+			return n.renderDefaultArray()
+		}
 	}
+
 	return nil, false, nil
 }
 
 type ErrUnmatchedType struct {
-	Position  Position
-	Errs      []error
-	Alternate *ErrUnmatchedType
+	Position   Position
+	Errs       []error
+	Alternates []error
 }
 
 func (e *ErrUnmatchedType) Unwrap() []error {
-	if e.Alternate == nil {
-		return e.Errs
-	}
-	return append(e.Errs, e.Alternate.Unwrap()...)
+	return append(e.Errs, e.Alternates...)
 }
 
 func (e *ErrUnmatchedType) errors() (result []string) {
 	result = append(result, e.checkErr())
-	if e.Alternate != nil {
-		result = append(result, e.Alternate.errors()...)
-		return result
+	for _, altErr := range e.Alternates {
+		result = append(result, altErr.Error())
 	}
 	return result
 }
@@ -441,7 +579,7 @@ func (e *ErrUnmatchedType) Error() string {
 func checkType(schema *TypeSchema, right Value) (Value, error) {
 	var errs []error
 
-	if schema.TargetKind() == right.Kind() {
+	if schema.TargetKind() == right.Kind() || schema.TargetKind() == UnionKind {
 		if schema.Object != nil {
 			v, err := schema.Object.Merge(right)
 			if err == nil {
@@ -476,35 +614,34 @@ func checkType(schema *TypeSchema, right Value) (Value, error) {
 		errs = append(errs, fmt.Errorf("expected kind %s but got %s with value (%v)", schema.TargetKind(), right.Kind(), right))
 	}
 
+	if schema.TargetKind() == UnionKind {
+		var kinds []Kind
+		for _, alt := range schema.Alternates {
+			kinds = append(kinds, alt.KindValue)
+		}
+		if len(kinds) > 0 {
+			errs = append(errs, fmt.Errorf("failed to resolve union type to kind %v from kind %s value (%v)", kinds, right.Kind(), right))
+		}
+	}
+
 	if len(errs) == 0 {
 		return right, nil
 	}
 
-	if schema.Alternate != nil {
-		ret, newErrs := checkType(schema.Alternate, right)
+	retErr := &ErrUnmatchedType{
+		Position: schema.Position,
+		Errs:     errs,
+	}
+
+	for _, alt := range schema.Alternates {
+		ret, newErrs := checkType(&alt, right)
 		if newErrs == nil {
 			return ret, nil
 		}
-		alt, ok := newErrs.(*ErrUnmatchedType)
-		if ok {
-			return nil, &ErrUnmatchedType{
-				Position:  schema.Position,
-				Errs:      errs,
-				Alternate: alt,
-			}
-		} else {
-			errs = append(errs, newErrs)
-		}
+		retErr.Alternates = append(retErr.Alternates, newErrs)
 	}
 
-	if len(errs) > 0 {
-		return nil, &ErrUnmatchedType{
-			Position: schema.Position,
-			Errs:     errs,
-		}
-	}
-
-	return right, nil
+	return nil, retErr
 }
 
 func (n *TypeSchema) Merge(right Value) (Value, error) {

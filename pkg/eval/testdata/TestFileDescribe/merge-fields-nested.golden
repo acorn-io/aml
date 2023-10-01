@@ -1,0 +1,46 @@
+{
+  "Args": {
+    "path": "args",
+    "fields": [
+      {
+        "name": "key",
+        "description": "First\nSecond",
+        "type": {
+          "kind": "object",
+          "object": {
+            "path": "args.key",
+            "fields": [
+              {
+                "name": "keytwo",
+                "description": "First nested\nSecond nested",
+                "type": {
+                  "kind": "string",
+                  "constraint": [
+                    {
+                      "op": "type",
+                      "right": {
+                        "kind": "string",
+                        "default": "value1"
+                      }
+                    },
+                    {
+                      "op": "type",
+                      "right": {
+                        "kind": "string",
+                        "default": "value2"
+                      }
+                    }
+                  ],
+                  "default": "value1"
+                }
+              }
+            ],
+            "allowNewKeys": true
+          }
+        }
+      }
+    ],
+    "allowNewKeys": true
+  },
+  "ProfileNames": null
+}

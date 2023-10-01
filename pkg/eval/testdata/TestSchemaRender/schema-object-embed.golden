@@ -24,13 +24,35 @@
       "type": {
         "kind": "object",
         "object": {
-          "path": "a",
           "fields": [
+            {
+              "name": "z",
+              "type": {
+                "kind": "string",
+                "default": "hi"
+              }
+            },
             {
               "name": "b",
               "type": {
                 "kind": "number",
-                "default": 2
+                "constraint": [
+                  {
+                    "op": "type",
+                    "right": {
+                      "kind": "number",
+                      "default": 1
+                    }
+                  },
+                  {
+                    "op": "type",
+                    "right": {
+                      "kind": "number",
+                      "default": 2
+                    }
+                  }
+                ],
+                "default": 1
               }
             }
           ]

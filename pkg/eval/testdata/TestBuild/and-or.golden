@@ -1,0 +1,133 @@
+&eval.File{Body: &eval.Struct{
+	Position: eval.Position{
+		Filename: "and-or.acorn",
+		Line:     1,
+		Column:   1,
+	},
+	Fields: []eval.Field{
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{
+					Value: value.String("first"),
+				},
+				Pos: eval.Position{
+					Filename: "and-or.acorn",
+					Line:     1,
+					Column:   1,
+				},
+			},
+			Value: &eval.Op{
+				Operator: value.Operator("||"),
+				Left: &eval.Op{
+					Operator: value.Operator("&&"),
+					Left: &eval.Lookup{
+						Pos: eval.Position{
+							Filename: "and-or.acorn",
+							Offset:   7,
+							Line:     1,
+							Column:   8,
+						},
+						Key: "one",
+					},
+					Right: &eval.Lookup{
+						Pos: eval.Position{
+							Filename: "and-or.acorn",
+							Offset:   14,
+							Line:     1,
+							Column:   15,
+						},
+						Key: "two",
+					},
+					Pos: eval.Position{
+						Filename: "and-or.acorn",
+						Offset:   11,
+						Line:     1,
+						Column:   12,
+					},
+				},
+				Right: &eval.Lookup{
+					Pos: eval.Position{
+						Filename: "and-or.acorn",
+						Offset:   21,
+						Line:     1,
+						Column:   22,
+					},
+					Key: "three",
+				},
+				Pos: eval.Position{
+					Filename: "and-or.acorn",
+					Offset:   18,
+					Line:     1,
+					Column:   19,
+				},
+			},
+			Pos: eval.Position{
+				Filename: "and-or.acorn",
+				Line:     1,
+				Column:   1,
+			},
+		},
+		&eval.KeyValue{
+			Key: eval.FieldKey{
+				Key: eval.Value{Value: value.String("second")},
+				Pos: eval.Position{
+					Filename: "and-or.acorn",
+					Offset:   27,
+					Line:     2,
+					Column:   1,
+				},
+			},
+			Value: &eval.Op{
+				Operator: value.Operator("||"),
+				Left: &eval.Lookup{
+					Pos: eval.Position{
+						Filename: "and-or.acorn",
+						Offset:   35,
+						Line:     2,
+						Column:   9,
+					},
+					Key: "one",
+				},
+				Right: &eval.Op{
+					Operator: value.Operator("&&"),
+					Left: &eval.Lookup{
+						Pos: eval.Position{
+							Filename: "and-or.acorn",
+							Offset:   42,
+							Line:     2,
+							Column:   16,
+						},
+						Key: "two",
+					},
+					Right: &eval.Lookup{
+						Pos: eval.Position{
+							Filename: "and-or.acorn",
+							Offset:   49,
+							Line:     2,
+							Column:   23,
+						},
+						Key: "three",
+					},
+					Pos: eval.Position{
+						Filename: "and-or.acorn",
+						Offset:   46,
+						Line:     2,
+						Column:   20,
+					},
+				},
+				Pos: eval.Position{
+					Filename: "and-or.acorn",
+					Offset:   39,
+					Line:     2,
+					Column:   13,
+				},
+			},
+			Pos: eval.Position{
+				Filename: "and-or.acorn",
+				Offset:   27,
+				Line:     2,
+				Column:   1,
+			},
+		},
+	},
+}}

@@ -722,8 +722,11 @@ func Any(kinds map[string]any) value.Value {
 	var result *value.TypeSchema
 	for _, name := range []string{"bool", "number", "string", "object", "array", "null"} {
 		cp := *(kinds[name].(*value.TypeSchema))
-		cp.Alternate = result
-		result = &cp
+		if result == nil {
+			result = &cp
+		} else {
+			result.Alternates = append(result.Alternates, cp)
+		}
 	}
 	return result
 }
@@ -740,8 +743,7 @@ func Enum(_ context.Context, args []value.Value) (value.Value, bool, error) {
 		if err != nil {
 			return nil, false, err
 		}
-		next := result
-		result = &value.TypeSchema{
+		next := value.TypeSchema{
 			KindValue: value.StringKind,
 			Constraints: []value.Checker{
 				&value.Constraint{
@@ -750,7 +752,11 @@ func Enum(_ context.Context, args []value.Value) (value.Value, bool, error) {
 				},
 			},
 		}
-		result.Alternate = next
+		if result == nil {
+			result = &next
+		} else {
+			result.Alternates = append(result.Alternates, next)
+		}
 	}
 
 	return result, true, nil

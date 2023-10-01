@@ -6,14 +6,46 @@
         "kind": "string",
         "constraint": [
           {
-            "op": "=~",
-            "right": "hi.*"
+            "op": "type",
+            "right": {
+              "kind": "string",
+              "constraint": [
+                {
+                  "op": "type",
+                  "right": {
+                    "kind": "string",
+                    "constraint": [
+                      {
+                        "op": "=~",
+                        "right": "hi.*"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "op": "type",
+                  "right": {
+                    "kind": "string",
+                    "constraint": [
+                      {
+                        "op": "!~",
+                        "right": "bye.*"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
           },
           {
-            "op": "!~",
-            "right": "bye.*"
+            "op": "type",
+            "right": {
+              "kind": "string",
+              "default": "high"
+            }
           }
-        ]
+        ],
+        "default": "high"
       }
     }
   ]
