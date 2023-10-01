@@ -11,9 +11,12 @@
 			Column:   1,
 		},
 		Expression: &eval.If{
-			Condition: eval.Value{
-				Value: value.Boolean(true),
+			Pos: eval.Position{
+				Filename: "if.acorn",
+				Line:     1,
+				Column:   1,
 			},
+			Condition: eval.Value{Value: value.Boolean(true)},
 			Value: &eval.Struct{
 				Position: eval.Position{
 					Filename: "if.acorn",

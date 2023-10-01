@@ -182,6 +182,7 @@ func ifToExpression(c *ast.If) (Expression, error) {
 	}
 
 	return &If{
+		Pos:       pos(c.If),
 		Comments:  getComments(c),
 		Condition: condition,
 		Value:     value,

@@ -249,6 +249,9 @@ func (p *printer) markLineIndent(ws whiteSpace) {
 }
 
 func (p *printer) markUnindentLine() (wasUnindented bool) {
+	if len(p.indentStack) == 0 {
+		return false
+	}
 	last := len(p.indentStack) - 1
 	if ws := p.indentStack[last]; ws&indented != 0 {
 		p.indent--

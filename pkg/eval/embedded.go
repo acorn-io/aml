@@ -66,13 +66,8 @@ func (e *Embedded) RequiredKeys(scope Scope) ([]string, error) {
 	if err != nil || !ok {
 		return nil, err
 	}
-	if c, ok := v.(interface {
-		GetContract() (value.Contract, bool)
-	}); ok {
-		contract, ok := c.GetContract()
-		if ok {
-			return contract.RequiredKeys()
-		}
+	if c, ok := value.GetContract(v); ok {
+		return c.RequiredKeys()
 	}
 	return nil, nil
 }
@@ -82,13 +77,8 @@ func (e *Embedded) AllKeys(scope Scope) ([]string, error) {
 	if err != nil || !ok {
 		return nil, err
 	}
-	if c, ok := v.(interface {
-		GetContract() (value.Contract, bool)
-	}); ok {
-		contract, ok := c.GetContract()
-		if ok {
-			return contract.AllKeys()
-		}
+	if c, ok := value.GetContract(v); ok {
+		return c.AllKeys()
 	}
 	return nil, nil
 }
@@ -98,13 +88,8 @@ func (e *Embedded) ToValueForMatch(scope Scope, key string) (value.Value, bool, 
 	if err != nil || !ok {
 		return nil, ok, err
 	}
-	if c, ok := v.(interface {
-		GetContract() (value.Contract, bool)
-	}); ok {
-		contract, ok := c.GetContract()
-		if ok {
-			return contract.LookupValueForKeyPatternMatch(key)
-		}
+	if c, ok := value.GetContract(v); ok {
+		return c.LookupValueForKeyPatternMatch(key)
 	}
 	return nil, false, nil
 }

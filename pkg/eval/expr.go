@@ -247,6 +247,7 @@ func (c *Call) ToValue(scope Scope) (value.Value, bool, error) {
 }
 
 type If struct {
+	Pos       Position
 	Comments  Comments
 	Condition Expression
 	Value     Expression
@@ -265,7 +266,7 @@ func (i *If) ToValue(scope Scope) (value.Value, bool, error) {
 
 	b, err := value.ToBool(v)
 	if err != nil {
-		return nil, false, err
+		return nil, false, errors.NewErrEval(value.Position(i.Pos), err)
 	}
 	if !b {
 		if i.Else != nil {

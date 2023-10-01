@@ -45,6 +45,15 @@ type Contract interface {
 	AllowNewKeys() bool
 }
 
+func GetContract(v Value) (Contract, bool) {
+	if c, ok := v.(interface {
+		GetContract() (Contract, bool)
+	}); ok {
+		return c.GetContract()
+	}
+	return nil, false
+}
+
 func NewClosedObject() *TypeSchema {
 	return &TypeSchema{
 		KindValue: ObjectKind,
