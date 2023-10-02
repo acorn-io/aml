@@ -73,7 +73,7 @@ but the backtick must be.```
 
 ### Numbers
 ```cue
-// Integer, which is it's type is just number
+// Integer
 aInteger: 1
 
 // This is the same 1000000, the _ is just a separator that is ignored. Numbers can have as many _ as you
@@ -86,9 +86,7 @@ oneMillion: 1M
 // A suffix of Ki, Mi, Gi, Ti, or Pi can be added implying the number is multiplied by 1024, 1048576, 1073741824, etc
 megabyte: 1Mi
 
-// A suffix of K, M, G, T, or P can be added implying the number is multiplied by 1000, 1000000, 1000000000,
-
-// Float, which is it's type is just number
+// Float
 aFloat: 1.0
 
 // Scientific notation, following the same format as JSON
@@ -109,7 +107,6 @@ anObject: {
 
 anObject: thirdKey: "value"
 
-aNumber: 4
 aNumber: 4
 ```
 The above AML will produce the following JSON.
@@ -463,7 +460,7 @@ Complex expressions can be written by using the operators `&&` and `||` and usin
 ```cue
 aNumberRange: number > 0 && number < 10 || default 1
 ```
-### Types (psuedo)
+### Types (pseudo)
 The following pattern can be used to define reusable types.  Custom types are not a first class object in the
 language but instead objects will schema fields can be reused.
 ```cue
