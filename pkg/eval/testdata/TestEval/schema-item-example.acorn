@@ -1,0 +1,25 @@
+schema {
+		let types: {
+				StringItem: {
+						item: string
+				}
+				NumberItem: {
+						item: number
+				}
+
+				Item: types.StringItem || types.NumberItem
+		}
+
+		items: [types.Item]
+}
+
+{
+	items: [
+		{
+			item: "hello"
+		},
+		{
+			item: 123
+		}
+	]
+}
