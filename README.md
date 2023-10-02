@@ -99,7 +99,8 @@ anObject: {
     key: "value"
 }
 
-// Objects can be defined multiple as long as the values are new or the same
+// Objects can be defined multiple time as long as the keys are new or the values for existing keys are the
+// same as previously defined
 anObject: {
     aNewKey: "value"
     key: "value"
@@ -251,7 +252,7 @@ The above will produce the following JSON
 
 ### Let
 ```cue
-// Let is used to define a variable that can be used in the current scope but is not outputed
+// Let is used to define a variable that can be used in the current scope but is not in the output data.
 let x: 1
 y: x
 ```
@@ -329,7 +330,7 @@ data and profiles are used to provide alternative set of default values.
 // Args are defined using the args keyword at the top level of the document.  They can not be nested
 // in any scopes.
 args: {
-    // A name you want outputed
+    // A name you want outputted
     someName: "default"
 }
 
@@ -385,7 +386,7 @@ Will produce the following output
 ```shell
 Usage of file.acorn:
       --profile strings   Available profiles (one, two)
-      --someName string   An name you want outputed
+      --someName string   An name you want outputted
 ```
 
 ## Schema
@@ -464,8 +465,8 @@ aNumberRange: number > 0 && number < 10 || default 1
 The following pattern can be used to define reusable types.  Custom types are not a first class object in the
 language but instead objects will schema fields can be reused.
 ```cue
-// By convention put types in a let field named types. This ensurs the objects
-// are not outputed in the final JSON
+// By convention put types in a let field named types. This ensures the objects
+// are not included the evaluated output.
 let types: {
     // Types by convention start with an uppercase letter following PascalCase
     StringItem: {
