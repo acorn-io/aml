@@ -168,7 +168,7 @@ head: array[:2]
 ### String Interpolation
 ```cue
 value: 1
-// Interpolation is a string starts with \( and ends with ) and can contain any expression.
+// Interpolation in a string starts with \( and ends with ) and can contain any expression.
 output: "the value is \(value)"
 
 // Interpolation can also be used in keys
@@ -206,12 +206,12 @@ The above will produce the following JSON.
 ### Loops, For
 ```cue
 for i, v in ["a", "b", "c"] {
-    // This key is using string interpolation which is described below
+    // This key is using string interpolation which is described above
     "key\(i)": v
 }
 
 for v in ["a", "b", "c"] {
-    // This key is using string interpolation which is described below
+    // This key is using string interpolation which is described above
     "key\(v)": v
 }
 ```
@@ -271,7 +271,7 @@ subObject: {
     a: 1
 }
 
-object: {
+parentObject: {
     // This object will be embedded into the parent object allowing composition
     subObject
     
@@ -281,8 +281,13 @@ object: {
 The above will produces the following JSON
 ```json
 {
-  "a": 1,
-  "b": 2
+   "subObject": {
+        "a": 1
+    },
+    "parentObject": {
+        "a": 1,
+        "b": 2
+    }
 }
 ```
 
@@ -304,7 +309,10 @@ myAppend: function {
     return: args.head + args.tail + someVariable
 }
 
+// The arguments will be applied by the order they are assigned
 callByPosition: myAppend("head", "tail")
+
+// The arguments can also be applied by name
 callByName: myAppend(tail: "tail", head: "head")
 ```
 The above will produce the following JSON
@@ -321,10 +329,10 @@ When evaluating AML using the go library or CLI you can pass in args and profile
 data and profiles are used to provide alternative set of default values.
 
 ```cue
-// Args are defined using the args keyword at the top level of the document.  The can not be nested
+// Args are defined using the args keyword at the top level of the document.  They can not be nested
 // in any scopes.
 args: {
-	// A name you want outputed
+    // A name you want outputed
     someName: "default"
 }
 
@@ -371,6 +379,7 @@ Will produce the following JSON
 }
 ```
 
+### Args and profiles in help text in CLI
 The following command
 ```shell
 aml eval file.acorn --help
@@ -427,7 +436,7 @@ arrayOfStrings: [string]
 arrayOfNumbers: [number]
 arrayOfObjects: [{key: "value"}]
 
-// The below is interpreted as an a key someArray is required, must be an array and the
+// The below is interpreted as a key someArray is required, must be an array and the
 // values of the array must match the schema `string` or `{key: "value"}`
 mixedArrayOfStringAndObject: [string, {key: "value"}]
 ```
@@ -443,14 +452,14 @@ defaultedStringWithKeyword: default "hi"
 ```
 ### Conditions and Expressions
 
-Conditions >, >=, <, <=, ==, !=, =~, !~ can be used in the schema to validate the data. The condition expressions
+Conditions `>`, `>=`, `<`, `<=`, `==`, `!=`, `=~`, `!~` can be used in the schema to validate the data. The condition expressions
 must be written as the type is on the left and the condition is on the right.
 ```cue
 aPositionNumber: number > 0
 anExplicitConstant: string == "value"
 aRegex: string =~ "str.*"
 ```
-Complex expressions can be written by using the operators && and || and using parens to group expressions.
+Complex expressions can be written by using the operators `&&` and `||` and using parens to group expressions.
 ```cue
 aNumberRange: number > 0 && number < 10 || default 1
 ```
@@ -478,10 +487,10 @@ items: [types.Item]
 ## Examples
 
 As this is the language used by [Acorn](https://github.com/acorn-io/runtime), Acornfiles are a great place to look for
-examples of AML syntax. Try this [Git Hub search](https://github.com/search?q=path%3A**%2FAcornfile&type=code&ref=advsearch)
+examples of AML syntax. Try this [GitHub search](https://github.com/search?q=path%3A**%2FAcornfile&type=code&ref=advsearch)
 
 For an example of schema, you can refer the [schema file used to validate Acornfile](https://github.com/acorn-io/runtime/blob/main/pkg/appdefinition/app.acorn)
-is which is quite a complete example of most all schema features.
+which is quite a complete example of most all schema features.
 
 ## License
 
