@@ -114,6 +114,7 @@ func checkerToConstraint(ctx SchemaContext, checker Checker) (result schema.Cons
 	}
 
 	return schema.Constraint{
+		ID:          checker.ID(),
 		Description: checker.Description(),
 		Op:          checker.OpString(),
 		Right:       right,
@@ -457,8 +458,9 @@ func (n *TypeSchema) Or(right Value) (Value, error) {
 		return nil, err
 	}
 	return &TypeSchema{
-		Position:  rightSchema.Position,
-		KindValue: typeOrUnion(n.KindValue, rightSchema.KindValue),
+		Position:    rightSchema.Position,
+		KindValue:   typeOrUnion(n.KindValue, rightSchema.KindValue),
+		Constraints: MustMatchAlternate(),
 		Alternates: []TypeSchema{
 			*n, *rightSchema,
 		},
@@ -476,6 +478,10 @@ func (n *TypeSchema) renderDefaultArray() (_ Value, _ bool, retErr error) {
 }
 
 func (n *TypeSchema) Default() (Value, bool, error) {
+	v, ok, err := n.getDefault(false)
+	if err != nil || ok {
+		return v, ok, err
+	}
 	return n.getDefault(true)
 }
 

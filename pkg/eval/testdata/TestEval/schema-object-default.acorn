@@ -1,0 +1,10 @@
+schema {
+		args: {
+			a: {x: 1} || default {x: 2}
+			b: {x: 1} || {x: 3} || default {x: 2}
+			c: {x: 1} || {x: 3}
+		}
+}
+
+{
+}

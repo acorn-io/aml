@@ -7,6 +7,7 @@ import (
 type Checker interface {
 	Check(left Value) error
 	Description() string
+	ID() string
 	OpString() string
 	RightNative() (any, bool, error)
 }
@@ -23,13 +24,30 @@ func (c Constraints) Check(left Value) error {
 	return nil
 }
 
+func MustMatchAlternate() []Checker {
+	return []Checker{
+		&CustomConstraint{
+			CustomID:          "or",
+			CustomDescription: "must match alternate",
+			Checker: func(left Value) error {
+				return fmt.Errorf("must match alternate")
+			},
+		},
+	}
+}
+
 type CustomConstraint struct {
+	CustomID          string
 	CustomDescription string
 	Checker           func(left Value) error
 }
 
 func (c *CustomConstraint) Check(left Value) error {
 	return c.Checker(left)
+}
+
+func (c *CustomConstraint) ID() string {
+	return c.CustomID
 }
 
 func (c *CustomConstraint) Description() string {
@@ -47,6 +65,10 @@ func (c *CustomConstraint) RightNative() (any, bool, error) {
 type Constraint struct {
 	Op    string
 	Right Value
+}
+
+func (c *Constraint) ID() string {
+	return ""
 }
 
 func (c *Constraint) Description() string {

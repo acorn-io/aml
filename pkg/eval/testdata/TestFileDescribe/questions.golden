@@ -93,6 +93,7 @@
           "constraints": [
             {
               "description": "integer",
+              "id": "int",
               "op": "custom"
             }
           ]

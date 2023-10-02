@@ -51,7 +51,7 @@ func TestHelp(t *testing.T) {
 		"testdata/TestParseArgs/input-args.acorn",
 		"testdata/TestParseArgs/input.acorn",
 		file.ProfileNames,
-		file.Args)
+		file.Args.Fields)
 	flags.FlagSet.SetOutput(buffer)
 
 	_, _, err = flags.Parse([]string{"--help"})

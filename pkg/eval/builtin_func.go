@@ -708,6 +708,7 @@ func Int() value.Value {
 		KindValue: value.NumberKind,
 		Constraints: []value.Checker{
 			&value.CustomConstraint{
+				CustomID:          "int",
 				CustomDescription: "integer",
 				Checker: func(left value.Value) error {
 					_, err := value.ToInt(left)

@@ -1,0 +1,7 @@
+schema {
+	test: {a: string == "hi"} || {a: "not default"} || default {a: "default"}
+}
+
+{
+	test: {a: true}
+}

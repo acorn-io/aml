@@ -1,0 +1,8 @@
+schema {
+		args: {
+			a: [string] || default ["val"]
+			b: [string]
+		}
+}
+
+{}

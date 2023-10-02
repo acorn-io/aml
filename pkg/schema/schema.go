@@ -1,5 +1,3 @@
-// +k8s:deepcopy-gen=package
-
 package schema
 
 import "fmt"
@@ -15,8 +13,6 @@ type Name struct {
 	Name        string
 	Description string
 }
-
-// +k8s:deepcopy-gen=false
 
 type Schema interface {
 	GetFields() []Field
@@ -179,6 +175,7 @@ func (f FieldType) Merge(right FieldType) (result FieldType, err error) {
 
 type Constraint struct {
 	Description string `json:"description,omitempty"`
+	ID          string `json:"id,omitempty"`
 	Op          string `json:"op,omitempty"`
 	Right       any    `json:"right,omitempty"`
 }

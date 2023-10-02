@@ -11,6 +11,13 @@
               "op": "type",
               "right": {
                 "kind": "union",
+                "constraints": [
+                  {
+                    "description": "must match alternate",
+                    "id": "or",
+                    "op": "custom"
+                  }
+                ],
                 "alternates": [
                   {
                     "kind": "number",
@@ -58,6 +65,13 @@
               "op": "type",
               "right": {
                 "kind": "union",
+                "constraints": [
+                  {
+                    "description": "must match alternate",
+                    "id": "or",
+                    "op": "custom"
+                  }
+                ],
                 "alternates": [
                   {
                     "kind": "number",
