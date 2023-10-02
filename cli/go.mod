@@ -3,7 +3,7 @@ module github.com/acorn-io/aml/cli
 go 1.21.0
 
 require (
-	github.com/acorn-io/aml v0.0.0-20230929053759-b8bb55610fce
+	github.com/acorn-io/aml v0.0.0-20231002062956-5244ce3749cd
 	github.com/acorn-io/cmd v0.0.0-20230929053520-ebe1b9879b38
 	github.com/hexops/autogold/v2 v2.2.1
 	github.com/spf13/cobra v1.7.0

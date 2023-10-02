@@ -1,5 +1,5 @@
-github.com/acorn-io/aml v0.0.0-20230929053759-b8bb55610fce h1:KNSZ1c6BScVjZ0awkSh9xKiFilU3ay1VfHOt3dKIwYY=
-github.com/acorn-io/aml v0.0.0-20230929053759-b8bb55610fce/go.mod h1:I1qN++bfN+6sOV/FiACluqj2Eu5YaHOy82cTAnjLMf0=
+github.com/acorn-io/aml v0.0.0-20231002062956-5244ce3749cd h1:IKlG4n80fO3UvylxmCS/sddYG9Qm3RRSMemUcg55PwY=
+github.com/acorn-io/aml v0.0.0-20231002062956-5244ce3749cd/go.mod h1:I1qN++bfN+6sOV/FiACluqj2Eu5YaHOy82cTAnjLMf0=
 github.com/acorn-io/cmd v0.0.0-20230929053520-ebe1b9879b38 h1:oJMGvI702ZW5L0JjJfGV9ekzU2IqqTGjmAQl4gkO6Ro=
 github.com/acorn-io/cmd v0.0.0-20230929053520-ebe1b9879b38/go.mod h1:bo9ONX4kagbQmXcG4bnfoK53MBFFtbUZ5fR7s9NfS+M=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
