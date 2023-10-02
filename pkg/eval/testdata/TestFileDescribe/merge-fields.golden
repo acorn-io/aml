@@ -7,7 +7,7 @@
         "description": "First\nSecond",
         "type": {
           "kind": "string",
-          "constraint": [
+          "constraints": [
             {
               "op": "type",
               "right": {

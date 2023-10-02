@@ -139,7 +139,7 @@ func typeSchemaToFieldType(ctx SchemaContext, n *TypeSchema) (result schema.Fiel
 			continue
 		}
 
-		result.Constraint = append(result.Constraint, constraint)
+		result.Contstraints = append(result.Contstraints, constraint)
 	}
 
 	for _, alt := range n.Alternates {

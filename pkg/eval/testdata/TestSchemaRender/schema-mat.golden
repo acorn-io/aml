@@ -4,17 +4,17 @@
       "name": "a",
       "type": {
         "kind": "string",
-        "constraint": [
+        "constraints": [
           {
             "op": "type",
             "right": {
               "kind": "string",
-              "constraint": [
+              "constraints": [
                 {
                   "op": "type",
                   "right": {
                     "kind": "string",
-                    "constraint": [
+                    "constraints": [
                       {
                         "op": "=~",
                         "right": "hi.*"
@@ -26,7 +26,7 @@
                   "op": "type",
                   "right": {
                     "kind": "string",
-                    "constraint": [
+                    "constraints": [
                       {
                         "op": "!~",
                         "right": "bye.*"

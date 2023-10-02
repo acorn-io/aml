@@ -7,7 +7,7 @@
         "description": "a description\nsome condidionts",
         "type": {
           "kind": "number",
-          "constraint": [
+          "constraints": [
             {
               "op": "type",
               "right": {
@@ -19,12 +19,12 @@
               "op": "type",
               "right": {
                 "kind": "number",
-                "constraint": [
+                "constraints": [
                   {
                     "op": "type",
                     "right": {
                       "kind": "number",
-                      "constraint": [
+                      "constraints": [
                         {
                           "op": "\u003e",
                           "right": 3
@@ -36,7 +36,7 @@
                     "op": "type",
                     "right": {
                       "kind": "number",
-                      "constraint": [
+                      "constraints": [
                         {
                           "op": "\u003c",
                           "right": 10
@@ -56,7 +56,7 @@
         "description": "this is what an enum looks like",
         "type": {
           "kind": "string",
-          "constraint": [
+          "constraints": [
             {
               "op": "==",
               "right": "one"
@@ -65,7 +65,7 @@
           "alternates": [
             {
               "kind": "string",
-              "constraint": [
+              "constraints": [
                 {
                   "op": "==",
                   "right": "two"
@@ -74,7 +74,7 @@
             },
             {
               "kind": "string",
-              "constraint": [
+              "constraints": [
                 {
                   "op": "==",
                   "right": "three"
@@ -90,7 +90,7 @@
         "description": "this is a custom condition which you have to just throw your hands up with",
         "type": {
           "kind": "number",
-          "constraint": [
+          "constraints": [
             {
               "description": "integer",
               "op": "custom"

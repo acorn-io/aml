@@ -7,7 +7,7 @@
         "description": "A bool",
         "type": {
           "kind": "union",
-          "constraint": [
+          "constraints": [
             {
               "op": "type",
               "right": {

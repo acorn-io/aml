@@ -15,7 +15,7 @@
                 "description": "First nested\nSecond nested",
                 "type": {
                   "kind": "string",
-                  "constraint": [
+                  "constraints": [
                     {
                       "op": "type",
                       "right": {

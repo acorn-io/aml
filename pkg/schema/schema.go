@@ -126,12 +126,12 @@ func (f *Field) GetFields() []Field {
 }
 
 type FieldType struct {
-	Kind       Kind         `json:"kind,omitempty"`
-	Object     *Object      `json:"object,omitempty"`
-	Array      *Array       `json:"array,omitempty"`
-	Constraint []Constraint `json:"constraint,omitempty"`
-	Default    any          `json:"default,omitempty"`
-	Alternates []FieldType  `json:"alternates,omitempty"`
+	Kind         Kind         `json:"kind,omitempty"`
+	Object       *Object      `json:"object,omitempty"`
+	Array        *Array       `json:"array,omitempty"`
+	Contstraints []Constraint `json:"constraints,omitempty"`
+	Default      any          `json:"default,omitempty"`
+	Alternates   []FieldType  `json:"alternates,omitempty"`
 }
 
 func kindOrUnion(left, right Kind) Kind {
@@ -153,8 +153,8 @@ func (f FieldType) Merge(right FieldType) (result FieldType, err error) {
 	if f.Object != nil && right.Object != nil &&
 		f.Default == nil &&
 		right.Default == nil &&
-		len(f.Constraint) == 0 &&
-		len(right.Constraint) == 0 &&
+		len(f.Contstraints) == 0 &&
+		len(right.Contstraints) == 0 &&
 		len(f.Alternates) == 0 &&
 		len(right.Alternates) == 0 {
 		result = f
@@ -164,7 +164,7 @@ func (f FieldType) Merge(right FieldType) (result FieldType, err error) {
 	return FieldType{
 		Kind:    kindOrUnion(f.Kind, right.Kind),
 		Default: firstValue(f.Default, right.Default),
-		Constraint: []Constraint{
+		Contstraints: []Constraint{
 			{
 				Op:    "type",
 				Right: f,

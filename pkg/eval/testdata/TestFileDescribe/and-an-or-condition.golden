@@ -6,7 +6,7 @@
         "name": "a_number_with_a_default",
         "type": {
           "kind": "union",
-          "constraint": [
+          "constraints": [
             {
               "op": "type",
               "right": {
@@ -14,7 +14,7 @@
                 "alternates": [
                   {
                     "kind": "number",
-                    "constraint": [
+                    "constraints": [
                       {
                         "op": "\u003e",
                         "right": 5
@@ -23,12 +23,12 @@
                   },
                   {
                     "kind": "string",
-                    "constraint": [
+                    "constraints": [
                       {
                         "op": "type",
                         "right": {
                           "kind": "string",
-                          "constraint": [
+                          "constraints": [
                             {
                               "op": "!=",
                               "right": "foo"
@@ -40,7 +40,7 @@
                         "op": "type",
                         "right": {
                           "kind": "string",
-                          "constraint": [
+                          "constraints": [
                             {
                               "op": "==",
                               "right": "foo"
@@ -61,7 +61,7 @@
                 "alternates": [
                   {
                     "kind": "number",
-                    "constraint": [
+                    "constraints": [
                       {
                         "op": "\u003e",
                         "right": 3
@@ -70,7 +70,7 @@
                   },
                   {
                     "kind": "string",
-                    "constraint": [
+                    "constraints": [
                       {
                         "op": "!=",
                         "right": "bar"

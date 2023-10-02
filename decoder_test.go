@@ -70,7 +70,7 @@ func TestSchemaUnmarshal(t *testing.T) {
 					Description: "Foo\nFoo2",
 					Type: schema.FieldType{
 						Kind: schema.Kind("number"),
-						Constraint: []schema.Constraint{
+						Contstraints: []schema.Constraint{
 							{
 								Op: "type",
 								Right: schema.FieldType{
@@ -97,7 +97,7 @@ func TestSchemaUnmarshal(t *testing.T) {
 					Name: "bar",
 					Type: schema.FieldType{
 						Kind: schema.Kind("number"),
-						Constraint: []schema.Constraint{
+						Contstraints: []schema.Constraint{
 							{
 								Op: "type",
 								Right: schema.FieldType{
@@ -109,7 +109,7 @@ func TestSchemaUnmarshal(t *testing.T) {
 								Op: "type",
 								Right: schema.FieldType{
 									Kind: schema.Kind("number"),
-									Constraint: []schema.Constraint{{
+									Contstraints: []schema.Constraint{{
 										Op:    "<",
 										Right: value.Number("10"),
 									}},
