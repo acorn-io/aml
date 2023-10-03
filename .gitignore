@@ -3,7 +3,5 @@
 /dist
 *.swp
 .idea
-/go.work
-/go.work.sum
 /cosign.key
 /releases
