@@ -15,7 +15,7 @@ func mergeNative(left, right Value) (Value, error) {
 		return nil, err
 	}
 	if !b {
-		return nil, fmt.Errorf("can not override value %s with %s", left, right)
+		return nil, fmt.Errorf("can not override value [%s] with [%s]", left, right)
 	}
 	return right, nil
 }
@@ -61,7 +61,7 @@ func assertType(val Value, kind Kind) error {
 
 func assertKindsMatch(left, right Value) error {
 	if left.Kind() != right.Kind() {
-		return fmt.Errorf("can not override field %s %s with %s %s",
+		return fmt.Errorf("can not override field %s [%s] with %s [%s]",
 			left.Kind(), left, right.Kind(), right)
 	}
 	return nil

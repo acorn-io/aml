@@ -517,7 +517,6 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 
 	case *ast.Else:
 		f.print(x.Else, "else", blank)
-		f.print(indent)
 		if x.If != nil {
 			f.expr(x.If)
 		}
