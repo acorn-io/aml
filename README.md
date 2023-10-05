@@ -127,7 +127,7 @@ The above AML will produce the following JSON.
 ### Math
 ```cue
 addition: 1 + 2
-substraction: 1 + 2
+subtraction: 1 - 2
 multiplication: 1 * 2
 division: 1 / 2
 parens: (1 + 2) * 3
