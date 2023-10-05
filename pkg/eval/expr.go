@@ -26,7 +26,10 @@ func (d *Default) ToValue(scope Scope) (value.Value, bool, error) {
 	if err != nil || !ok {
 		return nil, ok, err
 	}
-	return value.NewDefault(v), true, nil
+	if scope.IsSchema() {
+		return value.NewDefault(v), true, nil
+	}
+	return value.NewMatchTypeWithDefault(v), true, nil
 }
 
 func (p *Parens) ToValue(scope Scope) (value.Value, bool, error) {

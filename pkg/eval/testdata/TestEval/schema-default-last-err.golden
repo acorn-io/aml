@@ -3,4 +3,4 @@ option 2: [option 1: [must match alternate (schema-default-last-err.acorn:2:31)]
 option 2: [schema violation test.a: expected kind string but got bool with value (true) (schema-default-last-err.acorn:2:8)],
 option 3: [schema violation test.a: expected kind string but got bool with value (true) (schema-default-last-err.acorn:2:31)]],
 option 3: [expected kind bool, got string (value: default)
-can not override field string default with bool true] (schema-default-last-err.acorn:1:8)`
+can not override field string [default] with bool [true]] (schema-default-last-err.acorn:1:8)`
