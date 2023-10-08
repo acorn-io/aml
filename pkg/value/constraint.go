@@ -1,8 +1,11 @@
 package value
 
 import (
+	"errors"
 	"fmt"
 )
+
+var ErrMustMatchAlternate = errors.New("must match alternate")
 
 type Checker interface {
 	Check(left Value) error
@@ -30,7 +33,7 @@ func MustMatchAlternate() []Checker {
 			CustomID:          "or",
 			CustomDescription: "must match alternate",
 			Checker: func(left Value) error {
-				return fmt.Errorf("must match alternate")
+				return ErrMustMatchAlternate
 			},
 		},
 	}

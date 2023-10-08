@@ -1,0 +1,10 @@
+Schema: schema {
+    foo: string
+}
+
+{
+    Schema
+    {
+    	bar: "1"
+    }
+}

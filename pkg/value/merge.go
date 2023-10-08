@@ -40,7 +40,7 @@ func Merge(values ...Value) (result Value, err error) {
 			} else {
 				result, err = mergeNative(result, item)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("can not merge values: %w", err)
 				}
 			}
 		}

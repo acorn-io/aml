@@ -144,54 +144,15 @@ func (e *ErrSchemaViolation) Unwrap() error {
 }
 
 func (e *ErrSchemaViolation) Error() string {
-	bottom := BottomLeftMost(e)
-	s := fmt.Sprintf("schema violation %s.%s: %v", bottom.Path, bottom.Key, bottom.Err)
+	suffix := ""
+	if e.Path != "" {
+		suffix = fmt.Sprintf(" [%s]", e.Path)
+	}
+	s := fmt.Sprintf("schema violation key %s: %v%s", e.Key, e.Err, suffix)
 	if len(s) > 1000 {
 		return s[:1000] + "..."
 	}
 	return s
-}
-
-type x interface {
-	comparable
-	error
-}
-
-func unwrapOnce(err error) error {
-	next := errors.Unwrap(err)
-	if next != nil {
-		return next
-	}
-
-	list, ok := err.(interface{ Unwrap() []error })
-	if ok {
-		errs := list.Unwrap()
-		if len(errs) > 0 {
-			return errs[0]
-		}
-	}
-
-	return nil
-}
-
-func BottomLeftMost[T x](start T) T {
-	var (
-		last       = start
-		cur  error = start
-	)
-
-	for {
-		next := unwrapOnce(cur)
-		if next == nil {
-			break
-		}
-		if x, ok := next.(T); ok {
-			last = x
-		}
-		cur = next
-	}
-
-	return last
 }
 
 func (n *ObjectSchema) MergeContract(right *ObjectSchema) *ObjectSchema {
@@ -446,7 +407,7 @@ type ErrUnknownField struct {
 }
 
 func (e *ErrUnknownField) Error() string {
-	return fmt.Sprintf("unknown field: %s.%s", e.Path, e.Key)
+	return fmt.Sprintf("unknown field %s", e.Key)
 }
 
 type ErrMissingRequiredKeys struct {
@@ -455,11 +416,10 @@ type ErrMissingRequiredKeys struct {
 }
 
 func (e *ErrMissingRequiredKeys) Error() string {
-	var keys []string
-	for _, key := range e.Keys {
-		keys = append(keys, e.Path+"."+key)
+	if len(e.Keys) == 1 {
+		return fmt.Sprintf("missing required key %s", e.Keys[0])
 	}
-	return fmt.Sprintf("missing required key(s): %v", keys)
+	return fmt.Sprintf("missing required keys %v", e.Keys)
 }
 
 type noFields struct {

@@ -27,7 +27,7 @@ func (a *Array) ToValue(scope Scope) (value.Value, bool, error) {
 			continue
 		}
 		if value.IsSimpleKind(v.Kind()) && scope.IsSchema() {
-			v = value.NewMatchTypeWithDefault(v)
+			v = value.NewMatchTypeWithDefault(value.Position(a.Pos), v)
 		}
 		objs = append(objs, v)
 	}

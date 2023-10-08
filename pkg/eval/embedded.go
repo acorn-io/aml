@@ -21,6 +21,10 @@ type Embedded struct {
 	disallowedKeys []string
 }
 
+func (e *Embedded) Position() Position {
+	return e.Pos
+}
+
 func (e *Embedded) DescribeFields(ctx value.SchemaContext, scope Scope) ([]schema.Field, error) {
 	// Get unique path so that schema references work correctly
 	scope = scope.Push(nil, ScopeOption{

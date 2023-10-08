@@ -36,16 +36,16 @@
 					Value: &eval.Selector{
 						Pos: eval.Position{
 							Filename: "root.acorn",
-							Offset:   9,
+							Offset:   13,
 							Line:     2,
-							Column:   5,
+							Column:   9,
 						},
 						Base: &eval.Selector{
 							Pos: eval.Position{
 								Filename: "root.acorn",
-								Offset:   9,
+								Offset:   11,
 								Line:     2,
-								Column:   5,
+								Column:   7,
 							},
 							Base: &eval.Lookup{
 								Pos: eval.Position{

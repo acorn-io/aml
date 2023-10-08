@@ -1,0 +1,10 @@
+schema {
+    foo: ["a", "b"]
+    bar: ["a", "b"]
+    baz: ["a", "b"]
+}
+
+{
+    foo: []
+    baz: ["x", "y"]
+}

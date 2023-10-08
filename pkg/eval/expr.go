@@ -27,9 +27,9 @@ func (d *Default) ToValue(scope Scope) (value.Value, bool, error) {
 		return nil, ok, err
 	}
 	if scope.IsSchema() {
-		return value.NewDefault(v), true, nil
+		return value.NewDefault(value.Position(d.Pos), v), true, nil
 	}
-	return value.NewMatchTypeWithDefault(v), true, nil
+	return value.NewMatchTypeWithDefault(value.Position(d.Pos), v), true, nil
 }
 
 func (p *Parens) ToValue(scope Scope) (value.Value, bool, error) {
@@ -160,7 +160,11 @@ func (i *Index) ToValue(scope Scope) (value.Value, bool, error) {
 		return value.Lookup(base, indexValue)
 	}
 
-	return value.Index(base, indexValue)
+	result, ok, err := value.Index(base, indexValue)
+	if err != nil {
+		return nil, false, errors.NewErrEval(value.Position(i.Pos), err)
+	}
+	return result, ok, nil
 }
 
 type Slice struct {

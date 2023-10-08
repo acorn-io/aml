@@ -400,7 +400,7 @@ func selectorToExpression(sel *ast.SelectorExpr) (Expression, error) {
 
 	return &Selector{
 		Comments: getComments(sel),
-		Pos:      pos(sel.Pos()),
+		Pos:      pos(sel.Sel.Pos()),
 		Base:     selExpr,
 		Key:      key,
 	}, nil

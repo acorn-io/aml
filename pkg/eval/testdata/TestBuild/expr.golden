@@ -128,9 +128,9 @@
 			Value: &eval.Selector{
 				Pos: eval.Position{
 					Filename: "expr.acorn",
-					Offset:   50,
+					Offset:   54,
 					Line:     5,
-					Column:   6,
+					Column:   10,
 				},
 				Base: &eval.Lookup{
 					Pos: eval.Position{

@@ -1,3 +1,4 @@
-`schema violation .a: option 1: [unmatched constraint f == a],
+`schema violation key a:
+option 1: [unmatched constraint f == a],
 option 2: [unmatched constraint f == b],
-option 3: [unmatched constraint f == c] (schema-enum-bad.acorn:1:8)`
+option 3: [unmatched constraint f == c]: schema-enum-bad.acorn:5:1 (1:8<-5:1)`

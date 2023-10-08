@@ -42,15 +42,11 @@ func (s *Struct) ToValue(scope Scope) (value.Value, bool, error) {
 	}
 
 	scope = scope.Push(s)
-	values, err := FieldsToValues(scope, s.Fields)
+	result, err := FieldsToValue(scope, s.Fields)
 	if err != nil {
 		return nil, false, err
 	}
 
-	result, err := value.Merge(values...)
-	if err != nil {
-		return nil, false, err
-	}
 	if result == nil {
 		return value.NewObject(nil), true, nil
 	}

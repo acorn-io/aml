@@ -1,1 +1,1 @@
-"invalid cycle detected in key args: keyloop-bad-func.acorn:5:10 (backtrace 8:7)"
+"invalid cycle detected in key args: keyloop-bad-func.acorn:5:10 (5:10<-8:7)"

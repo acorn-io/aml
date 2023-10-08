@@ -94,7 +94,7 @@ func (a Array) Index(idxValue Value) (Value, bool, error) {
 		return nil, false, err
 	}
 	if int(idx) >= len(a) || idx < 0 {
-		return nil, false, nil
+		return nil, false, fmt.Errorf("index %d out of bound, len %d", idx, len(a))
 	}
 	return a[idx], true, nil
 }

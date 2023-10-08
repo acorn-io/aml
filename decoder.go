@@ -21,6 +21,7 @@ type DecoderOption struct {
 	SourceName       string
 	SchemaSourceName string
 	Schema           io.Reader
+	Globals          map[string]any
 	Context          context.Context
 }
 
@@ -57,6 +58,12 @@ func (o DecoderOptions) Merge() (result DecoderOption) {
 		}
 		if opt.Schema != nil {
 			result.Schema = opt.Schema
+		}
+		if len(opt.Globals) > 0 && result.Globals == nil {
+			result.Globals = map[string]any{}
+		}
+		for k, v := range opt.Globals {
+			result.Globals[k] = v
 		}
 	}
 	return
@@ -146,7 +153,9 @@ func (d *Decoder) Decode(out any) error {
 		return nil
 	}
 
-	val, ok, err := eval.EvalExpr(d.opts.Context, file)
+	val, ok, err := eval.EvalExpr(d.opts.Context, file, eval.EvalOption{
+		Globals: d.opts.Globals,
+	})
 	if err != nil {
 		return err
 	} else if !ok {

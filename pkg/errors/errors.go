@@ -124,28 +124,35 @@ func NewErrEval(pos value.Position, err error) error {
 	}
 }
 
+func (e *ErrEval) Pos() value.Position {
+	return e.Position
+}
+
 func (e *ErrEval) Unwrap() error {
 	return e.Err
 }
 
 func printPath(pos []value.Position) string {
+	if len(pos) <= 1 {
+		return ""
+	}
+
 	buf := strings.Builder{}
-	end := pos[len(pos)-1]
 	last := pos[len(pos)-1]
-	for i := len(pos) - 2; i >= 0; i-- {
+	buf.WriteString(fmt.Sprintf("%d:%d", last.Line, last.Column))
+
+	for i := len(pos) - 1; i >= 0; i-- {
 		next := pos[i]
-		if next == end {
-			break
-		} else if last == next {
+		if next == last {
 			continue
 		}
-		if buf.Len() > 0 {
-			buf.WriteString("->")
-		}
+		buf.WriteString("<-")
 		if last.Filename != next.Filename {
 			buf.WriteString(next.Filename)
+			buf.WriteString(":")
 		}
 		buf.WriteString(fmt.Sprintf("%d:%d", next.Line, next.Column))
+		last = next
 	}
 
 	return buf.String()
@@ -153,22 +160,44 @@ func printPath(pos []value.Position) string {
 
 func (e *ErrEval) Error() string {
 	var (
-		pos  = []value.Position{e.Position}
+		pos  []value.Position
 		last = e
 	)
 
+	if e.Position != value.NoPosition {
+		pos = append(pos, e.Position)
+	}
+
 	var cur error = e
 	for cur != nil {
-		cur = errors.Unwrap(cur)
+		next := errors.Unwrap(cur)
+		if next == nil {
+			if l, ok := cur.(interface {
+				Unwrap() []error
+			}); ok {
+				errs := l.Unwrap()
+				if len(errs) > 0 {
+					next = errs[0]
+				}
+			}
+		}
+		cur = next
+		if p, ok := cur.(interface {
+			Pos() value.Position
+		}); ok && p.Pos() != value.NoPosition {
+			pos = append(pos, p.Pos())
+		}
 		if e, ok := cur.(*ErrEval); ok {
-			pos = append(pos, e.Position)
 			last = e
 		}
 	}
 
 	backtrace := printPath(pos)
 	if len(backtrace) > 0 {
-		return fmt.Sprintf("%s: %s (backtrace %s)", last.Err.Error(), last.Position, printPath(pos))
+		return fmt.Sprintf("%s: %s (%s)", last.Err.Error(), last.Position, printPath(pos))
+	}
+	if last.Position == value.NoPosition {
+		return last.Err.Error()
 	}
 	return fmt.Sprintf("%s: %s", last.Err.Error(), last.Position)
 }

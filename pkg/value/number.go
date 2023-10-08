@@ -83,7 +83,7 @@ func (n Number) binCompare(right Value, opName string, intFunc func(int64, int64
 	}
 }
 
-func (n Number) binOp(right Value, opName string, intFunc func(int64, int64) int64, floatFunc func(float64, float64) float64) (Value, error) {
+func (n Number) binOp(right Value, opName string, intFunc func(int64, int64) any, floatFunc func(float64, float64) float64) (Value, error) {
 	if right.Kind() != NumberKind {
 		return nil, fmt.Errorf("can not %s number to invalid kind %s", opName, right.Kind())
 	}
@@ -108,7 +108,7 @@ func (n Number) binOp(right Value, opName string, intFunc func(int64, int64) int
 }
 
 func (n Number) Sub(right Value) (Value, error) {
-	return n.binOp(right, "subtract", func(i int64, i2 int64) int64 {
+	return n.binOp(right, "subtract", func(i int64, i2 int64) any {
 		return i - i2
 	}, func(f float64, f2 float64) float64 {
 		return f - f2
@@ -116,7 +116,7 @@ func (n Number) Sub(right Value) (Value, error) {
 }
 
 func (n Number) Add(right Value) (Value, error) {
-	return n.binOp(right, "add", func(i int64, i2 int64) int64 {
+	return n.binOp(right, "add", func(i int64, i2 int64) any {
 		return i + i2
 	}, func(f float64, f2 float64) float64 {
 		return f + f2
@@ -124,7 +124,7 @@ func (n Number) Add(right Value) (Value, error) {
 }
 
 func (n Number) Mul(right Value) (Value, error) {
-	return n.binOp(right, "multiply", func(i int64, i2 int64) int64 {
+	return n.binOp(right, "multiply", func(i int64, i2 int64) any {
 		return i * i2
 	}, func(f float64, f2 float64) float64 {
 		return f * f2
@@ -132,8 +132,11 @@ func (n Number) Mul(right Value) (Value, error) {
 }
 
 func (n Number) Div(right Value) (Value, error) {
-	return n.binOp(right, "divide", func(i int64, i2 int64) int64 {
-		return i / i2
+	return n.binOp(right, "divide", func(i int64, i2 int64) any {
+		if i%i2 == 0 {
+			return i / i2
+		}
+		return float64(i) / float64(i2)
 	}, func(f float64, f2 float64) float64 {
 		return f / f2
 	})

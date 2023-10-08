@@ -1,8 +1,8 @@
 package value
 
 import (
-	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/acorn-io/aml/pkg/schema"
@@ -56,15 +56,17 @@ func (n *TypeSchema) isMergeableObject() bool {
 		n.DefaultValue == nil
 }
 
-func NewMatchTypeWithDefault(v Value) Value {
+func NewMatchTypeWithDefault(pos Position, v Value) Value {
 	return &TypeSchema{
+		Position:     pos,
 		KindValue:    TargetKind(v),
 		DefaultValue: v,
 	}
 }
 
-func NewDefault(v Value) Value {
+func NewDefault(pos Position, v Value) Value {
 	return &TypeSchema{
+		Position:     pos,
 		KindValue:    TargetKind(v),
 		DefaultValue: v,
 		Constraints: []Checker{
@@ -384,6 +386,23 @@ func TargetKind(v Value) Kind {
 	return v.Kind()
 }
 
+type posError struct {
+	Position Position
+	Err      error
+}
+
+func (e *posError) Unwrap() error {
+	return e.Err
+}
+
+func (e *posError) Error() string {
+	return e.Err.Error()
+}
+
+func (e *posError) Pos() Position {
+	return e.Position
+}
+
 func checkNoMultipleDefault(left, right *TypeSchema) error {
 	_, ok, err := left.getDefault(false)
 	if err != nil {
@@ -395,7 +414,10 @@ func checkNoMultipleDefault(left, right *TypeSchema) error {
 			return err
 		}
 		if ok {
-			return fmt.Errorf("multiple defaults can not be defined")
+			return &posError{
+				Position: right.Position,
+				Err:      fmt.Errorf("multiple defaults can not be defined"),
+			}
 		}
 	}
 	return nil
@@ -452,7 +474,7 @@ func typeOrUnion(left, right Kind) Kind {
 func (n *TypeSchema) Or(right Value) (Value, error) {
 	rightSchema, ok := right.(*TypeSchema)
 	if !ok {
-		rightSchema = NewDefault(right).(*TypeSchema)
+		rightSchema = NewDefault(n.Position, right).(*TypeSchema)
 	}
 	if err := checkNoMultipleDefault(n, rightSchema); err != nil {
 		return nil, err
@@ -530,6 +552,10 @@ type ErrUnmatchedType struct {
 	Alternates []error
 }
 
+func (e *ErrUnmatchedType) Pos() Position {
+	return e.Position
+}
+
 func (e *ErrUnmatchedType) Unwrap() []error {
 	return append(e.Errs, e.Alternates...)
 }
@@ -543,11 +569,21 @@ func (e *ErrUnmatchedType) errors() (result []string) {
 }
 
 func (e *ErrUnmatchedType) checkErr() string {
-	posStr := ""
-	if e.Position != NoPosition {
-		posStr = fmt.Sprintf(" (%s)", e.Position)
+	filtered := slices.DeleteFunc(e.Errs, func(err error) bool {
+		return err == ErrMustMatchAlternate
+	})
+	switch len(filtered) {
+	case 0:
+		return ""
+	case 1:
+		return filtered[0].Error()
 	}
-	return fmt.Sprintf("%v%s", errors.Join(e.Errs...), posStr)
+	var result strings.Builder
+	for _, err := range filtered {
+		result.WriteString("\n    ")
+		result.WriteString(err.Error())
+	}
+	return result.String()
 }
 
 func (e *ErrUnmatchedType) Error() string {
@@ -562,6 +598,9 @@ func (e *ErrUnmatchedType) Error() string {
 		}
 		seen[key] = struct{}{}
 
+		if key == "" {
+			continue
+		}
 		errorStrings = append(errorStrings, key)
 	}
 
@@ -574,9 +613,9 @@ func (e *ErrUnmatchedType) Error() string {
 	buf := strings.Builder{}
 	for i, errString := range errorStrings {
 		if buf.Len() > 0 {
-			buf.WriteString(",\n")
+			buf.WriteString(",")
 		}
-		buf.WriteString(fmt.Sprintf("option %d: [%s]", i+1, errString))
+		buf.WriteString(fmt.Sprintf("\n\toption %d: [%s]", i+1, errString))
 	}
 
 	return buf.String()

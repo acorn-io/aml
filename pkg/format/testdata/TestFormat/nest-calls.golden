@@ -1,0 +1,10 @@
+goEnvVolume: {
+	envValue: dagger.
+		fo.
+		container(a, x).
+		container()
+	return: {
+		path:  std.trim(envValue)
+		cache: dagger.cacheVolume(args.envName)
+	}
+}

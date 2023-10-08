@@ -442,13 +442,10 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 		if len(x.Args) > 1 {
 			depth++
 		}
-		wasIndented := f.possibleSelectorExpr(x.Fun, token.HighestPrec, depth)
+		f.possibleSelectorExpr(x.Fun, token.HighestPrec, depth)
 		f.print(x.Lparen, token.LPAREN)
 		f.walkArgsList(x.Args, depth)
 		f.print(trailcomma, noblank, x.Rparen, token.RPAREN)
-		if wasIndented {
-			f.print(unindent)
-		}
 
 	case *ast.Func:
 		f.print(x.Func, token.FUNCTION, blank, nooverride)

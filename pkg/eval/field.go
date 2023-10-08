@@ -28,6 +28,7 @@ type Field interface {
 	FieldSchema
 	// ToValueForKey should return value where the key is equals to but ignoring any match fields
 	ToValueForKey(scope Scope, key string) (value.Value, bool, error)
+	Position() Position
 }
 
 type KeyValue struct {
@@ -37,6 +38,10 @@ type KeyValue struct {
 	Pos      Position
 	Local    bool
 	Optional bool
+}
+
+func (k *KeyValue) Position() Position {
+	return k.Pos
 }
 
 func (k *KeyValue) DescribeFields(ctx value.SchemaContext, scope Scope) ([]schema.Field, error) {
@@ -136,7 +141,7 @@ func (k *KeyValue) getValueValue(scope Scope, key string) (ret value.Value, _ bo
 		return nil, ok, err
 	}
 	if value.IsSimpleKind(v.Kind()) && scope.IsSchema() {
-		return value.NewMatchTypeWithDefault(v), true, nil
+		return value.NewMatchTypeWithDefault(value.Position(k.Pos), v), true, nil
 	}
 	return v, true, nil
 }
@@ -179,7 +184,7 @@ func (k *KeyValue) ToValue(scope Scope) (value.Value, bool, error) {
 	}, true, nil
 }
 
-func FieldsToValues(scope Scope, fields []Field) (result []value.Value, _ error) {
+func FieldsToValue(scope Scope, fields []Field) (result value.Value, _ error) {
 	for _, field := range fields {
 		v, ok, err := field.ToValue(scope)
 		if err != nil {
@@ -187,7 +192,14 @@ func FieldsToValues(scope Scope, fields []Field) (result []value.Value, _ error)
 		} else if !ok {
 			continue
 		}
-		result = append(result, v)
+		if result == nil {
+			result = v
+		} else {
+			result, err = value.Merge(result, v)
+			if err != nil {
+				return nil, errors.NewErrEval(value.Position(field.Position()), err)
+			}
+		}
 	}
 	return
 }

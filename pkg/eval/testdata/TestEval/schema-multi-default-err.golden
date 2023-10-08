@@ -1,1 +1,1 @@
-"multiple defaults can not be defined (schema-multi-default-err.acorn:1:8)"
+"multiple defaults can not be defined: schema-multi-default-err.acorn:6:1 (3:5<-1:8<-6:1)"
