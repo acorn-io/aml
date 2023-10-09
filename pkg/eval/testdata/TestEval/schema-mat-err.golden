@@ -1,1 +1,1 @@
-"schema violation key a: unmatched constraint bye =~ hi.*: schema-mat-err.acorn:6:1 (1:8<-6:1)"
+"schema violation key a: invalid constraint [value =~ hi.*] where value is [bye]: schema-mat-err.acorn:6:1 (1:8<-6:1)"

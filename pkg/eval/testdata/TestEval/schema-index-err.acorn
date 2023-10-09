@@ -1,0 +1,35 @@
+ schema {
+	"items": [
+		{
+			aPositionNumber:    number > 0
+			optionalNum?:       number
+			optionalBool?:      bool
+			optionalString?:    string
+			anExplicitConstant: string == "value"
+			aRegex:             string =~ "str.*"
+			aNumberRange:       number > 0 && number < 10 || default 1
+			defaultedString:    default "hi"
+			match "field.*":    string
+		},
+	]
+}
+
+{
+	items: [{aPositionNumber: 3
+					anExplicitConstant: "value"
+					aRegex:             "strip"
+					aNumberRange:       9
+					optionalNum:        1_00_00
+					optionalBool:       true
+					optionalString:     "test123"
+	},
+		{aPositionNumber: -4
+					anExplicitConstant: "value"
+					aRegex:             "strip"
+					aNumberRange:       9
+					optionalNum:        1_00_00
+					optionalBool:       true
+					optionalString:     "test123"
+		},
+	]
+}

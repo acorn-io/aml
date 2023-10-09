@@ -463,7 +463,7 @@ aNumberRange: number > 0 && number < 10 || default 1
 ```
 ### Types (pseudo)
 The following pattern can be used to define reusable types.  Custom types are not a first class object in the
-language but instead objects will schema fields can be reused.
+language but instead objects with schema fields can be reused.
 ```cue
 // By convention put types in a let field named types. This ensures the objects
 // are not included the evaluated output.

@@ -144,11 +144,45 @@ func (e *ErrSchemaViolation) Unwrap() error {
 }
 
 func (e *ErrSchemaViolation) Error() string {
-	suffix := ""
-	if e.Path != "" {
-		suffix = fmt.Sprintf(" [%s]", e.Path)
+	var (
+		cur      error = e
+		keyPaths []string
+		last     = e
+	)
+
+	if e.Key != "" {
+		keyPaths = []string{e.Key}
 	}
-	s := fmt.Sprintf("schema violation key %s: %v%s", e.Key, e.Err, suffix)
+
+	for cur != nil {
+		next := errors.Unwrap(cur)
+		if next == nil {
+			if l, ok := cur.(interface {
+				Unwrap() []error
+			}); ok {
+				errs := l.Unwrap()
+				if len(errs) > 0 {
+					next = errs[0]
+				}
+			}
+		}
+		cur = next
+		if ev, ok := cur.(*ErrSchemaViolation); ok {
+			if ev.Key != "" {
+				keyPaths = append(keyPaths, ev.Key)
+			}
+			last = ev
+		}
+	}
+
+	var (
+		keyPath = strings.Join(keyPaths, ".")
+		suffix  = ""
+	)
+	if last.Path != "" {
+		suffix = fmt.Sprintf(" [schema path %s]", last.Path)
+	}
+	s := fmt.Sprintf("schema violation key %s: %v%s", keyPath, last.Err, suffix)
 	if len(s) > 1000 {
 		return s[:1000] + "..."
 	}

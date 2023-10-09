@@ -1,1 +1,1 @@
-"schema violation key foo: expected kind number but got string with value (str) [Schema]: schema-optional-err.acorn:8:5 (2:5<-1:16<-8:5)"
+"schema violation key foo: expected kind number but got string with value (str) [schema path Schema]: schema-optional-err.acorn:8:5 (2:5<-1:16<-8:5)"

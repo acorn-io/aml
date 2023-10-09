@@ -118,7 +118,7 @@ func (c *Constraint) check(op Operator, left, right Value) error {
 		return err
 	}
 	if !b {
-		return fmt.Errorf("unmatched constraint %s %s %s", left, c.Op, right)
+		return fmt.Errorf("invalid constraint [value %s %s] where value is [%s]", c.Op, right, left)
 	}
 	return nil
 }

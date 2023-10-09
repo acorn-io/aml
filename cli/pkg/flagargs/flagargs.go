@@ -1,6 +1,7 @@
 package flagargs
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -144,6 +145,10 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 
 	if err := f.FlagSet.Parse(args); err != nil {
 		return nil, nil, err
+	}
+
+	if args := f.FlagSet.Args(); len(args) > 0 {
+		return nil, nil, fmt.Errorf("accepts no args, received %d %v", len(args), args)
 	}
 
 	for name, field := range f.fieldFlags {

@@ -1,5 +1,5 @@
 `schema violation key test:
-option 1: [schema violation key a: expected kind string but got bool with value (true) [test]],
+option 1: [schema violation key a: expected kind string but got bool with value (true) [schema path test]],
 option 2: [
     expected kind bool, got string (value: default)
     can not merge values: can not override field string [default] with bool [true]]: schema-default-last-err.acorn:5:1 (2:53<-1:8<-5:1)`
