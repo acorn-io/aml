@@ -57,7 +57,7 @@ func ReadFile(name string) ([]byte, error) {
 }
 
 func UnmarshalFile(name string, out any) error {
-	f, err := os.Open(name)
+	f, err := Open(name)
 	if err != nil {
 		return err
 	}
