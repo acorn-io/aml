@@ -1,58 +1,61 @@
-&ast.File{Filename: "schema.acorn", Decls: []ast.Decl{
-	&ast.Field{
-		Label: &ast.Ident{
-			NamePos: token.Pos{
-				file: &token.File{
-					name:  "schema.acorn",
-					base:  token.index(1),
-					size:  token.index(13),
-					lines: []token.index{token.index(0)},
-				},
-				offset: 18,
-			},
-			Name: "a",
-		},
-		Colon: token.Pos{
-			file: &token.File{
-				name:  "schema.acorn",
-				base:  token.index(1),
-				size:  token.index(13),
-				lines: []token.index{token.index(0)},
-			},
-			offset: 34,
-		},
-		Value: &ast.SchemaLit{
-			Schema: token.Pos{
-				file: &token.File{
-					name:  "schema.acorn",
-					base:  token.index(1),
-					size:  token.index(13),
-					lines: []token.index{token.index(0)},
-				},
-				offset: 67,
-			},
-			Struct: &ast.StructLit{
-				Lbrace: token.Pos{
-					file: &token.File{
-						name: "schema.acorn",
-						base: token.index(1),
-						size: token.index(13),
-						lines: []token.index{
-							token.index(0),
-						},
-					},
-					offset: 179,
-				},
-				Rbrace: token.Pos{
+&ast.File{
+	Filename: "schema.acorn", Decls: []ast.Decl{
+		&ast.Field{
+			Label: &ast.Ident{
+				NamePos: token.Pos{
 					file: &token.File{
 						name:  "schema.acorn",
 						base:  token.index(1),
 						size:  token.index(13),
 						lines: []token.index{token.index(0)},
 					},
-					offset: 194,
+					offset: 18,
+				},
+				Name: "a",
+			},
+			Colon: token.Pos{
+				file: &token.File{
+					name:  "schema.acorn",
+					base:  token.index(1),
+					size:  token.index(13),
+					lines: []token.index{token.index(0)},
+				},
+				offset: 34,
+			},
+			Value: &ast.SchemaLit{
+				Schema: token.Pos{
+					file: &token.File{
+						name:  "schema.acorn",
+						base:  token.index(1),
+						size:  token.index(13),
+						lines: []token.index{token.index(0)},
+					},
+					offset: 67,
+				},
+				Struct: &ast.StructLit{
+					Lbrace: token.Pos{
+						file: &token.File{
+							name: "schema.acorn",
+							base: token.index(1),
+							size: token.index(13),
+							lines: []token.index{
+								token.index(0),
+							},
+						},
+						offset: 179,
+					},
+					Rbrace: token.Pos{
+						file: &token.File{
+							name:  "schema.acorn",
+							base:  token.index(1),
+							size:  token.index(13),
+							lines: []token.index{token.index(0)},
+						},
+						offset: 194,
+					},
 				},
 			},
 		},
 	},
-}}
+	comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+}

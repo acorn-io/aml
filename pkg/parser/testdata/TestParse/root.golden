@@ -1,43 +1,7 @@
-&ast.File{Filename: "root.acorn", Decls: []ast.Decl{
-	&ast.Field{
-		Label: &ast.Ident{
-			NamePos: token.Pos{
-				file: &token.File{
-					name:  "root.acorn",
-					base:  token.index(1),
-					size:  token.index(6),
-					lines: []token.index{token.index(0)},
-				},
-				offset: 18,
-			},
-			Name: "a",
-		},
-		Colon: token.Pos{
-			file: &token.File{
-				name:  "root.acorn",
-				base:  token.index(1),
-				size:  token.index(6),
-				lines: []token.index{token.index(0)},
-			},
-			offset: 34,
-		},
-		Value: &ast.SelectorExpr{
-			X: &ast.Ident{
-				NamePos: token.Pos{
-					file: &token.File{
-						name: "root.acorn",
-						base: token.index(1),
-						size: token.index(6),
-						lines: []token.index{
-							token.index(0),
-						},
-					},
-					offset: 67,
-				},
-				Name:     "$",
-				comments: ast.comments{groups: &[]*ast.CommentGroup{}},
-			},
-			Sel: &ast.Ident{
+&ast.File{
+	Filename: "root.acorn", Decls: []ast.Decl{
+		&ast.Field{
+			Label: &ast.Ident{
 				NamePos: token.Pos{
 					file: &token.File{
 						name:  "root.acorn",
@@ -45,10 +9,49 @@
 						size:  token.index(6),
 						lines: []token.index{token.index(0)},
 					},
-					offset: 98,
+					offset: 18,
 				},
-				Name: "b",
+				Name: "a",
+			},
+			Colon: token.Pos{
+				file: &token.File{
+					name:  "root.acorn",
+					base:  token.index(1),
+					size:  token.index(6),
+					lines: []token.index{token.index(0)},
+				},
+				offset: 34,
+			},
+			Value: &ast.SelectorExpr{
+				X: &ast.Ident{
+					NamePos: token.Pos{
+						file: &token.File{
+							name: "root.acorn",
+							base: token.index(1),
+							size: token.index(6),
+							lines: []token.index{
+								token.index(0),
+							},
+						},
+						offset: 67,
+					},
+					Name:     "$",
+					comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+				},
+				Sel: &ast.Ident{
+					NamePos: token.Pos{
+						file: &token.File{
+							name:  "root.acorn",
+							base:  token.index(1),
+							size:  token.index(6),
+							lines: []token.index{token.index(0)},
+						},
+						offset: 98,
+					},
+					Name: "b",
+				},
 			},
 		},
 	},
-}}
+	comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+}

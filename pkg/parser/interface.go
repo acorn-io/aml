@@ -21,6 +21,7 @@ import (
 
 	"github.com/acorn-io/aml/pkg/ast"
 	"github.com/acorn-io/aml/pkg/errors"
+	"github.com/acorn-io/aml/pkg/parser/filemap"
 	"github.com/acorn-io/aml/pkg/token"
 )
 
@@ -45,35 +46,57 @@ const (
 	traceMode                          // print a trace of parsed productions
 )
 
-func ParseFile(filename string, src io.Reader, mode ...Option) (f *ast.File, retErr error) {
+func ParseFile(filename string, src io.Reader, mode ...Option) (retFile *ast.File, retErr error) {
 	text, err := io.ReadAll(src)
 	if err != nil {
 		return nil, err
 	}
 
-	var pp parser
+	var (
+		pp     parser
+		result = ast.File{
+			Filename: filename,
+		}
+	)
+
 	defer func() {
 		if pp.panicking {
 			_ = recover()
 		}
 
 		// set result values
-		if f == nil {
-			f = &ast.File{}
+		if retFile == nil {
+			retFile = &ast.File{}
 		}
 
 		retErr = errors.SanitizeParserErrors(retErr)
 	}()
 
-	// parse source
-	pp.init(filename, text, mode)
-	f = pp.parseFile()
-	if f == nil {
-		return nil, errors.Join(pp.errors...)
+	fileMap, err := filemap.FromBytes(filename, text)
+	if err != nil {
+		return nil, err
 	}
-	f.Filename = filename
 
-	return f, errors.Join(pp.errors...)
+	for _, entry := range fileMap.Files() {
+		// reset parser
+		pp = parser{}
+
+		// parse source
+		pp.init(entry.Filename, entry.Data, mode)
+		f := pp.parseFile()
+		if f == nil {
+			return nil, errors.Join(pp.errors...)
+		}
+
+		if len(pp.errors) > 0 {
+			return nil, errors.Join(pp.errors...)
+		}
+
+		result.Decls = append(result.Decls, f.Decls...)
+		result.SetComments(append(result.Comments(), f.Comments()...))
+	}
+
+	return &result, nil
 }
 
 func ParseExpr(filename string, src io.Reader, mode ...Option) (_ ast.Expr, retErr error) {

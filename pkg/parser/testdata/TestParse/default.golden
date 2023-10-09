@@ -1,51 +1,54 @@
-&ast.File{Filename: "default.acorn", Decls: []ast.Decl{
-	&ast.Field{
-		Label: &ast.Ident{
-			NamePos: token.Pos{
-				file: &token.File{
-					name:  "default.acorn",
-					base:  token.index(1),
-					size:  token.index(13),
-					lines: []token.index{token.index(0)},
-				},
-				offset: 18,
-			},
-			Name: "a",
-		},
-		Colon: token.Pos{
-			file: &token.File{
-				name:  "default.acorn",
-				base:  token.index(1),
-				size:  token.index(13),
-				lines: []token.index{token.index(0)},
-			},
-			offset: 34,
-		},
-		Value: &ast.DefaultExpr{
-			Default: token.Pos{
-				file: &token.File{
-					name:  "default.acorn",
-					base:  token.index(1),
-					size:  token.index(13),
-					lines: []token.index{token.index(0)},
-				},
-				offset: 67,
-			},
-			X: &ast.BasicLit{
-				ValuePos: token.Pos{
+&ast.File{
+	Filename: "default.acorn", Decls: []ast.Decl{
+		&ast.Field{
+			Label: &ast.Ident{
+				NamePos: token.Pos{
 					file: &token.File{
-						name: "default.acorn",
-						base: token.index(1),
-						size: token.index(13),
-						lines: []token.index{
-							token.index(0),
-						},
+						name:  "default.acorn",
+						base:  token.index(1),
+						size:  token.index(13),
+						lines: []token.index{token.index(0)},
 					},
-					offset: 195,
+					offset: 18,
 				},
-				Kind:  token.Token(NUMBER),
-				Value: "1",
+				Name: "a",
+			},
+			Colon: token.Pos{
+				file: &token.File{
+					name:  "default.acorn",
+					base:  token.index(1),
+					size:  token.index(13),
+					lines: []token.index{token.index(0)},
+				},
+				offset: 34,
+			},
+			Value: &ast.DefaultExpr{
+				Default: token.Pos{
+					file: &token.File{
+						name:  "default.acorn",
+						base:  token.index(1),
+						size:  token.index(13),
+						lines: []token.index{token.index(0)},
+					},
+					offset: 67,
+				},
+				X: &ast.BasicLit{
+					ValuePos: token.Pos{
+						file: &token.File{
+							name: "default.acorn",
+							base: token.index(1),
+							size: token.index(13),
+							lines: []token.index{
+								token.index(0),
+							},
+						},
+						offset: 195,
+					},
+					Kind:  token.Token(NUMBER),
+					Value: "1",
+				},
 			},
 		},
 	},
-}}
+	comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+}

@@ -1,0 +1,5 @@
+//aml:filemap
+{
+	"foo.acorn": "a: b",
+	"foo2.acorn": "b: 1"
+}

@@ -3,9 +3,9 @@ package cmds
 import (
 	"errors"
 	"io"
-	"os"
 
 	"github.com/acorn-io/aml"
+	"github.com/acorn-io/aml/cli/pkg/amlreadhelper"
 	"github.com/acorn-io/aml/cli/pkg/flagargs"
 	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/cmd"
@@ -46,14 +46,14 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	data, err := os.ReadFile(filename)
+	data, err := amlreadhelper.ReadFile(filename)
 	if err != nil {
 		return err
 	}
 
 	var (
 		out         any = &map[string]any{}
-		schemaInput io.Reader
+		schemaInput io.ReadCloser
 	)
 	if e.PrintArgs {
 		out = &schema.File{}
@@ -62,10 +62,11 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 	}
 
 	if e.SchemaFile != "" {
-		schemaInput, err = os.Open(e.SchemaFile)
+		schemaInput, err = amlreadhelper.Open(e.SchemaFile)
 		if err != nil {
 			return err
 		}
+		defer schemaInput.Close()
 	}
 
 	err = aml.Unmarshal(data, out, aml.DecoderOption{

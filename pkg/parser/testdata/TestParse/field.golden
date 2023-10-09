@@ -1,38 +1,41 @@
-&ast.File{Filename: "field.acorn", Decls: []ast.Decl{
-	&ast.Field{
-		Label: &ast.Ident{
-			NamePos: token.Pos{
+&ast.File{
+	Filename: "field.acorn", Decls: []ast.Decl{
+		&ast.Field{
+			Label: &ast.Ident{
+				NamePos: token.Pos{
+					file: &token.File{
+						name:  "field.acorn",
+						base:  token.index(1),
+						size:  token.index(5),
+						lines: []token.index{token.index(0)},
+					},
+					offset: 18,
+				},
+				Name: "a",
+			},
+			Colon: token.Pos{
 				file: &token.File{
 					name:  "field.acorn",
 					base:  token.index(1),
 					size:  token.index(5),
 					lines: []token.index{token.index(0)},
 				},
-				offset: 18,
+				offset: 34,
 			},
-			Name: "a",
-		},
-		Colon: token.Pos{
-			file: &token.File{
-				name:  "field.acorn",
-				base:  token.index(1),
-				size:  token.index(5),
-				lines: []token.index{token.index(0)},
-			},
-			offset: 34,
-		},
-		Value: &ast.BasicLit{
-			ValuePos: token.Pos{
-				file: &token.File{
-					name:  "field.acorn",
-					base:  token.index(1),
-					size:  token.index(5),
-					lines: []token.index{token.index(0)},
+			Value: &ast.BasicLit{
+				ValuePos: token.Pos{
+					file: &token.File{
+						name:  "field.acorn",
+						base:  token.index(1),
+						size:  token.index(5),
+						lines: []token.index{token.index(0)},
+					},
+					offset: 67,
 				},
-				offset: 67,
+				Kind:  token.Token(NUMBER),
+				Value: "1",
 			},
-			Kind:  token.Token(NUMBER),
-			Value: "1",
 		},
 	},
-}}
+	comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+}

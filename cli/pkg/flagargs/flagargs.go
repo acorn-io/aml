@@ -28,7 +28,7 @@ type fieldFlag struct {
 }
 
 func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []string, error) {
-	f, err := os.Open(acornFile)
+	f, err := amlreadhelper.Open(acornFile)
 	if err != nil {
 		return nil, nil, err
 	}
