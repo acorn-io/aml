@@ -7,6 +7,7 @@ import (
 
 type CallArgument struct {
 	Positional bool
+	Self       bool
 	Value      Value
 }
 
@@ -19,6 +20,15 @@ func Call(ctx context.Context, value Value, args ...CallArgument) (_ Value, _ bo
 		return value, true, nil
 	}
 	if caller, ok := value.(Caller); ok {
+		for _, arg := range args {
+			if !IsDefined(arg.Value) {
+				v := GetUndefined(arg.Value)
+				if v == nil {
+					return nil, false, fmt.Errorf("failed to find undefined value in non-defined object during call, entry (value %s)", arg.Value)
+				}
+				return v, true, nil
+			}
+		}
 		return caller.Call(ctx, args)
 	}
 	return nil, false, fmt.Errorf("kind %s is not callable", value.Kind())

@@ -15,6 +15,15 @@ func NewArray(objs []any) Array {
 	return a
 }
 
+func (a Array) GetUndefined() Value {
+	for _, item := range a {
+		if undef := GetUndefined(item); undef != nil {
+			return undef
+		}
+	}
+	return nil
+}
+
 func (a Array) IsDefined() bool {
 	for _, item := range a {
 		if !IsDefined(item) {
@@ -83,7 +92,7 @@ func (a Array) Add(right Value) (Value, error) {
 
 func (a Array) Slice(start, end int) (Value, bool, error) {
 	if start >= len(a) || end > len(a) || start < 0 || end < 0 || start > end {
-		return nil, false, nil
+		return nil, false, fmt.Errorf("index %d:%d out of bound, len %d", start, end, len(a))
 	}
 	return a[start:end], true, nil
 }

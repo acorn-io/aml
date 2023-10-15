@@ -42,6 +42,7 @@ func (f *File) ToFunction(scope Scope) (value.Value, bool, error) {
 		ReturnBody:       true,
 		AllowUnknownArgs: true,
 		AssignRoot:       true,
+		SchemaScope:      true,
 	}
 	return def.ToValue(scope)
 }

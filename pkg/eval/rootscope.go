@@ -49,7 +49,7 @@ func (d deferredLookup) LookupValue(key value.Value) (value.Value, bool, error) 
 }
 
 func (d deferredLookup) Kind() value.Kind {
-	return value.UndefinedKind
+	return value.ObjectKind
 }
 
 type rootScopeFactory struct {

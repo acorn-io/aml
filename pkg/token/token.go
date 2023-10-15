@@ -83,6 +83,7 @@ const (
 	IN
 	LET
 	FUNCTION
+	LAMBDA
 	SCHEMA
 	DEFAULT
 
@@ -146,6 +147,7 @@ var tokens = [...]string{
 	IN:       "in",
 	LET:      "let",
 	FUNCTION: "function",
+	LAMBDA:   "lambda",
 	SCHEMA:   "schema",
 	DEFAULT:  "default",
 }

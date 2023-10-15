@@ -64,11 +64,13 @@ func (k *KeyValue) DescribeFields(ctx value.SchemaContext, scope Scope) ([]schem
 		}
 		key = str
 	} else {
-		str, ok, err := k.Key.ToString(scope)
+		str, undef, ok, err := k.Key.ToString(scope)
 		if err != nil {
 			return nil, err
 		} else if !ok {
 			return nil, nil
+		} else if undef != nil {
+			return nil, errors.NewErrEval(value.Position(k.Key.Pos), fmt.Errorf("can not describe schema of undefined field from undefined at %s", undef))
 		}
 		key = str
 	}
@@ -114,9 +116,11 @@ func (k *KeyValue) RequiredKeys(scope Scope) ([]string, error) {
 	if k.Local || k.Optional {
 		return nil, nil
 	}
-	s, ok, err := k.Key.ToString(scope)
+	s, undef, ok, err := k.Key.ToString(scope)
 	if err != nil || !ok {
 		return nil, err
+	} else if undef != nil {
+		return nil, errors.NewErrEval(value.Position(k.Key.Pos), fmt.Errorf("can not gather required keys due to undefined key (undefined %s)", undef))
 	}
 	return []string{s}, nil
 }
@@ -125,9 +129,11 @@ func (k *KeyValue) AllKeys(scope Scope) ([]string, error) {
 	if k.Local {
 		return nil, nil
 	}
-	s, ok, err := k.Key.ToString(scope)
+	s, undef, ok, err := k.Key.ToString(scope)
 	if err != nil || !ok {
 		return nil, err
+	} else if undef != nil {
+		return nil, errors.NewErrEval(value.Position(k.Key.Pos), fmt.Errorf("can not gather all keys due to undefined key (undefined %s)", undef))
 	}
 	return []string{s}, nil
 }
@@ -166,9 +172,11 @@ func (k *KeyValue) ToValue(scope Scope) (value.Value, bool, error) {
 		err error
 	)
 
-	key, ok, err := k.Key.ToString(scope)
+	key, undef, ok, err := k.Key.ToString(scope)
 	if err != nil || !ok {
 		return nil, ok, err
+	} else if undef != nil {
+		return undef, true, nil
 	}
 
 	v, ok, err = k.getValueValue(scope, key)
@@ -226,23 +234,27 @@ func (k *FieldKey) checkKey(key string) error {
 	return nil
 }
 
-func (k *FieldKey) ToString(scope Scope) (string, bool, error) {
+func (k *FieldKey) ToString(scope Scope) (_ string, undef value.Value, ok bool, _ error) {
 	if k.IsMatch() {
 		// Match fields should not have a "string" equivalent, they are virtual thingies that only
 		// exist in the magical schema realm
-		return "", false, nil
+		return "", nil, false, nil
 	}
 
 	v, ok, err := k.Key.ToValue(scope)
 	if err != nil || !ok {
-		return "", ok, err
+		return "", nil, ok, err
+	}
+
+	if v.Kind() == value.UndefinedKind {
+		return "", v, true, nil
 	}
 
 	s, err := value.ToString(v)
 	if err != nil {
-		return "", false, err
+		return "", nil, false, err
 	}
-	return s, true, k.checkKey(s)
+	return s, nil, true, k.checkKey(s)
 }
 
 type ErrKeyUndefined struct {

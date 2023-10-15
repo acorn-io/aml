@@ -15,7 +15,6 @@ type Struct struct {
 
 func (s *Struct) ScopeLookup(scope Scope, key string) (value.Value, bool, error) {
 	var values []value.Value
-	scope = scope.Push(s)
 
 	for _, field := range s.Fields {
 		val, ok, err := field.ToValueForKey(scope, key)
@@ -37,7 +36,7 @@ func (s *Struct) ToValue(scope Scope) (value.Value, bool, error) {
 	if scope.IsSchema() {
 		return value.NewValue(&contract{
 			s:     s,
-			scope: scope,
+			scope: scope.Push(s),
 		}), true, nil
 	}
 

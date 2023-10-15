@@ -27,19 +27,23 @@ type fieldFlag struct {
 	Bool        *bool
 }
 
-func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []string, error) {
+func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []string, []string, error) {
 	f, err := amlreadhelper.Open(acornFile)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	var file schema.File
 	if err := aml.NewDecoder(f).Decode(&file); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	flags := New(argsFile, filepath.Base(acornFile), file.ProfileNames, file.Args.Fields)
-	return flags.Parse(args)
+	argsData, profiles, err := flags.Parse(args)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return argsData, profiles, flags.FlagSet.Args(), nil
 }
 
 func New(argsFile, filename string, profiles schema.Names, args []schema.Field) *Flags {

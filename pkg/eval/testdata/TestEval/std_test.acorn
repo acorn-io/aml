@@ -178,9 +178,31 @@ localData: {
 	t:     merge.f.x == "y1"
 	t:     merge.f.a == "b"
 	t:     merge.f.l[2] == 3
+	t: 		 std.catch(function { std.error([1,2]) }) == [1,2]
+	t: 		 std.catch(function { std.error([1,2]) }) != [1,2, 3]
+	t: 		 std.catch(function {}) == null
 
 	mod1: std.mod(3, 2)
 	mod1: 1
 	mod1: std.mod(3, 2)
 	mod1: 1
+
+	describe: std.describe(schema {
+		foo: string
+	})
+
+	filter: [1, 2]
+	filter: std.filter([1, 2, 3], lambda x: x < 3)
+
+	map: [2, 3]
+	map: std.map([1, 2], lambda x: x + 1)
+
+	find: 3
+	find: std.find([1, 2, 3, 4], lambda x: x == 3)
+
+	reduce: 12
+	reduce: std.reduce([1, 2, 3, 4], lambda x, y: x + y, 2)
+
+	reduce2: 3
+	reduce2: std.reduce([1], lambda x, y: x + y, 2)
 }

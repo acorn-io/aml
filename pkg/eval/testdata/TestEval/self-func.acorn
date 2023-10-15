@@ -1,0 +1,11 @@
+bar: {
+  {
+  	a: string
+  	b: function {
+  		return: a
+  	}
+  }
+	{
+		a: "hi"
+	}
+}.b()

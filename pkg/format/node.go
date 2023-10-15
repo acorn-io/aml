@@ -451,6 +451,17 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 		f.print(x.Func, token.FUNCTION, blank, nooverride)
 		f.exprRaw(x.Body, token.LowestPrec, depth)
 
+	case *ast.Lambda:
+		f.print(x.Lambda, token.LAMBDA, blank, nooverride)
+		for i, ident := range x.Idents {
+			if i > 0 {
+				f.print(token.COMMA, blank, nooverride)
+			}
+			f.print(ident.Pos(), ident.Name, noblank, nooverride)
+		}
+		f.print(x.Colon, token.COLON, blank, nooverride)
+		f.exprRaw(x.Expr, token.LowestPrec, depth)
+
 	case *ast.SchemaLit:
 		f.print(x.Schema, token.SCHEMA, blank)
 		f.exprRaw(x.Struct, token.LowestPrec, depth)

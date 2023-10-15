@@ -18,6 +18,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 	"gopkg.in/yaml.v3"
 )
@@ -63,6 +64,8 @@ var (
 		"mod":           NativeFuncValue(Mod),
 		"error":         NativeFuncValue(Error),
 		"debug":         NativeFuncValue(Debug),
+		"catch":         NativeFuncValue(Catch),
+		"describe":      NativeFuncValue(Describe),
 	}
 )
 
@@ -86,16 +89,26 @@ func Len(_ context.Context, args []value.Value) (value.Value, bool, error) {
 	return v, true, err
 }
 
+type ErrorValue struct {
+	value.Value
+}
+
+func (e ErrorValue) Error() string {
+	return fmt.Sprint(e.Value)
+}
+
 func Error(_ context.Context, args []value.Value) (value.Value, bool, error) {
-	s, err := value.ToString(args[0])
-	if err == nil {
-		var v []any
-		for _, x := range args[1:] {
-			v = append(v, x)
-		}
-		return nil, false, fmt.Errorf(s, v...)
+	return nil, false, ErrorValue{
+		Value: args[0],
 	}
-	return nil, false, errors.New(s)
+}
+
+func Catch(ctx context.Context, args []value.Value) (value.Value, bool, error) {
+	_, _, err := value.Call(ctx, args[0])
+	if errorValue := (ErrorValue{}); errors.As(err, &errorValue) {
+		return errorValue.Value, true, nil
+	}
+	return value.NewValue(nil), true, nil
 }
 
 func Debug(_ context.Context, args []value.Value) (value.Value, bool, error) {
@@ -113,6 +126,8 @@ func Debug(_ context.Context, args []value.Value) (value.Value, bool, error) {
 		} else {
 			log.Print(append([]any{"AML DEBUG: " + s}, v...))
 		}
+	} else {
+		log.Print("INVALID ARG TO DEBUG:", err.Error())
 	}
 	return nil, false, nil
 }
@@ -720,14 +735,13 @@ func Int() value.Value {
 }
 
 func Any(kinds map[string]any) value.Value {
-	var result *value.TypeSchema
+	result := &value.TypeSchema{
+		KindValue:   value.UnionKind,
+		Constraints: value.MustMatchAlternate(),
+	}
 	for _, name := range []string{"bool", "number", "string", "object", "array", "null"} {
 		cp := *(kinds[name].(*value.TypeSchema))
-		if result == nil {
-			result = &cp
-		} else {
-			result.Alternates = append(result.Alternates, cp)
-		}
+		result.Alternates = append(result.Alternates, cp)
 	}
 	return result
 }
@@ -761,6 +775,25 @@ func Enum(_ context.Context, args []value.Value) (value.Value, bool, error) {
 	}
 
 	return result, true, nil
+}
+
+func Describe(_ context.Context, args []value.Value) (value.Value, bool, error) {
+	objSchema, err := value.DescribeObject(value.SchemaContext{}, args[0])
+	if err != nil {
+		return nil, false, err
+	}
+
+	data, err := json.Marshal(schema.Summarize(*objSchema))
+	if err != nil {
+		return nil, false, err
+	}
+
+	dataMap := map[string]any{}
+	if err := json.Unmarshal(data, &dataMap); err != nil {
+		return nil, false, err
+	}
+
+	return value.NewValue(dataMap), true, nil
 }
 
 func Range(_ context.Context, args []value.Value) (value.Value, bool, error) {

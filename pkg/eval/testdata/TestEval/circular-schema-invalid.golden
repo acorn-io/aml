@@ -1,1 +1,1 @@
-`key not found "top": exceeded max scope depth 101 > 100: circular-schema-invalid.acorn:4:12 (4:12<-2:10<-1:8<-9:1)`
+"schema violation key top: invalid circular schema, can not render default (circular-schema-invalid.acorn:2:10): circular-schema-invalid.acorn:9:1 (2:10<-1:8<-9:1)"

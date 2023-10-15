@@ -29,6 +29,15 @@ type ParserError struct {
 	Args     []interface{}
 }
 
+func (p *ParserError) Pos() value.Position {
+	return value.Position{
+		Filename: p.Position.Filename(),
+		Offset:   p.Position.Offset(),
+		Line:     p.Position.Line(),
+		Column:   p.Position.Column(),
+	}
+}
+
 func (p *ParserError) Error() string {
 	return fmt.Sprintf("%s: %s", fmt.Sprintf(p.Format, p.Args...), p.Position)
 }

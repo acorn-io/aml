@@ -3,7 +3,6 @@ package eval
 import (
 	"context"
 
-	"github.com/acorn-io/aml/pkg/ast"
 	"github.com/acorn-io/aml/pkg/value"
 )
 
@@ -17,27 +16,20 @@ func (e EvalOptions) Merge() (result EvalOption) {
 		for k, v := range opt.Globals {
 			result.Globals[k] = v
 		}
+		if opt.GlobalsLookup != nil {
+			result.GlobalsLookup = opt.GlobalsLookup
+		}
 	}
 	return
 }
 
 type EvalOption struct {
-	Globals map[string]any
+	Globals       map[string]any
+	GlobalsLookup ScopeLookuper
 }
 
 func (e EvalOption) Complete() EvalOption {
 	return e
-}
-
-func EvalFile(ctx context.Context, ast *ast.File, opts ...BuildOption) (value.Value, bool, error) {
-	expr, err := Build(ast, opts...)
-	if err != nil {
-		return nil, false, err
-	}
-	scope := Builtin.Push(nil, ScopeOption{
-		Context: ctx,
-	})
-	return expr.ToValue(scope)
 }
 
 func EvalExpr(ctx context.Context, expr Expression, opts ...EvalOption) (value.Value, bool, error) {
@@ -45,6 +37,9 @@ func EvalExpr(ctx context.Context, expr Expression, opts ...EvalOption) (value.V
 	scope := Builtin.Push(ScopeData(opt.Globals), ScopeOption{
 		Context: ctx,
 	})
+	if opt.GlobalsLookup != nil {
+		scope = scope.Push(opt.GlobalsLookup)
+	}
 	return expr.ToValue(scope)
 }
 

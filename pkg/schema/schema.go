@@ -3,8 +3,12 @@ package schema
 import "fmt"
 
 type File struct {
-	Args         Object
-	ProfileNames Names
+	Args         Object `json:"args,omitempty"`
+	ProfileNames Names  `json:"profileNames,omitempty"`
+}
+
+type Func struct {
+	Args Object `json:"args,omitempty"`
 }
 
 type Names []Name
@@ -125,6 +129,7 @@ type FieldType struct {
 	Kind         Kind         `json:"kind,omitempty"`
 	Object       *Object      `json:"object,omitempty"`
 	Array        *Array       `json:"array,omitempty"`
+	Func         *Func        `json:"func,omitempty"`
 	Contstraints []Constraint `json:"constraints,omitempty"`
 	Default      any          `json:"default,omitempty"`
 	Alternates   []FieldType  `json:"alternates,omitempty"`

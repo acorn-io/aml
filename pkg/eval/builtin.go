@@ -77,6 +77,9 @@ func (n nativeCallable) String() string {
 func (n nativeCallable) Call(ctx context.Context, args []value.CallArgument) (value.Value, bool, error) {
 	var argValues []value.Value
 	for _, arg := range args {
+		if arg.Self {
+			continue
+		}
 		if !arg.Positional {
 			return nil, false, fmt.Errorf("only positional arguements are valid for native functions")
 		}

@@ -1,5 +1,5 @@
 {
-  "Args": {
+  "args": {
     "path": "args",
     "fields": [
       {
@@ -37,7 +37,7 @@
     ],
     "allowNewKeys": true
   },
-  "ProfileNames": [
+  "profileNames": [
     {
       "Name": "one",
       "Description": "Describe one"

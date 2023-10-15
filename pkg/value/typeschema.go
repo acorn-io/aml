@@ -45,6 +45,8 @@ type TypeSchema struct {
 	Constraints  []Checker
 	Alternates   []TypeSchema
 	DefaultValue Value
+
+	rendering bool
 }
 
 func (n *TypeSchema) isMergeableObject() bool {
@@ -432,7 +434,7 @@ func (n *TypeSchema) And(right Value) (Value, error) {
 	if !ok {
 		return nil, fmt.Errorf("expected kind %s, got %s", n.Kind(), right.Kind())
 	}
-	if n.TargetKind() != rightSchema.TargetKind() {
+	if n.TargetKind() != UnionKind && rightSchema.TargetKind() != UnionKind && n.TargetKind() != rightSchema.TargetKind() {
 		return nil, fmt.Errorf("invalid schema condition %s && %s incompatible", n.TargetKind(), rightSchema.TargetKind())
 	}
 
@@ -535,6 +537,13 @@ func (n *TypeSchema) getDefault(renderImplicit bool) (Value, bool, error) {
 	}
 
 	if renderImplicit {
+		if n.rendering {
+			return nil, false, fmt.Errorf("invalid circular schema, can not render default (%s)", n.Position)
+		}
+		n.rendering = true
+		defer func() {
+			n.rendering = false
+		}()
 		if n.Object != nil {
 			return n.renderDefaultObject()
 		}

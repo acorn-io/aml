@@ -157,7 +157,13 @@ func (i *Index) ToValue(scope Scope) (value.Value, bool, error) {
 	}
 
 	if indexValue.Kind() == value.StringKind {
-		return value.Lookup(base, indexValue)
+		v, ok, err := value.Lookup(base, indexValue)
+		if err != nil {
+			return nil, false, err
+		} else if !ok {
+			return nil, false, newNotFound(i.Pos, indexValue, nil)
+		}
+		return v, ok, err
 	}
 
 	result, ok, err := value.Index(base, indexValue)

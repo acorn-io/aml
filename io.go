@@ -1,4 +1,4 @@
-package amlreadhelper
+package aml
 
 import (
 	"bytes"
@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/acorn-io/aml"
 	"github.com/acorn-io/aml/pkg/parser/filemap"
 	"gopkg.in/yaml.v3"
 )
@@ -63,7 +62,7 @@ func UnmarshalFile(name string, out any) error {
 	}
 	defer f.Close()
 
-	return aml.NewDecoder(f).Decode(out)
+	return NewDecoder(f).Decode(out)
 }
 
 func isYAMLFilename(v string) bool {

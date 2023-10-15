@@ -9,4 +9,5 @@ var (
 	ArrayKind  = Kind("array")
 	ObjectKind = Kind("object")
 	UnionKind  = Kind("union")
+	FuncKind   = Kind("func")
 )

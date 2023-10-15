@@ -3,10 +3,10 @@ package value
 import "fmt"
 
 type Position struct {
-	Filename string
-	Offset   int
-	Line     int
-	Column   int
+	Filename string `json:"filename,omitempty"`
+	Offset   int    `json:"offset,omitempty"`
+	Line     int    `json:"line,omitempty"`
+	Column   int    `json:"column,omitempty"`
 }
 
 var NoPosition = Position{}

@@ -47,6 +47,7 @@ func combine(opts []ScopeOption) (result ScopeOption) {
 type Scope interface {
 	Context() context.Context
 	Path() string
+	Depth() int
 	Get(key string) (value.Value, bool, error)
 	Push(lookup ScopeLookuper, opts ...ScopeOption) Scope
 	IsSchema() bool
@@ -77,6 +78,10 @@ type EmptyScope struct {
 
 func (e EmptyScope) Path() string {
 	return ""
+}
+
+func (e EmptyScope) Depth() int {
+	return 0
 }
 
 func (e EmptyScope) Get(key string) (value.Value, bool, error) {
@@ -182,15 +187,10 @@ func scopePush(n Scope, lookup ScopeLookuper, opts ...ScopeOption) Scope {
 		parent:   n,
 		lookup:   lookup,
 		opts:     o,
+		depth:    n.Depth() + 1,
 		keyCache: make(map[string]value.Value),
 	}
 
-	ctx := n.Context()
-	depth, _ := ctx.Value(depthKey{}).(int)
-	depth = depth + 1
-
-	newScope.opts.Context = context.WithValue(ctx, depthKey{}, depth)
-	newScope.depth = depth
 	return newScope
 }
 

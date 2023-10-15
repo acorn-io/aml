@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync/atomic"
 
 	"github.com/acorn-io/aml/pkg/errors"
 	"github.com/acorn-io/aml/pkg/schema"
@@ -17,6 +18,7 @@ type FunctionDefinition struct {
 	ReturnBody       bool
 	AllowUnknownArgs bool
 	AssignRoot       bool
+	SchemaScope      bool
 }
 
 func (f *FunctionDefinition) ToValue(scope Scope) (value.Value, bool, error) {
@@ -43,6 +45,7 @@ func (f *FunctionDefinition) ToValue(scope Scope) (value.Value, bool, error) {
 		ProfilesSchema: profileSchema,
 		ReturnBody:     f.ReturnBody,
 		AssignRoot:     f.AssignRoot,
+		CallScope:      !f.SchemaScope,
 	}, true, nil
 }
 
@@ -110,13 +113,17 @@ type IsArgumentDefinition interface {
 type Function struct {
 	Pos            Position
 	Scope          Scope
-	Body           *Struct
+	Body           Expression
 	ArgsSchema     value.Value
 	ArgNames       Names
 	ProfilesSchema value.Value
 	ProfileNames   Names
 	ReturnBody     bool
 	AssignRoot     bool
+	UnscopedArgs   bool
+	CallScope      bool
+
+	depth atomic.Int32
 }
 
 type Names []Name
@@ -131,6 +138,19 @@ func (n Names) Describe() (result schema.Names) {
 		result = append(result, schema.Name(name))
 	}
 	return
+}
+
+func (c *Function) DescribeFieldType(ctx value.SchemaContext) (result schema.FieldType, _ error) {
+	argsSchema, err := value.DescribeObject(ctx, c.ArgsSchema)
+	if err != nil {
+		return result, err
+	}
+	return schema.FieldType{
+		Func: &schema.Func{
+			Args: *argsSchema,
+		},
+		Kind: schema.FuncKind,
+	}, nil
 }
 
 func (c *Function) Kind() value.Kind {
@@ -188,6 +208,9 @@ func (c *Function) callArgumentToValue(args []value.CallArgument) (value.Value, 
 	)
 
 	for i, arg := range args {
+		if arg.Self {
+			continue
+		}
 		if arg.Positional {
 			if i >= len(c.ArgNames) {
 				return nil, fmt.Errorf("invalid arg index %d, args len %d", i, len(c.ArgNames))
@@ -230,6 +253,10 @@ func (c *Function) callArgumentToValue(args []value.CallArgument) (value.Value, 
 		})
 	}
 
+	if c.UnscopedArgs {
+		return validated, nil
+	}
+
 	return value.Merge(validated, value.NewObject(map[string]any{
 		"profiles": profilesActive,
 	}))
@@ -243,21 +270,18 @@ func (e *ErrInvalidArgument) Error() string {
 	return fmt.Sprintf("invalid arguments: %v", e.Err)
 }
 
-type depthKey struct{}
-
 const MaxCallDepth = 100
 
 func (c *Function) Call(ctx context.Context, args []value.CallArgument) (value.Value, bool, error) {
+	defer c.depth.Add(-1)
+	if depth := c.depth.Add(1); depth > MaxCallDepth {
+		return nil, false, fmt.Errorf("exceeded max call depth %d > %d", depth, MaxCallDepth)
+	}
+
 	argsValue, err := c.callArgumentToValue(args)
 	if err != nil {
 		return nil, false, err
 	}
-
-	depth, _ := ctx.Value(depthKey{}).(int)
-	if depth > MaxCallDepth {
-		return nil, false, fmt.Errorf("exceeded max call depth %d > %d", depth, MaxCallDepth)
-	}
-	ctx = context.WithValue(ctx, depthKey{}, depth+1)
 
 	select {
 	case <-ctx.Done():
@@ -270,17 +294,38 @@ func (c *Function) Call(ctx context.Context, args []value.CallArgument) (value.V
 		path = "()"
 	}
 
-	rootData := map[string]any{
-		"args": argsValue,
+	scope := c.Scope
+	for _, arg := range args {
+		if arg.Self {
+			scope = scope.Push(ValueScopeLookup{
+				Value: arg.Value,
+			})
+			break
+		}
 	}
 
-	scope := c.Scope.Push(ScopeData(rootData), ScopeOption{
-		Path:    path,
-		Context: ctx,
-	})
+	if c.UnscopedArgs {
+		scope = scope.Push(ValueScopeLookup{
+			Value: argsValue,
+		}, ScopeOption{
+			Path:    path,
+			Context: ctx,
+			Call:    c.CallScope,
+		})
+	} else {
+		rootData := map[string]any{
+			"args": argsValue,
+		}
 
-	if c.AssignRoot {
-		scope = NewRootScope(c.Pos, scope, rootData)
+		scope = scope.Push(ScopeData(rootData), ScopeOption{
+			Path:    path,
+			Context: ctx,
+			Call:    c.CallScope,
+		})
+
+		if c.AssignRoot {
+			scope = NewRootScope(c.Pos, scope, rootData)
+		}
 	}
 
 	ret, ok, err := c.Body.ToValue(scope)

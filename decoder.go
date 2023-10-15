@@ -22,6 +22,7 @@ type DecoderOption struct {
 	SchemaSourceName string
 	Schema           io.Reader
 	Globals          map[string]any
+	GlobalsLookup    eval.ScopeLookuper
 	Context          context.Context
 }
 
@@ -64,6 +65,9 @@ func (o DecoderOptions) Merge() (result DecoderOption) {
 		}
 		for k, v := range opt.Globals {
 			result.Globals[k] = v
+		}
+		if opt.GlobalsLookup != nil {
+			result.GlobalsLookup = opt.GlobalsLookup
 		}
 	}
 	return
@@ -154,7 +158,8 @@ func (d *Decoder) Decode(out any) error {
 	}
 
 	val, ok, err := eval.EvalExpr(d.opts.Context, file, eval.EvalOption{
-		Globals: d.opts.Globals,
+		Globals:       d.opts.Globals,
+		GlobalsLookup: d.opts.GlobalsLookup,
 	})
 	if err != nil {
 		return err
@@ -173,6 +178,16 @@ func (d *Decoder) Decode(out any) error {
 	case *value.Value:
 		*n = val
 		return nil
+	}
+
+	if val.Kind() == value.FuncKind {
+		ret, ok, err := value.Call(d.opts.Context, val)
+		if err != nil {
+			return err
+		}
+		if ok {
+			val = ret
+		}
 	}
 
 	nv, ok, err := value.NativeValue(val)

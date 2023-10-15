@@ -576,6 +576,9 @@ func (p *parser) parseOperand() (expr ast.Expr) {
 	case token.FUNCTION:
 		return p.parseFunc()
 
+	case token.LAMBDA:
+		return p.parseLambda()
+
 	case token.SCHEMA:
 		return p.parseSchema()
 
@@ -1005,6 +1008,32 @@ func (p *parser) parseIfClause() (clause *ast.IfClause) {
 	}
 }
 
+func (p *parser) parseLambda() (expr ast.Expr) {
+	if p.trace {
+		defer un(trace(p, "Lambda"))
+	}
+
+	lambda := p.expect(token.LAMBDA)
+	var idents []*ast.Ident
+
+	for p.tok != token.COLON {
+		idents = append(idents, p.parseIdent())
+		if p.tok == token.COMMA {
+			p.next()
+		}
+	}
+
+	colon := p.expect(token.COLON)
+	body := p.parseExpr()
+
+	return &ast.Lambda{
+		Lambda: lambda,
+		Colon:  colon,
+		Idents: idents,
+		Expr:   body,
+	}
+}
+
 func (p *parser) parseFunc() (expr ast.Expr) {
 	if p.trace {
 		defer un(trace(p, "Function"))
@@ -1097,6 +1126,7 @@ func (p *parser) checkExpr(x ast.Expr) ast.Expr {
 	case *ast.BasicLit:
 	case *ast.Interpolation:
 	case *ast.Func:
+	case *ast.Lambda:
 	case *ast.StructLit:
 	case *ast.ListLit:
 	case *ast.ParenExpr:

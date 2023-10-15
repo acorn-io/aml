@@ -1,13 +1,16 @@
 package cmds
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/acorn-io/aml"
-	"github.com/acorn-io/aml/cli/pkg/amlreadhelper"
 	"github.com/acorn-io/aml/cli/pkg/flagargs"
+	"github.com/acorn-io/aml/pkg/eval"
 	"github.com/acorn-io/aml/pkg/schema"
+	"github.com/acorn-io/aml/pkg/value"
 	"github.com/acorn-io/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -39,20 +42,21 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 	filename := args[0]
 	args = args[1:]
 
-	argsData, profiles, err := flagargs.ParseArgs(e.ArgsFile, filename, args)
+	argsData, profiles, args, err := flagargs.ParseArgs(e.ArgsFile, filename, args)
 	if errors.Is(err, pflag.ErrHelp) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	data, err := amlreadhelper.ReadFile(filename)
+	data, err := aml.ReadFile(filename)
 	if err != nil {
 		return err
 	}
 
 	var (
-		out         any = &map[string]any{}
+		val         value.Value
+		out         any = &json.RawMessage{}
 		schemaInput io.ReadCloser
 	)
 	if e.PrintArgs {
@@ -62,11 +66,15 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 	}
 
 	if e.SchemaFile != "" {
-		schemaInput, err = amlreadhelper.Open(e.SchemaFile)
+		schemaInput, err = aml.Open(e.SchemaFile)
 		if err != nil {
 			return err
 		}
 		defer schemaInput.Close()
+	}
+
+	if len(args) > 0 {
+		out = &val
 	}
 
 	err = aml.Unmarshal(data, out, aml.DecoderOption{
@@ -81,5 +89,26 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return e.aml.Output(out)
+	for i, arg := range args {
+		out := &json.RawMessage{}
+		err = aml.Unmarshal([]byte(arg), out, aml.DecoderOption{
+			SourceName: fmt.Sprintf("query<%d>", i),
+			GlobalsLookup: eval.ValueScopeLookup{
+				Value: val,
+			},
+			Context: cmd.Context(),
+		})
+		if err != nil {
+			return err
+		}
+		if err := e.aml.Output(out); err != nil {
+			return err
+		}
+	}
+
+	if len(args) == 0 {
+		return e.aml.Output(out)
+	}
+
+	return nil
 }

@@ -450,6 +450,29 @@ func sliceToExpression(sliceExpr *ast.SliceExpr) (Expression, error) {
 	}, nil
 }
 
+func lambdaToExpression(def *ast.Lambda) (Expression, error) {
+	expr, err := exprToExpression(def.Expr)
+	if err != nil {
+		return nil, err
+	}
+
+	lambda := &LambdaDefinition{
+		Comments: getComments(def),
+		Pos:      pos(def.Lambda),
+		Body:     expr,
+	}
+
+	for _, ident := range def.Idents {
+		s, err := value.Unquote(ident.Name)
+		if err != nil {
+			return nil, err
+		}
+		lambda.Vars = append(lambda.Vars, s)
+	}
+
+	return lambda, nil
+}
+
 func funcToExpression(def *ast.Func) (Expression, error) {
 	body, err := structToExpression(def.Body)
 	if err != nil {
@@ -525,6 +548,8 @@ func exprToExpression(expr ast.Expr) (Expression, error) {
 		return defaultToExpression(n)
 	case *ast.Func:
 		return funcToExpression(n)
+	case *ast.Lambda:
+		return lambdaToExpression(n)
 	default:
 		return nil, NewErrUnknownError(n)
 	}

@@ -1,6 +1,9 @@
 package value
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 type String string
 
@@ -10,6 +13,21 @@ func (s String) Kind() Kind {
 
 func (s String) NativeValue() (any, bool, error) {
 	return (string)(s), true, nil
+}
+
+func (s String) Len() (Value, error) {
+	return NewValue(len(s)), nil
+}
+
+func (s String) Index(key Value) (Value, bool, error) {
+	idx, err := ToInt(key)
+	if err != nil {
+		return nil, false, err
+	}
+	if idx < 0 || int(idx) >= len(s) {
+		return nil, false, fmt.Errorf("index %d out of bound, len %d", idx, len(s))
+	}
+	return NewValue(s[idx : idx+1]), true, nil
 }
 
 func (s String) Add(right Value) (Value, error) {

@@ -1,0 +1,15 @@
+x: {
+	y: {
+	}
+}
+
+a: [{
+	name: "foo"
+}]
+
+d: function {
+		b: x.y[a[0].name]
+		return: b
+}
+
+y: d()

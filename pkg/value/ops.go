@@ -45,6 +45,8 @@ func NewValue(v any) Value {
 		return NewArray(ret)
 	case Contract:
 		return NewObjectSchema(x)
+	case nil:
+		return NewNull()
 	default:
 		panic(fmt.Sprintf("invalid value: %T", v))
 	}
@@ -127,6 +129,9 @@ type LookupValue interface {
 }
 
 func Lookup(left, key Value) (Value, bool, error) {
+	if undef := IsUndefined(left, key); undef != nil {
+		return undef, true, nil
+	}
 	adder, ok := left.(LookupValue)
 	if ok {
 		return adder.LookupValue(key)
@@ -140,7 +145,7 @@ type Indexer interface {
 
 func Index(left, key Value) (Value, bool, error) {
 	if undef := IsUndefined(left, key); undef != nil {
-		return undef, false, nil
+		return undef, true, nil
 	}
 	if index, ok := left.(Indexer); ok {
 		return index.Index(key)
@@ -164,6 +169,19 @@ func Len(left Value) (Value, error) {
 
 type Slicer interface {
 	Slice(start, end int) (Value, bool, error)
+}
+
+func GetUndefined(vals ...Value) Value {
+	for _, val := range vals {
+		if isUndef, ok := val.(interface {
+			GetUndefined() Value
+		}); ok {
+			return isUndef.GetUndefined()
+		} else if val != nil && val.Kind() == UndefinedKind {
+			return val
+		}
+	}
+	return nil
 }
 
 // IsUndefined is a small helper to check if any of the passed values are undefined
@@ -434,6 +452,14 @@ func Neq(left, right Value) (Value, error) {
 	adder, ok := left.(Neqer)
 	if ok {
 		return adder.Neq(right)
+	}
+	nadder, ok := left.(Eqer)
+	if ok {
+		v, err := nadder.Eq(right)
+		if err != nil {
+			return nil, err
+		}
+		return UnaryOperation(NotOp, v)
 	}
 	return nil, fmt.Errorf("value kind %s does not support != operation", left.Kind())
 }

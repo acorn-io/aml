@@ -31,6 +31,6 @@ func (a *AML) Run(cmd *cobra.Command, args []string) error {
 
 func (a *AML) Output(data any) error {
 	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "    ")
+	enc.SetIndent("", "  ")
 	return enc.Encode(data)
 }

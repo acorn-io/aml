@@ -1,6 +1,7 @@
 package value
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -29,6 +30,15 @@ func NewObject(data map[string]any) *Object {
 	return o
 }
 
+func (n *Object) GetUndefined() Value {
+	for _, entry := range n.Entries {
+		if undef := GetUndefined(entry.Value); undef != nil {
+			return undef
+		}
+	}
+	return nil
+}
+
 func (n *Object) IsDefined() bool {
 	for _, entry := range n.Entries {
 		if !IsDefined(entry.Value) {
@@ -45,8 +55,16 @@ func (n *Object) LookupValue(key Value) (Value, bool, error) {
 			return nil, false, err
 		}
 
-		if b, err := ToBool(b); err != nil || b {
-			return e.Value, b, err
+		if b, err := ToBool(b); err != nil {
+			return nil, false, err
+		} else if b {
+			if e.Value.Kind() == FuncKind {
+				return ObjectFunc{
+					Self: n,
+					Func: e.Value,
+				}, true, nil
+			}
+			return e.Value, true, nil
 		}
 	}
 
@@ -234,4 +252,24 @@ func (n *Object) Merge(right Value) (Value, error) {
 type Entry struct {
 	Key   string
 	Value Value
+}
+
+type ObjectFunc struct {
+	Self *Object
+	Func Value
+}
+
+func (o ObjectFunc) Kind() Kind {
+	return FuncKind
+}
+
+func (o ObjectFunc) Merge(val Value) (Value, error) {
+	return Merge(o.Func, val)
+}
+
+func (o ObjectFunc) Call(ctx context.Context, args []CallArgument) (Value, bool, error) {
+	return Call(ctx, o.Func, append(args, CallArgument{
+		Self:  true,
+		Value: o.Self,
+	})...)
 }

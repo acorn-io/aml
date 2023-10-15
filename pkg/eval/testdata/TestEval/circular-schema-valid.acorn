@@ -1,0 +1,9 @@
+schema {
+    top: {
+        x: 1
+        y?: top
+    }
+}
+
+
+top: x: 1
