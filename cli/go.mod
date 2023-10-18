@@ -3,13 +3,12 @@ module github.com/acorn-io/aml/cli
 go 1.21.0
 
 require (
-	github.com/acorn-io/aml v0.0.0-20231009045340-a31c45f6d100
+	github.com/acorn-io/aml v0.0.0-20231017143906-5a6098a42249
 	github.com/acorn-io/cmd v0.0.0-20230929053520-ebe1b9879b38
 	github.com/hexops/autogold/v2 v2.2.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -27,5 +26,6 @@ require (
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/gofumpt v0.5.0 // indirect
 )

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/acorn-io/aml"
-	"github.com/acorn-io/aml/cli/pkg/amlreadhelper"
 	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 	"github.com/spf13/pflag"
@@ -28,7 +27,7 @@ type fieldFlag struct {
 }
 
 func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []string, []string, error) {
-	f, err := amlreadhelper.Open(acornFile)
+	f, err := aml.Open(acornFile)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -111,7 +110,7 @@ func parseValue(v string, isNumber bool) (any, error) {
 		return data, nil
 	}
 
-	return data, amlreadhelper.UnmarshalFile(v, &data)
+	return data, aml.UnmarshalFile(v, &data)
 }
 
 func (f *Flags) readArgsFile() (map[string]any, error) {
