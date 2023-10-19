@@ -1,6 +1,5 @@
 args: {
     // a description
-    a_number_with_a_default: 3
     // some condidionts
     a_number_with_a_default: number > 3 && number < 10
     // this is what an enum looks like

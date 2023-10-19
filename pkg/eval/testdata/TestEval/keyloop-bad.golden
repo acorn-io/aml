@@ -1,1 +1,1 @@
-"invalid cycle detected in key a: keyloop-bad.acorn:2:1"
+"can not merge values: can not override value [a] with [a1]: keyloop-bad.acorn:2:1"

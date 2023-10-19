@@ -25,6 +25,10 @@ func (n Boolean) NativeValue() (any, bool, error) {
 	return (bool)(n), true, nil
 }
 
+func (n Boolean) Not() (Value, error) {
+	return NewValue(!n), nil
+}
+
 func (n Boolean) Eq(right Value) (Value, error) {
 	if err := assertType(right, BoolKind); err != nil {
 		return nil, err

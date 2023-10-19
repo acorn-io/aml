@@ -110,14 +110,14 @@ localData: {
 	isa: true
 	isa: std.isA("hi", string)
 	isa: std.isA(1, number)
-	isa: std.isA({"a": "b"}, schema {
+	isa: std.isA({"a": "b"}, define {
 		a: string
 	})
 
 	isanot: false
 	isanot: std.isA("hi", number)
 	isanot: std.isA(1, string)
-	isanot: std.isA({"a": "b"}, schema {
+	isanot: std.isA({"a": "b"}, define {
 		a: number
 	})
 
@@ -187,22 +187,15 @@ localData: {
 	mod1: std.mod(3, 2)
 	mod1: 1
 
-	describe: std.describe(schema {
+	describe: std.describe(define {
 		foo: string
 	})
 
-	filter: [1, 2]
-	filter: std.filter([1, 2, 3], lambda x: x < 3)
+	cut: {
+		before: "he"
+		after: "lo"
+		found: true
+	}
 
-	map: [2, 3]
-	map: std.map([1, 2], lambda x: x + 1)
-
-	find: 3
-	find: std.find([1, 2, 3, 4], lambda x: x == 3)
-
-	reduce: 12
-	reduce: std.reduce([1, 2, 3, 4], lambda x, y: x + y, 2)
-
-	reduce2: 3
-	reduce2: std.reduce([1], lambda x, y: x + y, 2)
+	cut: std.cut("hello", "l")
 }

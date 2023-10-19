@@ -1,53 +1,161 @@
 {
-  "fields": [
-    {
-      "name": "x",
-      "type": {
-        "kind": "number",
-        "default": 1
-      }
-    },
-    {
-      "name": "a",
-      "type": {
-        "kind": "number"
-      }
-    },
-    {
-      "name": "b",
-      "type": {
-        "kind": "number",
-        "default": 2
-      }
-    },
-    {
-      "name": "y",
-      "type": {
-        "kind": "object",
-        "object": {
-          "path": "embedded.0.y",
-          "fields": [
-            {
-              "name": "a",
-              "type": {
-                "kind": "array",
-                "array": {
-                  "types": [
-                    {
-                      "kind": "number",
-                      "default": 1
-                    },
-                    {
-                      "kind": "number",
-                      "default": 2
-                    }
-                  ]
-                }
-              }
+  "types": {
+    "$": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "x",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": 1,
+              "path": "",
+              "reference": false
             }
-          ]
-        }
-      }
+          },
+          {
+            "key": "a",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
+            }
+          },
+          {
+            "key": "b",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": 2,
+              "path": "",
+              "reference": false
+            }
+          },
+          {
+            "key": "y",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "y",
+              "reference": true
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "$",
+      "reference": false
+    },
+    "y": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "a",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "y.a",
+              "reference": true
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "y",
+      "reference": false
+    },
+    "y.a": {
+      "kindValue": "array",
+      "object": null,
+      "array": {
+        "description": "",
+        "valid": [
+          {
+            "kindValue": "",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": null,
+            "alternates": null,
+            "defaultValue": null,
+            "path": "y.a[0]",
+            "reference": true
+          }
+        ]
+      },
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": [
+        1,
+        2
+      ],
+      "path": "y.a",
+      "reference": false
+    },
+    "y.a[0]": {
+      "kindValue": "number",
+      "object": null,
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "y.a[0]",
+      "reference": false
     }
-  ]
+  }
 }

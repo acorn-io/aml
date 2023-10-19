@@ -1,1 +1,1 @@
-"invalid cycle detected in key a: keyloop-bad2.acorn:4:2"
+undefined value from keyloop-bad2.acorn:3:5 (typically cause be a circular reference) can not be turned into a native value

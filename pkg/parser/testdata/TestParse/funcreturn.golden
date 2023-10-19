@@ -1,0 +1,226 @@
+&ast.File{
+	Filename: "funcreturn.acorn", Decls: []ast.Decl{
+		&ast.Field{
+			Label: &ast.Ident{
+				NamePos: token.Pos{
+					file: &token.File{
+						name: "funcreturn.acorn",
+						base: token.index(1),
+						size: token.index(38),
+						lines: []token.index{
+							token.index(0),
+							token.index(14),
+							token.index(16),
+							token.index(17),
+							token.index(35),
+							token.index(37),
+						},
+					},
+					offset: 18,
+				},
+				Name: "b",
+			},
+			Colon: token.Pos{
+				file: &token.File{
+					name: "funcreturn.acorn",
+					base: token.index(1),
+					size: token.index(38),
+					lines: []token.index{
+						token.index(0),
+						token.index(14),
+						token.index(16),
+						token.index(17),
+						token.index(35),
+						token.index(37),
+					},
+				},
+				offset: 34,
+			},
+			Value: &ast.Func{
+				Func: token.Pos{
+					file: &token.File{
+						name: "funcreturn.acorn",
+						base: token.index(1),
+						size: token.index(38),
+						lines: []token.index{
+							token.index(0),
+							token.index(14),
+							token.index(16),
+							token.index(17),
+							token.index(35),
+							token.index(37),
+						},
+					},
+					offset: 67,
+				},
+				Body: &ast.StructLit{
+					Lbrace: token.Pos{
+						file: &token.File{
+							name: "funcreturn.acorn",
+							base: token.index(1),
+							size: token.index(38),
+							lines: []token.index{
+								token.index(0),
+								token.index(14),
+								token.index(16),
+								token.index(17),
+								token.index(35),
+								token.index(37),
+							},
+						},
+						offset: 211,
+					},
+					Rbrace: token.Pos{
+						file: &token.File{
+							name: "funcreturn.acorn",
+							base: token.index(1),
+							size: token.index(38),
+							lines: []token.index{
+								token.index(0),
+								token.index(14),
+								token.index(16),
+								token.index(17),
+								token.index(35),
+								token.index(37),
+							},
+						},
+						offset: 244,
+					},
+				},
+			},
+			comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+		},
+		&ast.Field{
+			Label: &ast.Ident{
+				NamePos: token.Pos{
+					file: &token.File{
+						name: "funcreturn.acorn",
+						base: token.index(1),
+						size: token.index(38),
+						lines: []token.index{
+							token.index(0),
+							token.index(14),
+							token.index(16),
+							token.index(17),
+							token.index(35),
+							token.index(37),
+						},
+					},
+					offset: 293,
+				},
+				Name: "a",
+			},
+			Colon: token.Pos{
+				file: &token.File{
+					name: "funcreturn.acorn",
+					base: token.index(1),
+					size: token.index(38),
+					lines: []token.index{
+						token.index(0),
+						token.index(14),
+						token.index(16),
+						token.index(17),
+						token.index(35),
+						token.index(37),
+					},
+				},
+				offset: 306,
+			},
+			Value: &ast.Func{
+				Func: token.Pos{
+					file: &token.File{
+						name: "funcreturn.acorn",
+						base: token.index(1),
+						size: token.index(38),
+						lines: []token.index{
+							token.index(0),
+							token.index(14),
+							token.index(16),
+							token.index(17),
+							token.index(35),
+							token.index(37),
+						},
+					},
+					offset: 339,
+				},
+				Body: &ast.StructLit{
+					Lbrace: token.Pos{
+						file: &token.File{
+							name: "funcreturn.acorn",
+							base: token.index(1),
+							size: token.index(38),
+							lines: []token.index{
+								token.index(0),
+								token.index(14),
+								token.index(16),
+								token.index(17),
+								token.index(35),
+								token.index(37),
+							},
+						},
+						offset: 547,
+					},
+					Rbrace: token.Pos{
+						file: &token.File{
+							name: "funcreturn.acorn",
+							base: token.index(1),
+							size: token.index(38),
+							lines: []token.index{
+								token.index(0),
+								token.index(14),
+								token.index(16),
+								token.index(17),
+								token.index(35),
+								token.index(37),
+							},
+						},
+						offset: 580,
+					},
+				},
+				ReturnType: &ast.SelectorExpr{
+					X: &ast.Ident{
+						NamePos: token.Pos{
+							file: &token.File{
+								name: "funcreturn.acorn",
+								base: token.index(1),
+								size: token.index(38),
+								lines: []token.index{
+									token.index(0),
+									token.index(14),
+									token.index(16),
+									token.index(17),
+									token.index(35),
+									token.index(37),
+								},
+							},
+							offset: 483,
+						},
+						Name:     "x",
+						comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+					},
+					Sel: &ast.Ident{
+						NamePos: token.Pos{
+							file: &token.File{
+								name: "funcreturn.acorn",
+								base: token.index(1),
+								size: token.index(38),
+								lines: []token.index{
+									token.index(0),
+									token.index(14),
+									token.index(16),
+									token.index(17),
+									token.index(35),
+									token.index(37),
+								},
+							},
+							offset: 514,
+						},
+						Name: "b",
+					},
+					comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+				},
+			},
+		},
+	},
+	comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+}

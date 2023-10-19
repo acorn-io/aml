@@ -1,5 +1,5 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "fields.acorn",
 		Offset:   41,
 		Line:     5,
@@ -17,8 +17,8 @@
 				{"a string"},
 			}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("stringkey")},
-				Pos: eval.Position{
+				Key: "stringkey",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   41,
 					Line:     5,
@@ -26,7 +26,7 @@
 				},
 			},
 			Value: eval.Value{Value: value.String("stringvalue")},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   41,
 				Line:     5,
@@ -36,8 +36,8 @@
 		&eval.KeyValue{
 			Comments: eval.Comments{Comments: [][]string{{"a number"}}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("number")},
-				Pos: eval.Position{
+				Key: "number",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   78,
 					Line:     7,
@@ -45,7 +45,7 @@
 				},
 			},
 			Value: eval.Value{Value: value.Number("1")},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   78,
 				Line:     7,
@@ -55,8 +55,8 @@
 		&eval.KeyValue{
 			Comments: eval.Comments{Comments: [][]string{{"an int"}}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("int")},
-				Pos: eval.Position{
+				Key: "int",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   98,
 					Line:     9,
@@ -64,7 +64,7 @@
 				},
 			},
 			Value: eval.Value{Value: value.Number("1")},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   98,
 				Line:     9,
@@ -74,8 +74,8 @@
 		&eval.KeyValue{
 			Comments: eval.Comments{Comments: [][]string{{"a float"}}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("float")},
-				Pos: eval.Position{
+				Key: "float",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   116,
 					Line:     11,
@@ -83,7 +83,7 @@
 				},
 			},
 			Value: eval.Value{Value: value.Number("1.0")},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   116,
 				Line:     11,
@@ -93,8 +93,8 @@
 		&eval.KeyValue{
 			Comments: eval.Comments{Comments: [][]string{{"a bool"}}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("bool")},
-				Pos: eval.Position{
+				Key: "bool",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   137,
 					Line:     13,
@@ -102,7 +102,7 @@
 				},
 			},
 			Value: eval.Value{Value: value.Boolean(true)},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   137,
 				Line:     13,
@@ -112,8 +112,8 @@
 		&eval.KeyValue{
 			Comments: eval.Comments{Comments: [][]string{{"a nested"}}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("nested")},
-				Pos: eval.Position{
+				Key: "nested",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   160,
 					Line:     15,
@@ -121,7 +121,7 @@
 				},
 			},
 			Value: &eval.Struct{
-				Position: eval.Position{
+				Position: value.Position{
 					Filename: "fields.acorn",
 					Offset:   168,
 					Line:     15,
@@ -129,8 +129,8 @@
 				},
 				Fields: []eval.Field{&eval.KeyValue{
 					Key: eval.FieldKey{
-						Key: eval.Value{Value: value.String("obj")},
-						Pos: eval.Position{
+						Key: "obj",
+						Pos: value.Position{
 							Filename: "fields.acorn",
 							Offset:   168,
 							Line:     15,
@@ -138,7 +138,7 @@
 						},
 					},
 					Value: eval.Value{Value: value.Number("1")},
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "fields.acorn",
 						Offset:   168,
 						Line:     15,
@@ -146,7 +146,7 @@
 					},
 				}},
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   160,
 				Line:     15,
@@ -156,8 +156,8 @@
 		&eval.KeyValue{
 			Comments: eval.Comments{Comments: [][]string{{"a list"}}},
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("list")},
-				Pos: eval.Position{
+				Key: "list",
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   185,
 					Line:     17,
@@ -165,7 +165,7 @@
 				},
 			},
 			Value: &eval.Array{
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "fields.acorn",
 					Offset:   191,
 					Line:     17,
@@ -173,7 +173,7 @@
 				},
 				Items: []eval.Expression{
 					eval.Value{Value: value.Number("2")},
-					&eval.Struct{Position: eval.Position{
+					&eval.Struct{Position: value.Position{
 						Filename: "fields.acorn",
 						Offset:   195,
 						Line:     17,
@@ -181,7 +181,7 @@
 					}},
 				},
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   185,
 				Line:     17,
@@ -189,7 +189,7 @@
 			},
 		},
 		&eval.Embedded{
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   223,
 				Line:     20,
@@ -197,7 +197,7 @@
 			},
 			Comments: eval.Comments{Comments: [][]string{{"comment on embedded"}}},
 			Expression: &eval.Struct{
-				Position: eval.Position{
+				Position: value.Position{
 					Filename: "fields.acorn",
 					Offset:   223,
 					Line:     20,
@@ -208,8 +208,8 @@
 						"comment on field",
 					}}},
 					Key: eval.FieldKey{
-						Key: eval.Value{Value: value.String("x")},
-						Pos: eval.Position{
+						Key: "x",
+						Pos: value.Position{
 							Filename: "fields.acorn",
 							Offset:   247,
 							Line:     22,
@@ -217,7 +217,7 @@
 						},
 					},
 					Value: eval.Value{Value: value.Number("1")},
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "fields.acorn",
 						Offset:   247,
 						Line:     22,
@@ -227,7 +227,7 @@
 			},
 		},
 		&eval.Embedded{
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "fields.acorn",
 				Offset:   254,
 				Line:     24,

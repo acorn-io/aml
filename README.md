@@ -476,7 +476,7 @@ let types: {
         item: number
     }
     
-    Item: types.StringItem || types.NumberItem
+    Item: StringItem || NumberItem
 }
 
 items: [types.Item]

@@ -1,0 +1,7 @@
+define bar: {
+	baz: string || 3
+}
+
+blah2: bar({
+	baz: 4
+})

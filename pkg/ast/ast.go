@@ -315,6 +315,7 @@ func (x *Interpolation) End() token.Pos  { return x.Elts[len(x.Elts)-1].Pos() }
 type Func struct {
 	Func token.Pos // position of "function"
 	Body *StructLit
+	ReturnType Expr
 
 	comments
 	isExpr
@@ -366,7 +367,7 @@ func (x *StructLit) End() token.Pos {
 // A SchemaLit node represents a literal schema definition.
 type SchemaLit struct {
 	Schema token.Pos // position of token.SCHEMA
-	Struct *StructLit
+	Decl   Decl
 
 	comments
 	isExpr
@@ -374,10 +375,10 @@ type SchemaLit struct {
 
 func (x *SchemaLit) Pos() token.Pos { return getPos(x) }
 func (x *SchemaLit) pos() *token.Pos {
-	return &x.Struct.Lbrace
+	return &x.Schema
 }
 func (x *SchemaLit) End() token.Pos {
-	return x.Struct.End()
+	return x.Decl.End()
 }
 
 // A ListLit node represents a literal list.
@@ -415,6 +416,7 @@ type For struct {
 	For    token.Pos
 	Clause *ForClause
 	Struct *StructLit
+	Else   *Else
 
 	comments
 	isExpr
@@ -422,7 +424,12 @@ type For struct {
 
 func (x *For) Pos() token.Pos  { return x.For }
 func (x *For) pos() *token.Pos { return &x.For }
-func (x *For) End() token.Pos  { return x.Struct.End() }
+func (x *For) End() token.Pos {
+	if x.Else != nil {
+		return x.Else.End()
+	}
+	return x.Struct.End()
+}
 
 // A ForClause node represents a for clause in a comprehension.
 type ForClause struct {

@@ -807,11 +807,17 @@ func (p *parser) parseFor() (expr *ast.For) {
 	forPos := p.expect(token.FOR)
 	clause := p.parseForClause()
 	structExpr := p.parseStruct()
+	var elif *ast.Else
+
+	if p.tok == token.ELSE {
+		elif = p.parseElse()
+	}
 
 	return &ast.For{
 		For:    forPos,
 		Clause: clause,
 		Struct: structExpr,
+		Else:   elif,
 	}
 }
 
@@ -928,12 +934,15 @@ func (p *parser) parseSchema() (expr *ast.SchemaLit) {
 	c := p.openComments()
 	defer func() { c.closeNode(p, expr) }()
 
+	p.openList()
+	defer p.closeList()
+
 	schema := p.expect(token.SCHEMA)
-	s := p.parseStruct()
+	decl := p.parseDeclInline()
 
 	return &ast.SchemaLit{
 		Schema: schema,
-		Struct: s,
+		Decl:   decl,
 	}
 }
 
@@ -1039,11 +1048,22 @@ func (p *parser) parseFunc() (expr ast.Expr) {
 		defer un(trace(p, "Function"))
 	}
 	fun := p.expect(token.FUNCTION)
-	body := p.parseStruct()
+
+	var (
+		body       *ast.StructLit
+		returnType ast.Expr
+	)
+
+	if p.tok != token.LBRACE {
+		returnType = p.parseExpr()
+	}
+
+	body = p.parseStruct()
 
 	return &ast.Func{
-		Func: fun,
-		Body: body,
+		Func:       fun,
+		Body:       body,
+		ReturnType: returnType,
 	}
 }
 
@@ -1057,6 +1077,10 @@ func (p *parser) parseList() (expr ast.Expr) {
 	if p.tok == token.FOR {
 		body := p.parseListComprehensionBody()
 		body.Lbrack = lbrack
+		// implicit comma may have been added, just comsume it
+		if p.tok == token.COMMA {
+			p.next()
+		}
 		body.Rbrack = p.expect(token.RBRACK)
 		return body
 	}

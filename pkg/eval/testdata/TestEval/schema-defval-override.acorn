@@ -1,0 +1,7 @@
+define Schema: {
+    foo: "bar"
+}
+
+    Schema( {
+    	foo: "hello world"
+    })

@@ -1,6 +1,3 @@
-schema {
-    a: string =~ "hi.*"
-    a: string !~ "bye.*"
+define Foo: {
+    a: string =~ "hi.*" && string !~ "bye.*"
 }
-
-a: "high"

@@ -1,1 +1,3 @@
-"missing required key a: schema-require-empty-array-bad.acorn:5:1 (1:8<-5:1)"
+{
+  "a": []
+}

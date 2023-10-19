@@ -1,1 +1,3 @@
-"invalid arguments: missing required key foo"
+{
+  "out": {}
+}

@@ -2,6 +2,7 @@ package eval
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -17,6 +18,7 @@ import (
 )
 
 func TestEval(t *testing.T) {
+	ctx := WithScope(context.Background(), Builtin)
 	dir := fmt.Sprintf("testdata/%s", t.Name())
 	files, err := os.ReadDir(dir)
 	require.Nil(t, err)
@@ -35,7 +37,7 @@ func TestEval(t *testing.T) {
 			result, err := Build(ast)
 			require.NoError(t, err)
 
-			v, ok, err := result.ToValue(Builtin)
+			v, ok, err := result.ToValue(ctx)
 			if err == nil {
 				assert.True(t, ok)
 
@@ -57,6 +59,7 @@ func TestEval(t *testing.T) {
 }
 
 func TestSchemaRender(t *testing.T) {
+	ctx := WithScope(WithSchema(context.Background(), true), Builtin)
 	dir := fmt.Sprintf("testdata/%s", t.Name())
 	files, err := os.ReadDir(dir)
 	require.Nil(t, err)
@@ -75,15 +78,10 @@ func TestSchemaRender(t *testing.T) {
 			result, err := Build(ast)
 			require.NoError(t, err)
 
-			v, ok, err := result.ToValue(Builtin.Push(nil, ScopeOption{
-				Schema: true,
-			}))
-			require.NoError(t, err)
-			require.True(t, ok)
-
-			schema, err := value.DescribeObject(value.SchemaContext{}, v)
+			v, _, err := result.ToValue(WithSchema(ctx, true))
 			if err == nil {
-				data, err := json.MarshalIndent(schema, "", "  ")
+				summary := value.Summarize(v.(*value.TypeSchema))
+				data, err := json.MarshalIndent(summary, "", "  ")
 				require.NoError(t, err)
 				autogold.ExpectFile(t, autogold.Raw(data))
 			} else {
@@ -94,6 +92,7 @@ func TestSchemaRender(t *testing.T) {
 }
 
 func TestFileDescribe(t *testing.T) {
+	ctx := WithScope(context.Background(), Builtin)
 	dir := fmt.Sprintf("testdata/%s", t.Name())
 	files, err := os.ReadDir(dir)
 	require.Nil(t, err)
@@ -112,7 +111,7 @@ func TestFileDescribe(t *testing.T) {
 			result, err := Build(ast)
 			require.NoError(t, err)
 
-			file, err := result.DescribeFile()
+			file, err := result.Describe(ctx)
 			if err == nil {
 				data, err := json.MarshalIndent(file, "", "  ")
 				require.NoError(t, err)

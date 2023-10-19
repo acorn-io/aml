@@ -1,8 +1,8 @@
-schema {
+define Foo: {
 		foo: default {
 			a: 1
 		}
 }
 
-{
-}
+Foo({
+})

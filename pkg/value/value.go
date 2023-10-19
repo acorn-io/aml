@@ -33,7 +33,7 @@ type Value interface {
 // IsSimpleKind returns true if the kind is a string, number, or bool.
 func IsSimpleKind(kind Kind) bool {
 	switch kind {
-	case StringKind, BoolKind, NumberKind:
+	case StringKind, BoolKind, NumberKind, NullKind:
 		return true
 	}
 	return false

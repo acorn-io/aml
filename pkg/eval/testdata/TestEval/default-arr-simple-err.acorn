@@ -1,0 +1,7 @@
+define empty: {
+    arr: ["foo", "bar"]
+}
+
+custom: empty({
+    arr: ["blah", 5]
+})

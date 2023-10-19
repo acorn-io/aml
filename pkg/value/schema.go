@@ -1,19 +1,22 @@
 package value
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/acorn-io/aml/pkg/schema"
 )
 
-type DescribeFieldTyper interface {
-	DescribeFieldType(ctx SchemaContext) (schema.FieldType, error)
+type Schema interface {
+	Value
+	Validate(ctx context.Context, v Value) (Value, error)
+	TargetKind() Kind
+
+	ValidArrayItems() []Schema
+	GetPath() string
 }
 
-func DescribeFieldType(ctx SchemaContext, v Value) (result schema.FieldType, _ error) {
-	if ft, ok := v.(DescribeFieldTyper); ok {
-		return ft.DescribeFieldType(ctx)
+func Validate(ctx context.Context, schema Value, v Value) (Value, error) {
+	if s, ok := schema.(Schema); ok {
+		return s.Validate(ctx, v)
 	}
-
-	return result, fmt.Errorf("failed to determine field type for kind %s", TargetKind(v))
+	return nil, fmt.Errorf("value kind %s can not be used for validation", v.Kind())
 }

@@ -1,0 +1,6 @@
+b: function {
+}
+
+a: function x.b {
+}
+

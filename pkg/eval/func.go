@@ -6,28 +6,25 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/acorn-io/aml/pkg/errors"
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 )
 
 type FunctionDefinition struct {
-	Comments         Comments
-	Pos              Position
-	Body             *Struct
-	ReturnBody       bool
-	AllowUnknownArgs bool
-	AssignRoot       bool
-	SchemaScope      bool
+	Comments   Comments
+	Pos        value.Position
+	Body       *Struct
+	ReturnType Expression
+	ReturnBody bool
+	AssignRoot bool
 }
 
-func (f *FunctionDefinition) ToValue(scope Scope) (value.Value, bool, error) {
+func (f *FunctionDefinition) ToValue(ctx context.Context) (value.Value, bool, error) {
 	argsFields, bodyFields := f.splitFields()
-	argNames, argsSchema, err := f.toSchema(scope, argsFields, "args", f.AllowUnknownArgs)
+	argNames, argsSchema, err := f.toSchema(ctx, argsFields, "args", true)
 	if err != nil {
 		return nil, false, err
 	}
-	profileNames, profileSchema, err := f.toSchema(scope, argsFields, "profiles", true)
+	profileNames, profileSchema, err := f.toSchema(ctx, argsFields, "profiles", true)
 	if err != nil {
 		return nil, false, err
 	}
@@ -35,63 +32,100 @@ func (f *FunctionDefinition) ToValue(scope Scope) (value.Value, bool, error) {
 		Position: f.Pos,
 		Fields:   bodyFields,
 	}
-	return &Function{
+	scope := GetScope(ctx)
+	returnFunc := &Function{
 		Pos:            f.Pos,
 		Scope:          scope,
 		Body:           body,
+		ReturnType:     f.ReturnType,
 		ArgsSchema:     argsSchema,
 		ArgNames:       argNames,
 		ProfileNames:   profileNames,
 		ProfilesSchema: profileSchema,
 		ReturnBody:     f.ReturnBody,
 		AssignRoot:     f.AssignRoot,
-		CallScope:      !f.SchemaScope,
-	}, true, nil
+	}
+	if IsSchema(ctx) && !f.AssignRoot {
+		var args []value.ObjectSchemaField
+		if argsSchema.Object != nil {
+			args = argsSchema.Object.Fields
+		}
+		return &value.TypeSchema{
+			Positions: []value.Position{f.Pos},
+			KindValue: value.FuncKind,
+			FuncSchema: &value.FuncSchema{
+				Args:         args,
+				ProfileNames: returnFunc.ProfileNames,
+				Returns: func(ctx context.Context) (value.Schema, bool, error) {
+					if f.ReturnType == nil {
+						return nil, false, err
+					}
+					v, ok, err := f.ReturnType.ToValue(WithScope(ctx, scope))
+					if err != nil || !ok {
+						return nil, ok, err
+					}
+					if s, ok := v.(value.Schema); ok {
+						return s, true, nil
+					}
+					return nil, false, value.NewErrPosition(f.Pos,
+						fmt.Errorf("return value is does not a schema type, got kind: %s", v.Kind()))
+				},
+			},
+			DefaultValue: returnFunc,
+		}, true, nil
+	}
+	return returnFunc, true, nil
 }
 
-func (f *FunctionDefinition) toSchema(scope Scope, argDefs []Field, fieldName string, allowNewFields bool) (Names, value.Value, error) {
+func (f *FunctionDefinition) toSchema(ctx context.Context, argDefs []Field, fieldName string, allowNewFields bool) (value.Names, *value.TypeSchema, error) {
 	s := Schema{
 		AllowNewFields: allowNewFields,
-		Struct: &Struct{
+		Expression: &Struct{
 			Position: f.Pos,
 			Fields:   argDefs,
 		},
 	}
-	v, _, err := s.ToValue(scope)
+	v, _, err := s.ToValue(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	args, ok, err := value.Lookup(v, value.NewValue(fieldName))
+	v, ok, err := value.Lookup(v, value.NewValue(fieldName))
 	if err != nil {
 		return nil, nil, err
 	} else if !ok {
-		return nil, value.NewClosedObject(), nil
+		v = value.NewObject(nil)
 	}
 
-	obj, err := value.DescribeObject(value.SchemaContext{}, args)
-	if err != nil {
-		// for various reasons during partial evaluation this call could fail, in that situation
-		// we don't care because we are just looking for the descriptions
-		obj = &schema.Object{}
+	if undef := value.IsUndefined(v); undef != nil {
+		return nil, nil, value.NewErrPosition(f.Pos, fmt.Errorf("errors reading args: %s", undef))
 	}
 
-	var names Names
-	keys, err := value.Keys(args)
-	for _, key := range keys {
-		name := Name{
-			Name: key,
+	if _, ok := v.(*value.TypeSchema); !ok {
+		if allowNewFields {
+			v = value.NewOpenObject()
+		} else {
+			v = value.NewClosedObject()
 		}
-		for _, field := range obj.Fields {
-			if field.Name == key {
-				name.Description = field.Description
-				break
-			}
-		}
-		names = append(names, name)
 	}
 
-	return names, args, err
+	var (
+		names value.Names
+		ts    = v.(*value.TypeSchema)
+	)
+
+	if ts.Object == nil {
+		return names, ts, nil
+	}
+
+	for _, field := range ts.Object.Fields {
+		names = append(names, value.Name{
+			Name:        field.Key,
+			Description: field.Description,
+		})
+	}
+
+	return names, ts, err
 }
 
 func (f *FunctionDefinition) splitFields() (argFields []Field, bodyFields []Field) {
@@ -111,46 +145,33 @@ type IsArgumentDefinition interface {
 }
 
 type Function struct {
-	Pos            Position
+	Pos            value.Position
 	Scope          Scope
 	Body           Expression
-	ArgsSchema     value.Value
-	ArgNames       Names
-	ProfilesSchema value.Value
-	ProfileNames   Names
+	ReturnType     Expression
+	ArgsSchema     value.Schema
+	ArgNames       value.Names
+	ProfilesSchema value.Schema
+	ProfileNames   value.Names
 	ReturnBody     bool
 	AssignRoot     bool
 	UnscopedArgs   bool
-	CallScope      bool
 
 	depth atomic.Int32
 }
 
-type Names []Name
-
-type Name struct {
-	Name        string
-	Description string
+func (c *Function) Returns(ctx context.Context) (value.Value, bool, error) {
+	if c.ReturnType == nil {
+		return nil, false, nil
+	}
+	return c.ReturnType.ToValue(WithScope(ctx, c.Scope))
 }
 
-func (n Names) Describe() (result schema.Names) {
-	for _, name := range n {
-		result = append(result, schema.Name(name))
+func (c *Function) Eq(right value.Value) (value.Value, error) {
+	if rf, ok := right.(*Function); ok {
+		return value.NewValue(c.Pos.String() == rf.Pos.String()), nil
 	}
-	return
-}
-
-func (c *Function) DescribeFieldType(ctx value.SchemaContext) (result schema.FieldType, _ error) {
-	argsSchema, err := value.DescribeObject(ctx, c.ArgsSchema)
-	if err != nil {
-		return result, err
-	}
-	return schema.FieldType{
-		Func: &schema.Func{
-			Args: *argsSchema,
-		},
-		Kind: schema.FuncKind,
-	}, nil
+	return value.False, nil
 }
 
 func (c *Function) Kind() value.Kind {
@@ -200,7 +221,7 @@ func (c *Function) getProfiles(v value.Value) (profiles []value.Value, profileSt
 	return profiles, profileStringNames, true, nil
 }
 
-func (c *Function) callArgumentToValue(args []value.CallArgument) (value.Value, error) {
+func (c *Function) callArgumentToValue(ctx context.Context, args []value.CallArgument) (value.Value, error) {
 	var (
 		argValues      []value.Value
 		profiles       []value.Value
@@ -240,15 +261,15 @@ func (c *Function) callArgumentToValue(args []value.CallArgument) (value.Value, 
 	}
 
 	for i := len(profiles) - 1; i >= 0; i-- {
-		argValue, err = value.Merge(profiles[i], argValue)
+		argValue, err = value.Validate(ctx, profiles[i], argValue)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	validated, err := value.Merge(c.ArgsSchema, argValue)
+	validated, err := value.Validate(ctx, c.ArgsSchema, argValue)
 	if err != nil {
-		return validated, errors.NewErrEval(value.Position(c.Pos), &ErrInvalidArgument{
+		return validated, value.NewErrPosition(c.Pos, &ErrInvalidArgument{
 			Err: err,
 		})
 	}
@@ -272,13 +293,33 @@ func (e *ErrInvalidArgument) Error() string {
 
 const MaxCallDepth = 100
 
-func (c *Function) Call(ctx context.Context, args []value.CallArgument) (value.Value, bool, error) {
+func (c *Function) validateReturn(ctx context.Context, ret value.Value, ok bool, err error) (value.Value, bool, error) {
+	if err != nil || !ok {
+		return ret, ok, err
+	}
+
+	check, hasCheck, checkErr := c.Returns(ctx)
+	if checkErr != nil {
+		return nil, false, checkErr
+	}
+	if !hasCheck {
+		return ret, ok, err
+	}
+	ret, err = value.Validate(ctx, check, ret)
+	return ret, true, err
+}
+
+func (c *Function) Call(ctx context.Context, args []value.CallArgument) (ret value.Value, ok bool, err error) {
 	defer c.depth.Add(-1)
 	if depth := c.depth.Add(1); depth > MaxCallDepth {
 		return nil, false, fmt.Errorf("exceeded max call depth %d > %d", depth, MaxCallDepth)
 	}
 
-	argsValue, err := c.callArgumentToValue(args)
+	defer func() {
+		ret, ok, err = c.validateReturn(ctx, ret, ok, err)
+	}()
+
+	argsValue, err := c.callArgumentToValue(ctx, args)
 	if err != nil {
 		return nil, false, err
 	}
@@ -289,46 +330,41 @@ func (c *Function) Call(ctx context.Context, args []value.CallArgument) (value.V
 	default:
 	}
 
-	var path string
-	if c.Scope.Path() != "" {
-		path = "()"
+	if !c.AssignRoot {
+		ctx = value.WithCallPath(ctx)
 	}
-
 	scope := c.Scope
+
 	for _, arg := range args {
 		if arg.Self {
-			scope = scope.Push(ValueScopeLookup{
-				Value: arg.Value,
+			scope, _ = scope.NewScope(ctx, ScopeData{
+				"self": arg.Value,
 			})
 			break
 		}
 	}
 
 	if c.UnscopedArgs {
-		scope = scope.Push(ValueScopeLookup{
+		scope, _ = scope.NewScope(WithSchema(ctx, false), ValueScopeLookup{
 			Value: argsValue,
-		}, ScopeOption{
-			Path:    path,
-			Context: ctx,
-			Call:    c.CallScope,
 		})
 	} else {
 		rootData := map[string]any{
 			"args": argsValue,
 		}
 
-		scope = scope.Push(ScopeData(rootData), ScopeOption{
-			Path:    path,
-			Context: ctx,
-			Call:    c.CallScope,
-		})
-
 		if c.AssignRoot {
-			scope = NewRootScope(c.Pos, scope, rootData)
+			rootData["__root"] = true
+		} else {
+			ctx = WithSchema(ctx, false)
 		}
+
+		scope, _ = scope.NewScope(ctx, ScopeData(rootData))
 	}
 
-	ret, ok, err := c.Body.ToValue(scope)
+	ctx = WithScope(ctx, scope)
+
+	ret, ok, err = c.Body.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}

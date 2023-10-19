@@ -1,46 +1,135 @@
 {
-  "fields": [
-    {
-      "name": "top",
-      "description": "Top",
-      "type": {
-        "kind": "object",
-        "object": {
-          "path": "top",
-          "fields": [
-            {
-              "name": "midde",
-              "description": "Middle",
-              "type": {
-                "kind": "object",
-                "object": {
-                  "path": "top.midde",
-                  "fields": [
-                    {
-                      "name": "lower",
-                      "description": "Lower",
-                      "type": {
-                        "kind": "object",
-                        "object": {
-                          "path": "top.midde.lower"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
+  "types": {
+    "$": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "top",
+            "match": false,
+            "optional": false,
+            "description": "Top",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "top",
+              "reference": true
             }
-          ]
-        }
-      }
+          },
+          {
+            "key": "num",
+            "match": false,
+            "optional": false,
+            "description": "Number",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": 1,
+              "path": "",
+              "reference": false
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "$",
+      "reference": false
     },
-    {
-      "name": "num",
-      "description": "Number",
-      "type": {
-        "kind": "number",
-        "default": 1
-      }
+    "top": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "midde",
+            "match": false,
+            "optional": false,
+            "description": "Middle",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "top.midde",
+              "reference": true
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "top",
+      "reference": false
+    },
+    "top.midde": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "lower",
+            "match": false,
+            "optional": false,
+            "description": "Lower",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "top.midde.lower",
+              "reference": true
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "top.midde",
+      "reference": false
+    },
+    "top.midde.lower": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": true,
+        "description": "",
+        "fields": null
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "top.midde.lower",
+      "reference": false
     }
-  ]
+  }
 }

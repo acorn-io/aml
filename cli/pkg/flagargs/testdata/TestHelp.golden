@@ -1,4 +1,5 @@
 Usage of testdata/TestParseArgs/input.acorn:
+      --anObject string   
       --foo string        
       --foo2 string       
       --foo3 string       

@@ -1,0 +1,10 @@
+bar: function {
+	return: 1
+}
+
+cached: {
+	foo: bar()
+	x: foo
+	y: foo
+	z: foo
+}

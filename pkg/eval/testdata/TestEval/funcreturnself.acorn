@@ -1,0 +1,10 @@
+define a: {
+	foo: string
+	b: function a {
+		return: self
+	}
+}
+
+a({
+	foo: "bar"
+}).b()

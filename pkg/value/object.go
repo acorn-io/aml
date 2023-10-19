@@ -58,17 +58,28 @@ func (n *Object) LookupValue(key Value) (Value, bool, error) {
 		if b, err := ToBool(b); err != nil {
 			return nil, false, err
 		} else if b {
-			if e.Value.Kind() == FuncKind {
-				return ObjectFunc{
-					Self: n,
-					Func: e.Value,
-				}, true, nil
-			}
+			//if e.Value.Kind() == FuncKind {
+			//	return ObjectFunc{
+			//		Self: n,
+			//		Func: e.Value,
+			//	}, true, nil
+			//}
 			return e.Value, true, nil
 		}
 	}
 
 	return nil, false, nil
+}
+
+func (n *Object) Add(right Value) (Value, error) {
+	if right.Kind() != ObjectKind {
+		return nil, fmt.Errorf("can not add kind %s and %s", n.Kind(), right.Kind())
+	}
+
+	v, _, err := MergeObjects(n, right, true, func(left, right Value) (newValue Value, changed bool, _ error) {
+		return right, false, nil
+	})
+	return v, err
 }
 
 func (n *Object) Eq(right Value) (Value, error) {
@@ -188,7 +199,24 @@ func Entries(val Value) (result []Entry, _ error) {
 	return
 }
 
-func MergeObjects(left, right Value, allowNewKeys bool) (Value, error) {
+type ObjectMerge func(left, right Value) (newValue Value, changed bool, _ error)
+
+func MergeObjectMerger(left, right Value) (newValue Value, changed bool, _ error) {
+	v, err := Merge(left, right)
+	return v, false, err
+}
+
+func IsObjectLike(v Value) bool {
+	if _, ok := v.(Keyser); !ok {
+		return false
+	}
+	if _, ok := v.(LookupValue); !ok {
+		return false
+	}
+	return true
+}
+
+func MergeObjects(left, right Value, allowNewKeys bool, merger ObjectMerge) (merged Value, changed bool, _ error) {
 	var (
 		result   []Entry
 		keysSeen = map[string]int{}
@@ -196,7 +224,7 @@ func MergeObjects(left, right Value, allowNewKeys bool) (Value, error) {
 
 	leftEntries, err := Entries(left)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	for _, entry := range leftEntries {
@@ -206,31 +234,38 @@ func MergeObjects(left, right Value, allowNewKeys bool) (Value, error) {
 
 	keys, err := Keys(right)
 	if err != nil {
-		return nil, fmt.Errorf("failed to merge kind %s with %s: %w", ObjectKind, right.Kind(), err)
+		return nil, false, fmt.Errorf("failed to merge kind %s with %s: %w", ObjectKind, right.Kind(), err)
 	}
 
+	var (
+		mergeChanged bool
+	)
 	for _, key := range keys {
 		rightValue, ok, err := Lookup(right, NewValue(key))
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		if !ok {
 			continue
 		}
 
 		if i, ok := keysSeen[key]; ok {
-			rightValue, err = Merge(result[i].Value, rightValue)
+			rightValue, mergeChanged, err = merger(result[i].Value, rightValue)
 			if err != nil {
-				return nil, err
+				return nil, false, err
+			}
+			if mergeChanged {
+				changed = true
 			}
 			result[i].Value = rightValue
 		} else if allowNewKeys {
+			changed = true
 			result = append(result, Entry{
 				Key:   key,
 				Value: rightValue,
 			})
 		} else {
-			return nil, &ErrUnknownField{
+			return nil, false, &ErrUnknownField{
 				Key: key,
 			}
 		}
@@ -238,15 +273,16 @@ func MergeObjects(left, right Value, allowNewKeys bool) (Value, error) {
 
 	return &Object{
 		Entries: result,
-	}, nil
+	}, changed, nil
 }
 
 func (n *Object) Merge(right Value) (Value, error) {
-	if err := assertKindsMatch(n, right); err != nil {
+	if err := AssertKindsMatch(n, right); err != nil {
 		return nil, err
 	}
 
-	return MergeObjects(n, right, true)
+	v, _, err := MergeObjects(n, right, true, MergeObjectMerger)
+	return v, err
 }
 
 type Entry struct {
@@ -263,8 +299,11 @@ func (o ObjectFunc) Kind() Kind {
 	return FuncKind
 }
 
-func (o ObjectFunc) Merge(val Value) (Value, error) {
-	return Merge(o.Func, val)
+func (o ObjectFunc) Eq(right Value) (Value, error) {
+	if rf, ok := right.(ObjectFunc); ok {
+		return Eq(o.Func, rf.Func)
+	}
+	return False, nil
 }
 
 func (o ObjectFunc) Call(ctx context.Context, args []CallArgument) (Value, bool, error) {

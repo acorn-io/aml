@@ -1,0 +1,205 @@
+&ast.File{
+	Filename: "for.acorn", Decls: []ast.Decl{
+		&ast.EmbedDecl{Expr: &ast.ListComprehension{
+			Lbrack: token.Pos{
+				file: &token.File{
+					name: "for.acorn",
+					base: token.index(1),
+					size: token.index(31),
+					lines: []token.index{
+						token.index(0),
+						token.index(2),
+						token.index(17),
+						token.index(26),
+						token.index(29),
+					},
+				},
+				offset: 18,
+			},
+			For: token.Pos{
+				file: &token.File{
+					name: "for.acorn",
+					base: token.index(1),
+					size: token.index(31),
+					lines: []token.index{
+						token.index(0),
+						token.index(2),
+						token.index(17),
+						token.index(26),
+						token.index(29),
+					},
+				},
+				offset: 68,
+			},
+			Rbrack: token.Pos{
+				file: &token.File{
+					name: "for.acorn",
+					base: token.index(1),
+					size: token.index(31),
+					lines: []token.index{
+						token.index(0),
+						token.index(2),
+						token.index(17),
+						token.index(26),
+						token.index(29),
+					},
+				},
+				offset: 484,
+			},
+			Clause: &ast.ForClause{
+				Value: &ast.Ident{
+					NamePos: token.Pos{
+						file: &token.File{
+							name: "for.acorn",
+							base: token.index(1),
+							size: token.index(31),
+							lines: []token.index{
+								token.index(0),
+								token.index(2),
+								token.index(17),
+								token.index(26),
+								token.index(29),
+							},
+						},
+						offset: 131,
+					},
+					Name: "i",
+				},
+				In: token.Pos{
+					file: &token.File{
+						name: "for.acorn",
+						base: token.index(1),
+						size: token.index(31),
+						lines: []token.index{
+							token.index(0),
+							token.index(2),
+							token.index(17),
+							token.index(26),
+							token.index(29),
+						},
+					},
+					offset: 163,
+				},
+				Source: &ast.ListLit{
+					Lbrack: token.Pos{
+						file: &token.File{
+							name: "for.acorn",
+							base: token.index(1),
+							size: token.index(31),
+							lines: []token.index{
+								token.index(0),
+								token.index(2),
+								token.index(17),
+								token.index(26),
+								token.index(29),
+							},
+						},
+						offset: 211,
+					},
+					Rbrack: token.Pos{
+						file: &token.File{
+							name: "for.acorn",
+							base: token.index(1),
+							size: token.index(31),
+							lines: []token.index{
+								token.index(0),
+								token.index(2),
+								token.index(17),
+								token.index(26),
+								token.index(29),
+							},
+						},
+						offset: 226,
+					},
+				},
+			},
+			Value: &ast.StructLit{
+				Lbrace: token.Pos{
+					file: &token.File{
+						name: "for.acorn",
+						base: token.index(1),
+						size: token.index(31),
+						lines: []token.index{
+							token.index(0),
+							token.index(2),
+							token.index(17),
+							token.index(26),
+							token.index(29),
+						},
+					},
+					offset: 259,
+				},
+				Elts: []ast.Decl{&ast.Field{
+					Label: &ast.BasicLit{
+						ValuePos: token.Pos{
+							file: &token.File{
+								name: "for.acorn",
+								base: token.index(1),
+								size: token.index(31),
+								lines: []token.index{
+									token.index(0),
+									token.index(2),
+									token.index(17),
+									token.index(26),
+									token.index(29),
+								},
+							},
+							offset: 324,
+						},
+						Kind:  token.Token(STRING),
+						Value: `"i"`,
+					},
+					Colon: token.Pos{
+						file: &token.File{
+							name: "for.acorn",
+							base: token.index(1),
+							size: token.index(31),
+							lines: []token.index{
+								token.index(0),
+								token.index(2),
+								token.index(17),
+								token.index(26),
+								token.index(29),
+							},
+						},
+						offset: 370,
+					},
+					Value: &ast.Ident{
+						NamePos: token.Pos{
+							file: &token.File{
+								name: "for.acorn",
+								base: token.index(1),
+								size: token.index(31),
+								lines: []token.index{
+									token.index(0),
+									token.index(2),
+									token.index(17),
+									token.index(26),
+									token.index(29),
+								},
+							},
+							offset: 403,
+						},
+						Name: "i",
+					},
+				}},
+				Rbrace: token.Pos{
+					file: &token.File{
+						name: "for.acorn",
+						base: token.index(1),
+						size: token.index(31),
+						lines: []token.index{
+							token.index(0),
+							token.index(2),
+							token.index(17),
+							token.index(26),
+							token.index(29),
+						},
+					},
+					offset: 452,
+				},
+			},
+		}},
+	},
+	comments: ast.comments{groups: &[]*ast.CommentGroup{}},
+}

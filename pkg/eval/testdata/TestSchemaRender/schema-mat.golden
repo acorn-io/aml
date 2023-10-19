@@ -1,52 +1,109 @@
 {
-  "fields": [
-    {
-      "name": "a",
-      "type": {
-        "kind": "string",
-        "constraints": [
+  "types": {
+    "$": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
           {
-            "op": "type",
-            "right": {
-              "kind": "string",
+            "key": "Foo",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "Foo",
+              "reference": true
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "$",
+      "reference": false
+    },
+    "Foo": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "a",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "string",
+              "object": null,
+              "array": null,
+              "func": null,
               "constraints": [
                 {
-                  "op": "type",
+                  "op": "mustMatchSchema",
                   "right": {
-                    "kind": "string",
+                    "kindValue": "string",
+                    "object": null,
+                    "array": null,
+                    "func": null,
                     "constraints": [
                       {
                         "op": "=~",
                         "right": "hi.*"
                       }
-                    ]
+                    ],
+                    "alternates": null,
+                    "defaultValue": null,
+                    "path": "",
+                    "reference": false
                   }
                 },
                 {
-                  "op": "type",
+                  "op": "mustMatchSchema",
                   "right": {
-                    "kind": "string",
+                    "kindValue": "string",
+                    "object": null,
+                    "array": null,
+                    "func": null,
                     "constraints": [
                       {
                         "op": "!~",
                         "right": "bye.*"
                       }
-                    ]
+                    ],
+                    "alternates": null,
+                    "defaultValue": null,
+                    "path": "",
+                    "reference": false
                   }
                 }
-              ]
-            }
-          },
-          {
-            "op": "type",
-            "right": {
-              "kind": "string",
-              "default": "high"
+              ],
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
             }
           }
-        ],
-        "default": "high"
-      }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "Foo",
+      "reference": false
     }
-  ]
+  }
 }

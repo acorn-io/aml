@@ -1,0 +1,20 @@
+{
+  "asDefault": {
+    "arr": [
+      "foo",
+      "bar",
+      3
+    ]
+  },
+  "custom": {
+    "arr": [
+      "blah"
+    ]
+  },
+  "customNumber": {
+    "arr": [
+      "blah",
+      5
+    ]
+  }
+}

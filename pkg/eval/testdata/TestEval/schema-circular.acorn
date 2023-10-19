@@ -1,12 +1,10 @@
-node: schema {
+define node: {
     data: string
     next?: node
 }
 
 {
-    // embedding here will cause the schema to be enforced
-    node
-
+    node({
     data: "first"
     next: {
         data: "second"
@@ -14,4 +12,5 @@ node: schema {
             data: "third"
         }
     }
+    })
 }

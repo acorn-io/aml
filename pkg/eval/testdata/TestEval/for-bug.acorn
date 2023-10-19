@@ -1,0 +1,17 @@
+addFuncsToObject: function {
+	args: foo: object
+	for i, func in ["one", "two"] {
+		if i == 0 {
+			object: i
+		} else {
+			object: prev.object + 1
+		}
+	} else {
+		object: -1
+	}
+
+	std.debug("object", object)
+	return: object
+}
+
+x: addFuncsToObject({})

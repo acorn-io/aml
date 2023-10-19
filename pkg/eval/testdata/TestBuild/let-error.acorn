@@ -1,4 +1,4 @@
-let Test: schema {
+let Test: define {
 	a: 1
 }
 

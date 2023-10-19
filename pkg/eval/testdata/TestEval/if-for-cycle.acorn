@@ -1,0 +1,8 @@
+foo: true
+x: {
+    if foo {
+        bar: []
+    }
+    for x in bar {
+    }
+}

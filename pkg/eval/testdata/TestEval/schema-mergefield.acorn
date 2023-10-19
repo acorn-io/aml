@@ -1,6 +1,5 @@
-schema {
-		foo: string
-		foo: string == "hi"
+define Foo: {
+		foo: string && string == "hi"
 }
 
-foo: "hi"
+Foo({foo: "hi"})

@@ -13,14 +13,17 @@ var Builtin Scope
 func kinds() map[string]any {
 	data := map[string]any{}
 	for _, kind := range value.BuiltinKinds {
-		if kind == value.SchemaKind {
-			data["type"] = &value.TypeSchema{
+		if kind == value.ObjectKind {
+			data[string(kind)] = value.NewOpenObject()
+		} else if kind == value.ArrayKind {
+			data[string(kind)] = &value.TypeSchema{
+				KindValue: kind,
+				Array:     &value.ArraySchema{},
+			}
+		} else {
+			data[string(kind)] = &value.TypeSchema{
 				KindValue: kind,
 			}
-			continue
-		}
-		data[string(kind)] = &value.TypeSchema{
-			KindValue: kind,
 		}
 	}
 	return data
@@ -36,13 +39,15 @@ func statics() map[string]any {
 	return data
 }
 
-func addStd(data map[string]any) any {
+func addStd(ctx context.Context, data map[string]any) any {
 	expr, err := Build(std.File)
 	if err != nil {
 		panic(err)
 	}
 
-	stdValue, ok, err := expr.ToValue(EmptyScope{}.Push(ScopeData(data)))
+	_, ctx = EmptyScope(ctx, data)
+
+	stdValue, ok, err := expr.ToValue(ctx)
 	if err != nil || !ok {
 		panic(fmt.Sprintf("invalid std library: %v", err))
 	}
@@ -51,19 +56,30 @@ func addStd(data map[string]any) any {
 }
 
 func init() {
+	ctx := context.Background()
+
 	data := statics()
 	data["len"] = NativeFuncValue(Len)
 	data["keys"] = NativeFuncValue(Keys)
 	data["enum"] = NativeFuncValue(Enum)
 	data["int"] = Int()
 	data["any"] = Any(data)
-	data["std"] = addStd(data)
+	data["std"] = addStd(ctx, data)
+	data["skip"] = Skip()
+	data["break"] = Break()
 
-	Builtin = EmptyScope{}.Push(ScopeData(data))
+	Builtin, _ = EmptyScope(ctx, data)
 }
 
 type nativeCallable struct {
 	f NativeFunc
+}
+
+func (n nativeCallable) Eq(right value.Value) (value.Value, error) {
+	if rf, ok := right.(nativeCallable); ok {
+		return value.NewValue(n.String() == rf.String()), nil
+	}
+	return value.False, nil
 }
 
 func (n nativeCallable) Kind() value.Kind {

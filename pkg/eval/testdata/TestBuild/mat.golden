@@ -1,5 +1,5 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "mat.acorn",
 		Line:     1,
 		Column:   1,
@@ -7,17 +7,15 @@
 	Fields: []eval.Field{
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{
-					Value: value.String("b"),
-				},
-				Pos: eval.Position{
+				Key: "b",
+				Pos: value.Position{
 					Filename: "mat.acorn",
 					Line:     1,
 					Column:   1,
 				},
 			},
 			Value: eval.Value{Value: value.String("x")},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "mat.acorn",
 				Line:     1,
 				Column:   1,
@@ -25,8 +23,8 @@
 		},
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("a")},
-				Pos: eval.Position{
+				Key: "a",
+				Pos: value.Position{
 					Filename: "mat.acorn",
 					Offset:   7,
 					Line:     2,
@@ -36,7 +34,7 @@
 			Value: &eval.Op{
 				Operator: value.Operator("=~"),
 				Left: &eval.Lookup{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "mat.acorn",
 						Offset:   10,
 						Line:     2,
@@ -45,14 +43,14 @@
 					Key: "b",
 				},
 				Right: eval.Value{Value: value.String(".*")},
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "mat.acorn",
 					Offset:   12,
 					Line:     2,
 					Column:   6,
 				},
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "mat.acorn",
 				Offset:   7,
 				Line:     2,
@@ -61,8 +59,8 @@
 		},
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("y")},
-				Pos: eval.Position{
+				Key: "y",
+				Pos: value.Position{
 					Filename: "mat.acorn",
 					Offset:   20,
 					Line:     3,
@@ -72,7 +70,7 @@
 			Value: &eval.Op{
 				Operator: value.Operator("!~"),
 				Left: &eval.Lookup{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "mat.acorn",
 						Offset:   23,
 						Line:     3,
@@ -81,14 +79,14 @@
 					Key: "b",
 				},
 				Right: eval.Value{Value: value.String(".*")},
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "mat.acorn",
 					Offset:   25,
 					Line:     3,
 					Column:   6,
 				},
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "mat.acorn",
 				Offset:   20,
 				Line:     3,

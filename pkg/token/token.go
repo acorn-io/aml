@@ -148,7 +148,7 @@ var tokens = [...]string{
 	LET:      "let",
 	FUNCTION: "function",
 	LAMBDA:   "lambda",
-	SCHEMA:   "schema",
+	SCHEMA:   "define",
 	DEFAULT:  "default",
 }
 

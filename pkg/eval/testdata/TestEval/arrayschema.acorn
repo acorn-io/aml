@@ -1,5 +1,4 @@
-schema {
-	f: array
+define Foo: {
 	f: [
 			{
 				a: string
@@ -8,9 +7,8 @@ schema {
 				b: number
 			}
 	]
-	f: array
 }
 
-{
+Foo({
 	f: [{b: 2}]
-}
+})

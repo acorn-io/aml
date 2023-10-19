@@ -32,15 +32,13 @@
 					},
 					offset: 67,
 				},
-				Struct: &ast.StructLit{
+				Decl: &ast.EmbedDecl{Expr: &ast.StructLit{
 					Lbrace: token.Pos{
 						file: &token.File{
-							name: "schema.acorn",
-							base: token.index(1),
-							size: token.index(13),
-							lines: []token.index{
-								token.index(0),
-							},
+							name:  "schema.acorn",
+							base:  token.index(1),
+							size:  token.index(13),
+							lines: []token.index{token.index(0)},
 						},
 						offset: 179,
 					},
@@ -53,7 +51,7 @@
 						},
 						offset: 194,
 					},
-				},
+				}},
 			},
 		},
 	},

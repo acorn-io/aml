@@ -1,1 +1,5 @@
-`schema violation key a: expected kind object but got array with value (["hi"]): schema-array-embed.acorn:7:1 (2:8<-1:8<-7:1)`
+{
+  "a": [
+    "hi"
+  ]
+}

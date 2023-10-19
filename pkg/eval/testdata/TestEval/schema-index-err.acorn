@@ -1,4 +1,4 @@
- schema {
+ define Foo: {
 	"items": [
 		{
 			aPositionNumber:    number > 0
@@ -14,7 +14,7 @@
 	]
 }
 
-{
+Foo({
 	items: [{aPositionNumber: 3
 					anExplicitConstant: "value"
 					aRegex:             "strip"
@@ -32,4 +32,4 @@
 					optionalString:     "test123"
 		},
 	]
-}
+})

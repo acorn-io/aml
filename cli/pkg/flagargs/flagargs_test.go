@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/acorn-io/aml"
-	"github.com/acorn-io/aml/pkg/schema"
+	"github.com/acorn-io/aml/pkg/value"
 	"github.com/hexops/autogold/v2"
 	"github.com/stretchr/testify/require"
 )
@@ -22,7 +22,7 @@ func TestParseArgs(t *testing.T) {
 		"one",
 		"two",
 	}).Equal(t, profiles)
-	autogold.Expect(map[string]interface{}{"foo": "from-cli", "foo2": "from-arg-file"}).Equal(t, argsData)
+	autogold.Expect(map[string]interface{}{"anObject": map[string]interface{}{"aFour": "six", "aThree": 5}, "foo": "from-cli", "foo2": "from-arg-file"}).Equal(t, argsData)
 	autogold.Expect([]string{"arg1", "arg2"}).Equal(t, args)
 }
 
@@ -36,7 +36,7 @@ func TestParseInvalidFlag(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
-	var file schema.File
+	var file value.FuncSchema
 
 	data, err := os.ReadFile("testdata/TestParseArgs/input.acorn")
 	require.NoError(t, err)
@@ -50,7 +50,7 @@ func TestHelp(t *testing.T) {
 		"testdata/TestParseArgs/input-args.acorn",
 		"testdata/TestParseArgs/input.acorn",
 		file.ProfileNames,
-		file.Args.Fields)
+		file.Args)
 	flags.FlagSet.SetOutput(buffer)
 
 	_, _, err = flags.Parse([]string{"--help"})

@@ -1,22 +1,20 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "ifelse.acorn",
 		Line:     1,
 		Column:   1,
 	},
 	Fields: []eval.Field{&eval.KeyValue{
 		Key: eval.FieldKey{
-			Key: eval.Value{
-				Value: value.String("x"),
-			},
-			Pos: eval.Position{
+			Key: "x",
+			Pos: value.Position{
 				Filename: "ifelse.acorn",
 				Line:     1,
 				Column:   1,
 			},
 		},
 		Value: &eval.If{
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "ifelse.acorn",
 				Offset:   3,
 				Line:     1,
@@ -25,7 +23,7 @@
 			Condition: &eval.Op{
 				Operator: value.Operator("=="),
 				Left: &eval.Lookup{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "ifelse.acorn",
 						Offset:   6,
 						Line:     1,
@@ -34,7 +32,7 @@
 					Key: "y",
 				},
 				Right: eval.Value{Value: value.Number("1")},
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "ifelse.acorn",
 					Offset:   8,
 					Line:     1,
@@ -42,14 +40,14 @@
 				},
 			},
 			Value: &eval.Struct{
-				Position: eval.Position{
+				Position: value.Position{
 					Filename: "ifelse.acorn",
 					Offset:   13,
 					Line:     1,
 					Column:   14,
 				},
 				Fields: []eval.Field{&eval.Embedded{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "ifelse.acorn",
 						Offset:   16,
 						Line:     2,
@@ -59,7 +57,7 @@
 				}},
 			},
 			Else: &eval.If{
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "ifelse.acorn",
 					Offset:   25,
 					Line:     3,
@@ -68,7 +66,7 @@
 				Condition: &eval.Op{
 					Operator: value.Operator("=="),
 					Left: &eval.Lookup{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "ifelse.acorn",
 							Offset:   28,
 							Line:     3,
@@ -77,7 +75,7 @@
 						Key: "y",
 					},
 					Right: eval.Value{Value: value.Number("2")},
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "ifelse.acorn",
 						Offset:   30,
 						Line:     3,
@@ -85,14 +83,14 @@
 					},
 				},
 				Value: &eval.Struct{
-					Position: eval.Position{
+					Position: value.Position{
 						Filename: "ifelse.acorn",
 						Offset:   35,
 						Line:     3,
 						Column:   18,
 					},
 					Fields: []eval.Field{&eval.Embedded{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "ifelse.acorn",
 							Offset:   38,
 							Line:     4,
@@ -102,14 +100,14 @@
 					}},
 				},
 				Else: &eval.Struct{
-					Position: eval.Position{
+					Position: value.Position{
 						Filename: "ifelse.acorn",
 						Offset:   47,
 						Line:     5,
 						Column:   8,
 					},
 					Fields: []eval.Field{&eval.Embedded{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "ifelse.acorn",
 							Offset:   50,
 							Line:     6,
@@ -120,7 +118,7 @@
 				},
 			},
 		},
-		Pos: eval.Position{
+		Pos: value.Position{
 			Filename: "ifelse.acorn",
 			Line:     1,
 			Column:   1,

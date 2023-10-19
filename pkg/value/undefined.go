@@ -28,6 +28,7 @@ func IsDefined(val Value) bool {
 }
 
 type Undefined struct {
+	Err error
 	Pos Position
 }
 
@@ -36,12 +37,18 @@ func (u Undefined) IsDefined() bool {
 }
 
 func (u Undefined) NativeValue() (any, bool, error) {
-	return nil, false, fmt.Errorf("undefined value from %s can not be turned into a native go value", u.Pos)
+	if u.Err != nil {
+		return nil, false, u.Err
+	}
+	return nil, false, fmt.Errorf("undefined value from %s (typically cause be a circular reference) can not be turned into a native value", u.Pos)
 }
 
 func (u Undefined) String() string {
+	if u.Err != nil {
+		return u.Err.Error()
+	}
 	if u.Pos.Offset != 0 {
-		return fmt.Sprint(u.Pos)
+		return fmt.Sprint("undefined ", u.Pos)
 	}
 	return "undefined"
 }
@@ -52,6 +59,14 @@ func (u Undefined) LookupValue(key Value) (Value, bool, error) {
 
 func (u Undefined) Kind() Kind {
 	return UndefinedKind
+}
+
+func (u Undefined) RightMergePriority() RightMergePriority {
+	return UndefinedPriority
+}
+
+func (u Undefined) RightMerge(val Value) (Value, error) {
+	return u, nil
 }
 
 func (u Undefined) Merge(val Value) (Value, error) {

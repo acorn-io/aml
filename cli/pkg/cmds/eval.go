@@ -1,6 +1,7 @@
 package cmds
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,7 +10,6 @@ import (
 	"github.com/acorn-io/aml"
 	"github.com/acorn-io/aml/cli/pkg/flagargs"
 	"github.com/acorn-io/aml/pkg/eval"
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 	"github.com/acorn-io/cmd"
 	"github.com/spf13/cobra"
@@ -60,9 +60,9 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 		schemaInput io.ReadCloser
 	)
 	if e.PrintArgs {
-		out = &schema.File{}
+		out = &value.FuncSchema{}
 	} else if e.PrintSchema {
-		out = &schema.Summary{}
+		out = &value.Summary{}
 	}
 
 	if e.SchemaFile != "" {
@@ -93,8 +93,8 @@ func (e *Eval) Run(cmd *cobra.Command, args []string) error {
 		out := &json.RawMessage{}
 		err = aml.Unmarshal([]byte(arg), out, aml.DecoderOption{
 			SourceName: fmt.Sprintf("query<%d>", i),
-			GlobalsLookup: eval.ValueScopeLookup{
-				Value: val,
+			GlobalsLookup: func(ctx context.Context, key string, parent eval.Scope) (value.Value, bool, error) {
+				return value.Lookup(val, value.NewValue(key))
 			},
 			Context: cmd.Context(),
 		})

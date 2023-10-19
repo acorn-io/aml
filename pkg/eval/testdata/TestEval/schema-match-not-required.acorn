@@ -1,5 +1,5 @@
-schema {
+define Foo: {
 	match "hi": string
 }
 
-{}
+Foo({})

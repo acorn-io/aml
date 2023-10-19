@@ -1,4 +1,4 @@
-schema {
+define Foo:{
 		let types: {
 				StringItem: {
 						item: string
@@ -7,13 +7,13 @@ schema {
 						item: number
 				}
 
-				Item: types.StringItem || types.NumberItem
+				Item: StringItem || NumberItem
 		}
 
 		items: [types.Item]
 }
 
-{
+Foo({
 	items: [
 		{
 			item: "hello"
@@ -22,4 +22,4 @@ schema {
 			item: 123
 		}
 	]
-}
+})

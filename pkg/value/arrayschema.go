@@ -1,54 +1,44 @@
 package value
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
-
-	"github.com/acorn-io/aml/pkg/schema"
+	"fmt"
+	"strings"
 )
 
-type ArraySchema []Value
-
-func NewArraySchema(val []Value) *TypeSchema {
-	schema := ArraySchema(val)
-	return &TypeSchema{
-		KindValue: ArrayKind,
-		Array:     &schema,
-	}
+type ArraySchema struct {
+	Positions   []Position    `json:"-"`
+	Description string        `json:"description"`
+	Valid       []*TypeSchema `json:"valid"`
 }
 
-func (a ArraySchema) Merge(right Value) (Value, error) {
-	if ts, ok := right.(*TypeSchema); ok && ts.KindValue == ArrayKind {
-		ret := append(a, *ts.Array...)
-		return &TypeSchema{
-			KindValue: ArrayKind,
-			Array:     &ret,
-		}, nil
-	}
+func (n *ArraySchema) ImpliedDefault() (Value, bool, error) {
+	return NewArray(nil), true, nil
+}
 
+func (a *ArraySchema) Validate(ctx context.Context, right Value) (Value, error) {
 	if err := assertType(right, ArrayKind); err != nil {
 		return nil, err
 	}
 
-	if len(a) == 0 {
-		return mergeNative(NewArray(nil), right)
-	}
+	var resultValues []Value
 
-	var result []Value
-
-	rightValues, err := ToValueArray(right)
+	values, err := ToValueArray(right)
 	if err != nil {
 		return nil, err
 	}
 
-outerLoop:
-	for _, rightValue := range rightValues {
-		var errs []error
-		for _, schema := range a {
-			newValue, err := Merge(schema, rightValue)
-			if err == nil {
-				result = append(result, newValue)
-				continue outerLoop
+valueLoop:
+	for i, value := range values {
+		var (
+			errs []error
+			ctx  = WithDataIndexPath(ctx, i)
+		)
+		for _, validater := range a.Valid {
+			if valid, err := validater.Validate(ctx, value); err == nil {
+				resultValues = append(resultValues, valid)
+				continue valueLoop
 			} else {
 				errs = append(errs, err)
 			}
@@ -56,59 +46,81 @@ outerLoop:
 		if len(errs) > 0 {
 			return nil, errors.Join(errs...)
 		}
-	}
-
-	return Array(result), nil
-}
-
-func (a ArraySchema) DescribeArray(ctx SchemaContext) (*schema.Array, bool, error) {
-	result := &schema.Array{}
-	for _, v := range a {
-		fieldType, err := DescribeFieldType(ctx, v)
-		if err != nil {
-			return nil, false, err
+		if len(a.Valid) == 0 {
+			resultValues = append(resultValues, value)
 		}
-		result.Types = append(result.Types, fieldType)
+	}
+	return NewValue(resultValues), nil
+}
+
+func (a *ArraySchema) Merge(right *ArraySchema) (*ArraySchema, error) {
+	if a == nil {
+		return right, nil
+	} else if right == nil {
+		return a, nil
 	}
 
-	return result, true, nil
-}
-
-func (a ArraySchema) Slice(start, end int) (Value, bool, error) {
-	if start >= len(a) || end > len(a) || start < 0 || end < 0 || start > end {
-		return nil, false, nil
+	if len(a.Valid) != len(right.Valid) {
+		return nil, NewErrPosition(lastPos(a.Positions, right.Positions),
+			fmt.Errorf("can not merge two array schemas with different lengths [%d %s] and [%d %s]",
+				len(a.Valid), lastPos(a.Positions, nil),
+				len(right.Valid), lastPos(right.Positions, nil)))
 	}
-	return a[start:end], true, nil
-}
 
-func (a ArraySchema) Index(idxValue Value) (Value, bool, error) {
-	idx, err := ToInt(idxValue)
-	if err != nil {
-		return nil, false, err
+	result := &ArraySchema{
+		Positions:   mergePositions(a.Positions, right.Positions),
+		Description: mergeDescription(a.Description, right.Description),
 	}
-	if int(idx) >= len(a) || idx < 0 {
-		return nil, false, nil
+
+	for i, leftType := range a.Valid {
+		merged, err := leftType.MergeType(right.Valid[i])
+		if err != nil {
+			return nil, err
+		}
+		result.Valid = append(result.Valid, merged)
 	}
-	return a[idx], true, nil
+
+	return result, nil
 }
 
-func (a ArraySchema) ToValues() []Value {
-	return a
+func mergePositions(left, right []Position) []Position {
+	result := left
+	for _, right := range right {
+		found := false
+		for _, left := range left {
+			if left == right {
+				found = true
+				break
+			}
+		}
+		if !found {
+			result = append(result, right)
+		}
+	}
+	return result
 }
 
-func (a ArraySchema) Kind() Kind {
-	return SchemaKind
+// mergeDescription is a dumb attempt at making merging descriptions idempotent
+func mergeDescription(left, right string) string {
+	if len(left) == 0 {
+		return right
+	} else if len(right) == 0 {
+		return left
+	}
+	if strings.Contains(left, right) {
+		return left
+	}
+	if strings.Contains(right, left) {
+		return right
+	}
+	return strings.Join([]string{left, right}, "\n")
 }
 
-func (a ArraySchema) TargetKind() Kind {
-	return ArrayKind
-}
-
-func (a ArraySchema) String() string {
-	data, _ := json.Marshal(a)
-	return string(data)
-}
-
-func (a ArraySchema) Len() (Value, error) {
-	return NewValue(len(a)), nil
+func lastPos(left, right []Position) Position {
+	if len(right) != 0 {
+		return right[len(right)-1]
+	} else if len(left) != 0 {
+		return left[len(left)-1]
+	}
+	return NoPosition
 }

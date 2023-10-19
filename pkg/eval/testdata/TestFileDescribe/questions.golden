@@ -1,228 +1,384 @@
 {
-  "args": {
-    "path": "args",
-    "fields": [
-      {
-        "name": "a_number_with_a_default",
-        "description": "a description\nsome condidionts",
-        "type": {
-          "kind": "number",
-          "constraints": [
-            {
-              "op": "type",
-              "right": {
-                "kind": "number",
-                "default": 3
+  "args": [
+    {
+      "key": "a_number_with_a_default",
+      "match": false,
+      "optional": false,
+      "description": "a description\nsome condidionts",
+      "schema": {
+        "kindValue": "number",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": [
+          {
+            "op": "mustMatchSchema",
+            "right": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": [
+                {
+                  "op": "\u003e",
+                  "right": 3
+                }
+              ],
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
+            }
+          },
+          {
+            "op": "mustMatchSchema",
+            "right": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": [
+                {
+                  "op": "\u003c",
+                  "right": 10
+                }
+              ],
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
+            }
+          }
+        ],
+        "alternates": null,
+        "defaultValue": null,
+        "path": "",
+        "reference": false
+      }
+    },
+    {
+      "key": "a_enum_yeah_weird",
+      "match": false,
+      "optional": true,
+      "description": "this is what an enum looks like",
+      "schema": {
+        "kindValue": "string",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": [
+          {
+            "op": "==",
+            "right": "one"
+          }
+        ],
+        "alternates": [
+          {
+            "kindValue": "string",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": [
+              {
+                "op": "==",
+                "right": "two"
               }
-            },
+            ],
+            "alternates": null,
+            "defaultValue": null,
+            "path": "",
+            "reference": false
+          },
+          {
+            "kindValue": "string",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": [
+              {
+                "op": "==",
+                "right": "three"
+              }
+            ],
+            "alternates": null,
+            "defaultValue": null,
+            "path": "",
+            "reference": false
+          }
+        ],
+        "defaultValue": null,
+        "path": "",
+        "reference": false
+      }
+    },
+    {
+      "key": "a_custom_condition",
+      "match": false,
+      "optional": true,
+      "description": "this is a custom condition which you have to just throw your hands up with",
+      "schema": {
+        "kindValue": "number",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": [
+          {
+            "op": "mustBeInt"
+          }
+        ],
+        "alternates": null,
+        "defaultValue": null,
+        "path": "",
+        "reference": false
+      }
+    },
+    {
+      "key": "a_bool_with_default",
+      "match": false,
+      "optional": false,
+      "description": "a description",
+      "schema": {
+        "kindValue": "bool",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": false,
+        "path": "",
+        "reference": false
+      }
+    },
+    {
+      "key": "a_string_with_default",
+      "match": false,
+      "optional": false,
+      "description": "a description",
+      "schema": {
+        "kindValue": "string",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": "hi",
+        "path": "",
+        "reference": false
+      }
+    },
+    {
+      "key": "an_array_of_strings",
+      "match": false,
+      "optional": false,
+      "description": "an array of strings",
+      "schema": {
+        "kindValue": "array",
+        "object": null,
+        "array": {
+          "description": "",
+          "valid": [
             {
-              "op": "type",
-              "right": {
-                "kind": "number",
-                "constraints": [
+              "kindValue": "string",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
+            }
+          ]
+        },
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": null,
+        "path": "args.an_array_of_strings",
+        "reference": false
+      }
+    },
+    {
+      "key": "an_array_of_numbers",
+      "match": false,
+      "optional": false,
+      "description": "",
+      "schema": {
+        "kindValue": "array",
+        "object": null,
+        "array": {
+          "description": "",
+          "valid": [
+            {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
+            }
+          ]
+        },
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": null,
+        "path": "args.an_array_of_numbers",
+        "reference": false
+      }
+    },
+    {
+      "key": "an_array_of_objects",
+      "match": false,
+      "optional": false,
+      "description": "This is an array",
+      "schema": {
+        "kindValue": "array",
+        "object": null,
+        "array": {
+          "description": "",
+          "valid": [
+            {
+              "kindValue": "object",
+              "object": {
+                "allowNewKeys": true,
+                "description": "",
+                "fields": [
                   {
-                    "op": "type",
-                    "right": {
-                      "kind": "number",
-                      "constraints": [
-                        {
-                          "op": "\u003e",
-                          "right": 3
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "op": "type",
-                    "right": {
-                      "kind": "number",
-                      "constraints": [
-                        {
-                          "op": "\u003c",
-                          "right": 10
-                        }
-                      ]
+                    "key": "hi",
+                    "match": true,
+                    "optional": false,
+                    "description": "",
+                    "schema": {
+                      "kindValue": "object",
+                      "object": {
+                        "allowNewKeys": true,
+                        "description": "",
+                        "fields": [
+                          {
+                            "key": "foo",
+                            "match": false,
+                            "optional": false,
+                            "description": "",
+                            "schema": {
+                              "kindValue": "string",
+                              "object": null,
+                              "array": null,
+                              "func": null,
+                              "constraints": null,
+                              "alternates": null,
+                              "defaultValue": "bar",
+                              "path": "",
+                              "reference": false
+                            }
+                          }
+                        ]
+                      },
+                      "array": null,
+                      "func": null,
+                      "constraints": null,
+                      "alternates": null,
+                      "defaultValue": null,
+                      "path": "args.an_array_of_objects[0].hi",
+                      "reference": false
                     }
                   }
                 ]
+              },
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "args.an_array_of_objects[0]",
+              "reference": false
+            }
+          ]
+        },
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": null,
+        "path": "args.an_array_of_objects",
+        "reference": false
+      }
+    },
+    {
+      "key": "an_object",
+      "match": false,
+      "optional": false,
+      "description": "This is an object",
+      "schema": {
+        "kindValue": "object",
+        "object": {
+          "allowNewKeys": true,
+          "description": "",
+          "fields": [
+            {
+              "key": "required_field",
+              "match": false,
+              "optional": false,
+              "description": "This field is required",
+              "schema": {
+                "kindValue": "string",
+                "object": null,
+                "array": null,
+                "func": null,
+                "constraints": null,
+                "alternates": null,
+                "defaultValue": "hi",
+                "path": "",
+                "reference": false
               }
-            }
-          ],
-          "default": 3
-        }
-      },
-      {
-        "name": "a_enum_yeah_weird",
-        "description": "this is what an enum looks like",
-        "type": {
-          "kind": "string",
-          "constraints": [
-            {
-              "op": "==",
-              "right": "one"
-            }
-          ],
-          "alternates": [
-            {
-              "kind": "string",
-              "constraints": [
-                {
-                  "op": "==",
-                  "right": "two"
-                }
-              ]
             },
             {
-              "kind": "string",
-              "constraints": [
-                {
-                  "op": "==",
-                  "right": "three"
-                }
-              ]
-            }
-          ]
-        },
-        "optional": true
-      },
-      {
-        "name": "a_custom_condition",
-        "description": "this is a custom condition which you have to just throw your hands up with",
-        "type": {
-          "kind": "number",
-          "constraints": [
+              "key": "optional_field",
+              "match": false,
+              "optional": true,
+              "description": "This field is optional",
+              "schema": {
+                "kindValue": "string",
+                "object": null,
+                "array": null,
+                "func": null,
+                "constraints": null,
+                "alternates": null,
+                "defaultValue": "hi",
+                "path": "",
+                "reference": false
+              }
+            },
             {
-              "description": "integer",
-              "id": "int",
-              "op": "custom"
+              "key": "some regexp",
+              "match": true,
+              "optional": false,
+              "description": "This field matches a regexp",
+              "schema": {
+                "kindValue": "number",
+                "object": null,
+                "array": null,
+                "func": null,
+                "constraints": null,
+                "alternates": null,
+                "defaultValue": 2,
+                "path": "",
+                "reference": false
+              }
             }
           ]
         },
-        "optional": true
-      },
-      {
-        "name": "a_bool_with_default",
-        "description": "a description",
-        "type": {
-          "kind": "bool",
-          "default": false
-        }
-      },
-      {
-        "name": "a_string_with_default",
-        "description": "a description",
-        "type": {
-          "kind": "string",
-          "default": "hi"
-        }
-      },
-      {
-        "name": "an_array_of_strings",
-        "description": "an array of strings",
-        "type": {
-          "kind": "array",
-          "array": {
-            "types": [
-              {
-                "kind": "string"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "name": "an_array_of_numbers",
-        "type": {
-          "kind": "array",
-          "array": {
-            "types": [
-              {
-                "kind": "number"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "name": "an_array_of_objects",
-        "description": "This is an array",
-        "type": {
-          "kind": "array",
-          "array": {
-            "types": [
-              {
-                "kind": "object",
-                "object": {
-                  "path": "args.an_array_of_objects.0",
-                  "fields": [
-                    {
-                      "name": "hi",
-                      "type": {
-                        "kind": "object",
-                        "object": {
-                          "path": "args.an_array_of_objects.0.hi",
-                          "fields": [
-                            {
-                              "name": "foo",
-                              "type": {
-                                "kind": "string",
-                                "default": "bar"
-                              }
-                            }
-                          ],
-                          "allowNewKeys": true
-                        }
-                      },
-                      "match": true
-                    }
-                  ],
-                  "allowNewKeys": true
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "name": "an_object",
-        "description": "This is an object",
-        "type": {
-          "kind": "object",
-          "object": {
-            "path": "args.an_object",
-            "fields": [
-              {
-                "name": "required_field",
-                "description": "This field is required",
-                "type": {
-                  "kind": "string",
-                  "default": "hi"
-                }
-              },
-              {
-                "name": "optional_field",
-                "description": "This field is optional",
-                "type": {
-                  "kind": "string",
-                  "default": "hi"
-                },
-                "optional": true
-              },
-              {
-                "name": "some regexp",
-                "description": "This field matches a regexp",
-                "type": {
-                  "kind": "number",
-                  "default": 2
-                },
-                "match": true
-              }
-            ],
-            "allowNewKeys": true
-          }
-        }
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": null,
+        "path": "args.an_object",
+        "reference": false
       }
-    ],
-    "allowNewKeys": true
-  }
+    }
+  ],
+  "profileNames": null
 }

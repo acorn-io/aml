@@ -1,5 +1,5 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "object-comments.acorn",
 		Offset:   81,
 		Line:     7,
@@ -13,7 +13,7 @@
 		{"Block 2 line 1"},
 	}},
 	Fields: []eval.Field{&eval.Embedded{
-		Pos: eval.Position{
+		Pos: value.Position{
 			Filename: "object-comments.acorn",
 			Offset:   81,
 			Line:     7,
@@ -23,7 +23,7 @@
 			{"Block 3 before Object"},
 			{"After object"},
 		}},
-		Expression: &eval.Struct{Position: eval.Position{
+		Expression: &eval.Struct{Position: value.Position{
 			Filename: "object-comments.acorn",
 			Offset:   81,
 			Line:     7,

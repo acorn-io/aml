@@ -2,7 +2,7 @@
   "containers": {
     "default": {
       "files": {
-        "a": "anum: \"4\"\natoi: \"4\"\nbase64: aGVsbG8=\nbase64decode: hello\nbasename: b\ncontains: true\ndescribe:\n    fields:\n        - name: foo\n          type:\n            kind: string\ndirname: a\nendsWith: false\nfileExt: .bat\nfilter:\n    - \"1\"\n    - \"2\"\nfind: \"3\"\nfromHex: hi\nfromJSON:\n    foo: bar\nfromYAML:\n    foo: bar\nifelse: is not one\nindexOf: \"2\"\nindexOf2: \"1\"\nisa: true\nisanot: false\nitoa: \"4\"\njoin: a,b\njoinHostPort: '[1::1]:443'\nkys:\n    - a\n    - c\nmap:\n    - \"2\"\n    - \"3\"\nmerge:\n    a: b1\n    c: d\n    d: e\n    f:\n        a: b\n        l:\n            - \"1\"\n            - \"2\"\n            - \"3\"\n        x: y1\nmod1: \"1\"\npathJoin: a/b/c\nrange:\n    - \"0\"\n    - \"1\"\n    - \"2\"\n    - \"3\"\n    - \"4\"\nrange2:\n    - \"0\"\n    - \"2\"\n    - \"4\"\nrangef:\n    - \"0\"\n    - \"1\"\n    - \"2\"\n    - \"3\"\n    - \"4\"\nrangef2:\n    - \"0.1\"\n    - \"1.1\"\n    - \"2.1\"\n    - \"3.1\"\n    - \"4.1\"\nreduce: \"12\"\nreduce2: \"3\"\nreplace: bbb\nreplace2: bbbhh\nsha1sum: c22b5f9178342609428d6f51b2c5af4c0bde6a42\nsha256sum: 8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4\nsha512sum: 150a14ed5bea6cc731cf86c41566ac427a8db48ef1b9fd626664b3bfbb99071fa4c922f33dde38719b8c8354e2b7ab9d77e0e67fc12843920a712e73d558e197\nsort:\n    - \"5\"\n    - \"4\"\n    - \"2\"\nsort2:\n    - \"2\"\n    - \"4\"\n    - \"5\"\nsplit:\n    - hi\n    - bye\nsplit2:\n    - hi\n    - bye,foo\nsplitHostPort:\n    - example.com\n    - \"443\"\nsplitHostPort2:\n    - 1::1\n    - \"443\"\nstartsWith: true\nt: true\ntoHex: \"6869\"\ntoJSON: '{\"foo\":\"bar\"}'\ntoLower: hi\ntoTitle: Hello\ntoUpper: HI\ntrim: hi\ntrimPrefix: df\ntrimSuffix: as\n"
+        "a": "anum: \"4\"\natoi: \"4\"\nbase64: aGVsbG8=\nbase64decode: hello\nbasename: b\ncontains: true\ncut:\n    after: lo\n    before: he\n    found: true\ndescribe:\n    alternates: null\n    array: null\n    constraints: null\n    defaultValue: null\n    func: null\n    kindValue: object\n    object:\n        allowNewKeys: false\n        description: \"\"\n        fields:\n            - description: \"\"\n              key: foo\n              match: false\n              optional: false\n              schema:\n                alternates: null\n                array: null\n                constraints: null\n                defaultValue: null\n                func: null\n                kindValue: string\n                object: null\n                path: \"\"\n                reference: false\n    path: localData.describe\n    reference: false\ndirname: a\nendsWith: false\nfileExt: .bat\nfromHex: hi\nfromJSON:\n    foo: bar\nfromYAML:\n    foo: bar\nifelse: is not one\nindexOf: \"2\"\nindexOf2: \"1\"\nisa: true\nisanot: false\nitoa: \"4\"\njoin: a,b\njoinHostPort: '[1::1]:443'\nkys:\n    - a\n    - c\nmerge:\n    a: b1\n    c: d\n    d: e\n    f:\n        a: b\n        l:\n            - \"1\"\n            - \"2\"\n            - \"3\"\n        x: y1\nmod1: \"1\"\npathJoin: a/b/c\nrange:\n    - \"0\"\n    - \"1\"\n    - \"2\"\n    - \"3\"\n    - \"4\"\nrange2:\n    - \"0\"\n    - \"2\"\n    - \"4\"\nrangef:\n    - \"0\"\n    - \"1\"\n    - \"2\"\n    - \"3\"\n    - \"4\"\nrangef2:\n    - \"0.1\"\n    - \"1.1\"\n    - \"2.1\"\n    - \"3.1\"\n    - \"4.1\"\nreplace: bbb\nreplace2: bbbhh\nsha1sum: c22b5f9178342609428d6f51b2c5af4c0bde6a42\nsha256sum: 8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4\nsha512sum: 150a14ed5bea6cc731cf86c41566ac427a8db48ef1b9fd626664b3bfbb99071fa4c922f33dde38719b8c8354e2b7ab9d77e0e67fc12843920a712e73d558e197\nsort:\n    - \"5\"\n    - \"4\"\n    - \"2\"\nsort2:\n    - \"2\"\n    - \"4\"\n    - \"5\"\nsplit:\n    - hi\n    - bye\nsplit2:\n    - hi\n    - bye,foo\nsplitHostPort:\n    - example.com\n    - \"443\"\nsplitHostPort2:\n    - 1::1\n    - \"443\"\nstartsWith: true\nt: true\ntoHex: \"6869\"\ntoJSON: '{\"foo\":\"bar\"}'\ntoLower: hi\ntoTitle: Hello\ntoUpper: HI\ntrim: hi\ntrimPrefix: df\ntrimSuffix: as\n"
       },
       "image": "public.ecr.aws/docker/library/nginx:latest"
     }
@@ -14,24 +14,47 @@
     "base64decode": "hello",
     "basename": "b",
     "contains": true,
+    "cut": {
+      "after": "lo",
+      "before": "he",
+      "found": true
+    },
     "describe": {
-      "fields": [
-        {
-          "name": "foo",
-          "type": {
-            "kind": "string"
+      "alternates": null,
+      "array": null,
+      "constraints": null,
+      "defaultValue": null,
+      "func": null,
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "description": "",
+            "key": "foo",
+            "match": false,
+            "optional": false,
+            "schema": {
+              "alternates": null,
+              "array": null,
+              "constraints": null,
+              "defaultValue": null,
+              "func": null,
+              "kindValue": "string",
+              "object": null,
+              "path": "",
+              "reference": false
+            }
           }
-        }
-      ]
+        ]
+      },
+      "path": "localData.describe",
+      "reference": false
     },
     "dirname": "a",
     "endsWith": false,
     "fileExt": ".bat",
-    "filter": [
-      1,
-      2
-    ],
-    "find": 3,
     "fromHex": "hi",
     "fromJSON": {
       "foo": "bar"
@@ -50,10 +73,6 @@
     "kys": [
       "a",
       "c"
-    ],
-    "map": [
-      2,
-      3
     ],
     "merge": {
       "a": "b1",
@@ -97,8 +116,6 @@
       3.1,
       4.1
     ],
-    "reduce": 12,
-    "reduce2": 3,
     "replace": "bbb",
     "replace2": "bbbhh",
     "sha1sum": "c22b5f9178342609428d6f51b2c5af4c0bde6a42",

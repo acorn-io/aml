@@ -1,0 +1,1 @@
+"schema violation key arr: expected kind string but got kind number [path arr] [schema path empty]: default-arr-simple-err.acorn:5:14 (2:10<-2:5<-5:14)"

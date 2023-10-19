@@ -1,4 +1,4 @@
-schema {
+define {
     y?: {
         b: 1
     }
@@ -8,4 +8,4 @@ schema {
     }
 }
 
-a: b: 2
+a: b: 1

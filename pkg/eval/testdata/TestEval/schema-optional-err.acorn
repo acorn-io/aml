@@ -1,12 +1,11 @@
-Schema: schema {
+define Foo: {
     foo?: 1
     bar: "hi"
 }
 
-{
-    Schema
+Foo({
     {
         foo: "str"
         bar: "bye"
     }
-}
+})

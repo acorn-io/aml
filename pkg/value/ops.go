@@ -33,6 +33,12 @@ func NewValue(v any) Value {
 		return (Boolean)(x)
 	case map[string]any:
 		return NewObject(x)
+	case map[string]Value:
+		data := map[string]any{}
+		for k, v := range x {
+			data[k] = v
+		}
+		return NewObject(data)
 	case []any:
 		return NewArray(x)
 	case []Value:
@@ -43,8 +49,6 @@ func NewValue(v any) Value {
 			ret = append(ret, i)
 		}
 		return NewArray(ret)
-	case Contract:
-		return NewObjectSchema(x)
 	case nil:
 		return NewNull()
 	default:
@@ -126,6 +130,14 @@ func ToFloat(v Value) (float64, error) {
 
 type LookupValue interface {
 	LookupValue(key Value) (Value, bool, error)
+}
+
+func IsLookupSupported(left Value) bool {
+	if undef := IsUndefined(left); undef != nil {
+		return true
+	}
+	_, ok := left.(LookupValue)
+	return ok
 }
 
 func Lookup(left, key Value) (Value, bool, error) {
@@ -246,8 +258,7 @@ func UnaryOperation(op Operator, val Value) (Value, error) {
 	case AddOp, SubOp:
 		return BinaryOperation(op, NewValue(0), val)
 	case NotOp:
-		b, err := ToBool(val)
-		return NewValue(!b), err
+		return Not(val)
 	default:
 		return nil, fmt.Errorf("unsupported unary operator %s", op)
 	}
@@ -272,6 +283,50 @@ const (
 	MatOp  = Operator("=~")
 	NmatOp = Operator("!~")
 )
+
+type AllUnaryOps interface {
+	Adder
+	Suber
+	Noter
+}
+
+type AllBinaryOps interface {
+	Adder
+	Suber
+	Muler
+	Diver
+	Ander
+	Orer
+	Lter
+	Leer
+	Gter
+	Geer
+	Eqer
+	Neqer
+	Mater
+	Nmater
+}
+
+type AllOps interface {
+	AllUnaryOps
+	AllBinaryOps
+
+	Slicer
+	Caller
+	Indexer
+	Lener
+	LookupValue
+	ToFloater
+	ToInter
+	ToNative
+	Merger
+	Defaulter
+	Matcher
+	Keyser
+
+	// Don't want to include this by default, but you may want to in your implementation of this interface
+	// RightMerger
+}
 
 func BinaryOperation(op Operator, left, right Value) (Value, error) {
 	if undef := IsUndefined(left, right); undef != nil {
@@ -322,6 +377,18 @@ func Add(left, right Value) (Value, error) {
 		return adder.Add(right)
 	}
 	return nil, fmt.Errorf("value kind %s does not support + operation", left.Kind())
+}
+
+type Noter interface {
+	Not() (Value, error)
+}
+
+func Not(right Value) (Value, error) {
+	adder, ok := right.(Noter)
+	if ok {
+		return adder.Not()
+	}
+	return nil, fmt.Errorf("value kind %s does not support ! operation", right.Kind())
 }
 
 type Suber interface {
@@ -436,6 +503,16 @@ type Eqer interface {
 	Eq(right Value) (Value, error)
 }
 
+func eqToBool(left, right Value) (bool, error) {
+	if v, err := Eq(left, right); err != nil {
+		return false, err
+	} else if b, err := ToBool(v); err != nil {
+		return false, err
+	} else {
+		return b, nil
+	}
+}
+
 func Eq(left, right Value) (Value, error) {
 	adder, ok := left.(Eqer)
 	if ok {
@@ -490,6 +567,14 @@ func Nmat(left, right Value) (Value, error) {
 
 type Keyser interface {
 	Keys() ([]string, error)
+}
+
+func KeysIfSupported(right Value) ([]string, error) {
+	adder, ok := right.(Keyser)
+	if ok {
+		return adder.Keys()
+	}
+	return nil, nil
 }
 
 func Keys(right Value) ([]string, error) {

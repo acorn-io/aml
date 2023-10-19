@@ -18,7 +18,6 @@ atoi: function {
 	args: {
 		a: string
 	}
-	return: number
 	return: internal.atoi(args.a)
 }
 
@@ -199,8 +198,8 @@ toTitle: function {
 
 isA: function {
 	args: {
-		value: any
-		check: type
+		value: any || schema
+		check: schema
 	}
 	return: internal.isA(args.value, args.check)
 }
@@ -211,15 +210,7 @@ contains: function {
 		keyOrValue: any
 	}
 
-	if isA(args.collection, object) {
-		let keys: [for k, v in args.collection {k}]
-		return: contains(keys, args.keyOrValue)
-	} else if isA(args.collection, array) {
-		let list: [for i, v in args.collection if v == args.keyOrValue {v}]
-		return: len(list) > 0
-	} else {
-		return: indexOf(args.collection, args.keyOrValue) != -1
-	}
+	return: internal.contains(args.collection, args.keyOrValue)
 }
 
 debug: internal.debug
@@ -233,6 +224,14 @@ split: function {
 		limit:     number || default -1
 	}
 	return: internal.split(args.content, args.separator, args.limit)
+}
+
+cut: function {
+	args: {
+		str:   string
+		separator: string
+	}
+	return: internal.cut(args.str, args.separator)
 }
 
 join: function {
@@ -324,53 +323,7 @@ merge: function {
 
 describe: function {
 	args: {
-		obj: type
+		obj: schema
 	}
 	return: internal.describe(args.obj)
-}
-
-filter: lambda list, f: [for x in list if f(x) {x}]
-
-map: function {
-	args: {
-		list: array
-		f:    func
-	}
-	return: [for x in args.list {
-		args.f(x)
-	}]
-}
-
-find: function {
-	args: {
-		list: array
-		f:    func
-	}
-	arr: filter(args.list, args.f)
-	if len(arr) == 0 {
-		return: null
-	} else {
-		return: arr[0]
-	}
-}
-
-reduce: function {
-	args: {
-		list:    array
-		f:       func
-		initial: any || default null
-	}
-
-	if len(args.list) == 0 {
-		return: args.initial
-	} else if len(args.list) == 1 {
-		if null == args.initial {
-			return: args.list[0]
-		} else {
-			return: args.f(args.initial, args.list[0])
-		}
-	} else {
-		idx:    len(args.list) - 1
-		return: args.f(reduce(args.list[:idx], args.f, args.initial), args.list[idx])
-	}
 }

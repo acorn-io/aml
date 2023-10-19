@@ -7,3 +7,7 @@ x: {
 	a: b, x: y
 }
 x(1, a: b, x: y, 1, 3, 4)
+
+function x.s {
+	a: b, x: y
+}

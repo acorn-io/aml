@@ -1,11 +1,11 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "listcomp.acorn",
 		Line:     1,
 		Column:   1,
 	},
 	Fields: []eval.Field{&eval.Embedded{
-		Pos: eval.Position{
+		Pos: value.Position{
 			Filename: "listcomp.acorn",
 			Line:     1,
 			Column:   1,
@@ -13,7 +13,7 @@
 		Expression: &eval.For{
 			Value: "x",
 			Collection: &eval.Lookup{
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "listcomp.acorn",
 					Offset:   10,
 					Line:     1,
@@ -22,7 +22,7 @@
 				Key: "list",
 			},
 			Body: &eval.Struct{
-				Position: eval.Position{
+				Position: value.Position{
 					Filename: "listcomp.acorn",
 					Offset:   15,
 					Line:     1,
@@ -30,10 +30,8 @@
 				},
 				Fields: []eval.Field{&eval.KeyValue{
 					Key: eval.FieldKey{
-						Key: eval.Value{
-							Value: value.String("x"),
-						},
-						Pos: eval.Position{
+						Key: "x",
+						Pos: value.Position{
 							Filename: "listcomp.acorn",
 							Offset:   18,
 							Line:     2,
@@ -41,7 +39,7 @@
 						},
 					},
 					Value: eval.Value{Value: value.Number("1")},
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "listcomp.acorn",
 						Offset:   18,
 						Line:     2,
@@ -49,7 +47,7 @@
 					},
 				}},
 			},
-			Position: eval.Position{
+			Position: value.Position{
 				Filename: "listcomp.acorn",
 				Offset:   5,
 				Line:     1,

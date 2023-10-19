@@ -1,63 +1,137 @@
 {
-  "fields": [
-    {
-      "name": "y",
-      "type": {
-        "kind": "object",
-        "object": {
-          "path": "embedded.0.y",
-          "fields": [
-            {
-              "name": "b",
-              "type": {
-                "kind": "number",
-                "default": 1
-              }
+  "types": {
+    "$": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "y",
+            "match": false,
+            "optional": true,
+            "description": "",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "y",
+              "reference": true
             }
-          ]
-        }
+          },
+          {
+            "key": "a",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "a",
+              "reference": true
+            }
+          }
+        ]
       },
-      "optional": true
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "$",
+      "reference": false
     },
-    {
-      "name": "a",
-      "type": {
-        "kind": "object",
-        "object": {
-          "fields": [
-            {
-              "name": "z",
-              "type": {
-                "kind": "string",
-                "default": "hi"
-              }
-            },
-            {
-              "name": "b",
-              "type": {
-                "kind": "number",
-                "constraints": [
-                  {
-                    "op": "type",
-                    "right": {
-                      "kind": "number",
-                      "default": 1
-                    }
-                  },
-                  {
-                    "op": "type",
-                    "right": {
-                      "kind": "number",
-                      "default": 2
-                    }
-                  }
-                ],
-                "default": 1
-              }
+    "a": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "z",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "string",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": "hi",
+              "path": "",
+              "reference": false
             }
-          ]
-        }
-      }
+          },
+          {
+            "key": "b",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": 1,
+              "path": "",
+              "reference": false
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "a",
+      "reference": false
+    },
+    "y": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "b",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": 1,
+              "path": "",
+              "reference": false
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "y",
+      "reference": false
     }
-  ]
+  }
 }

@@ -1,4 +1,4 @@
-schema {
+define Foo: {
 	a: array.validate(function {
 		args: {
 			input: array
@@ -7,6 +7,6 @@ schema {
 	})
 }
 
-{
+Foo({
 	a: [1, 2]
-}
+})

@@ -1,44 +1,140 @@
 {
-  "fields": [
-    {
-      "name": "arr",
-      "description": "Array field",
-      "type": {
-        "kind": "array",
-        "array": {
-          "types": [
-            {
-              "kind": "object",
-              "object": {
-                "path": "arr.0",
-                "fields": [
-                  {
-                    "name": "x",
-                    "type": {
-                      "kind": "number",
-                      "default": 1
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "object",
-              "object": {
-                "path": "arr.1",
-                "fields": [
-                  {
-                    "name": "y",
-                    "type": {
-                      "kind": "number"
-                    }
-                  }
-                ]
-              }
+  "types": {
+    "$": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "arr",
+            "match": false,
+            "optional": false,
+            "description": "Array field",
+            "schema": {
+              "kindValue": "",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "arr",
+              "reference": true
             }
-          ]
-        }
-      }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "$",
+      "reference": false
+    },
+    "arr": {
+      "kindValue": "array",
+      "object": null,
+      "array": {
+        "description": "",
+        "valid": [
+          {
+            "kindValue": "",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": null,
+            "alternates": null,
+            "defaultValue": null,
+            "path": "arr[0]",
+            "reference": true
+          },
+          {
+            "kindValue": "",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": null,
+            "alternates": null,
+            "defaultValue": null,
+            "path": "arr[1]",
+            "reference": true
+          }
+        ]
+      },
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "arr",
+      "reference": false
+    },
+    "arr[0]": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "x",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": 1,
+              "path": "",
+              "reference": false
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "arr[0]",
+      "reference": false
+    },
+    "arr[1]": {
+      "kindValue": "object",
+      "object": {
+        "allowNewKeys": false,
+        "description": "",
+        "fields": [
+          {
+            "key": "y",
+            "match": false,
+            "optional": false,
+            "description": "",
+            "schema": {
+              "kindValue": "number",
+              "object": null,
+              "array": null,
+              "func": null,
+              "constraints": null,
+              "alternates": null,
+              "defaultValue": null,
+              "path": "",
+              "reference": false
+            }
+          }
+        ]
+      },
+      "array": null,
+      "func": null,
+      "constraints": null,
+      "alternates": null,
+      "defaultValue": null,
+      "path": "arr[1]",
+      "reference": false
     }
-  ]
+  }
 }

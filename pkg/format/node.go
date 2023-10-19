@@ -444,11 +444,16 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 		}
 		f.possibleSelectorExpr(x.Fun, token.HighestPrec, depth)
 		f.print(x.Lparen, token.LPAREN)
+		f.print(indent)
 		f.walkArgsList(x.Args, depth)
+		f.print(unindent)
 		f.print(trailcomma, noblank, x.Rparen, token.RPAREN)
 
 	case *ast.Func:
 		f.print(x.Func, token.FUNCTION, blank, nooverride)
+		if x.ReturnType != nil {
+			f.exprRaw(x.ReturnType, token.LowestPrec, depth)
+		}
 		f.exprRaw(x.Body, token.LowestPrec, depth)
 
 	case *ast.Lambda:
@@ -464,7 +469,7 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 
 	case *ast.SchemaLit:
 		f.print(x.Schema, token.SCHEMA, blank)
-		f.exprRaw(x.Struct, token.LowestPrec, depth)
+		f.decl(x.Decl)
 
 	case *ast.StructLit:
 		var l line
@@ -502,6 +507,9 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 
 	case *ast.ListLit:
 		f.print(x.Lbrack, token.LBRACK, indent)
+		if len(x.Elts) == 0 || x.Elts[0].Pos().Line() == x.Lbrack.Line() {
+			f.print(noblank)
+		}
 		f.walkListElems(x.Elts)
 		f.print(trailcomma, noblank)
 		f.visitComments(f.current.pos)
@@ -513,6 +521,9 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 		f.print(indent)
 		f.clause(x.Clause)
 		f.expr(x.Struct)
+		if x.Else != nil {
+			f.expr(x.Else)
+		}
 
 	case *ast.If:
 		f.print(x.If, "if", blank)
@@ -533,12 +544,13 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 		}
 
 	case *ast.ListComprehension:
-		f.print(x.Lbrack, token.LBRACK, indent)
+		f.print(x.Lbrack, token.LBRACK, noblank, nooverride)
 		f.print(x.For, "for", blank)
 		f.clause(x.Clause)
 		f.print(blank, nooverride)
 		f.expr(x.Value)
-		f.print(noblank, x.Rbrack, token.RBRACK)
+		f.print(noblank, nooverride)
+		f.print(x.Rbrack, token.RBRACK)
 
 	default:
 		panic(fmt.Sprintf("unimplemented type %T", x))

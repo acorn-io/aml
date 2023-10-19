@@ -1,103 +1,91 @@
 {
-  "args": {
-    "path": "args",
-    "fields": [
-      {
-        "name": "a_number_with_a_default",
-        "type": {
-          "kind": "union",
-          "constraints": [
-            {
-              "op": "type",
-              "right": {
-                "kind": "union",
+  "args": [
+    {
+      "key": "a_number_with_a_default",
+      "match": false,
+      "optional": false,
+      "description": "",
+      "schema": {
+        "kindValue": "union",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": [
+          {
+            "op": "mustMatchAlternate"
+          }
+        ],
+        "alternates": [
+          {
+            "kindValue": "union",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": [
+              {
+                "op": "mustMatchAlternate"
+              }
+            ],
+            "alternates": [
+              {
+                "kindValue": "number",
+                "object": null,
+                "array": null,
+                "func": null,
                 "constraints": [
                   {
-                    "description": "must match alternate",
-                    "id": "or",
-                    "op": "custom"
+                    "op": "\u003e",
+                    "right": 5
                   }
                 ],
-                "alternates": [
-                  {
-                    "kind": "number",
-                    "constraints": [
-                      {
-                        "op": "\u003e",
-                        "right": 5
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "string",
-                    "constraints": [
-                      {
-                        "op": "type",
-                        "right": {
-                          "kind": "string",
-                          "constraints": [
-                            {
-                              "op": "!=",
-                              "right": "foo"
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "op": "type",
-                        "right": {
-                          "kind": "string",
-                          "constraints": [
-                            {
-                              "op": "==",
-                              "right": "foo"
-                            }
-                          ],
-                          "default": "foo"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "op": "type",
-              "right": {
-                "kind": "union",
+                "alternates": null,
+                "defaultValue": null,
+                "path": "",
+                "reference": false
+              },
+              {
+                "kindValue": "string",
+                "object": null,
+                "array": null,
+                "func": null,
                 "constraints": [
                   {
-                    "description": "must match alternate",
-                    "id": "or",
-                    "op": "custom"
+                    "op": "!=",
+                    "right": "foo"
                   }
                 ],
-                "alternates": [
-                  {
-                    "kind": "number",
-                    "constraints": [
-                      {
-                        "op": "\u003e",
-                        "right": 3
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "string",
-                    "constraints": [
-                      {
-                        "op": "!=",
-                        "right": "bar"
-                      }
-                    ]
-                  }
-                ]
+                "alternates": null,
+                "defaultValue": null,
+                "path": "",
+                "reference": false
               }
-            }
-          ]
-        }
+            ],
+            "defaultValue": null,
+            "path": "",
+            "reference": false
+          },
+          {
+            "kindValue": "string",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": [
+              {
+                "op": "==",
+                "right": "foo"
+              }
+            ],
+            "alternates": null,
+            "defaultValue": "foo",
+            "path": "",
+            "reference": false
+          }
+        ],
+        "defaultValue": null,
+        "path": "",
+        "reference": false
       }
-    ],
-    "allowNewKeys": true
-  }
+    }
+  ],
+  "profileNames": null
 }

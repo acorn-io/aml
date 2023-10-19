@@ -1,0 +1,14 @@
+define empty: {
+    arr: ["foo", "bar", 3]
+}
+
+custom: empty({
+    arr: ["blah"]
+})
+
+customNumber: empty({
+    arr: ["blah", 5]
+})
+
+asDefault: empty({
+})

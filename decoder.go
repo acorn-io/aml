@@ -10,7 +10,6 @@ import (
 	"github.com/acorn-io/aml/pkg/ast"
 	"github.com/acorn-io/aml/pkg/eval"
 	"github.com/acorn-io/aml/pkg/parser"
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 )
 
@@ -22,7 +21,7 @@ type DecoderOption struct {
 	SchemaSourceName string
 	Schema           io.Reader
 	Globals          map[string]any
-	GlobalsLookup    eval.ScopeLookuper
+	GlobalsLookup    eval.ScopeFunc
 	Context          context.Context
 }
 
@@ -85,7 +84,7 @@ func NewDecoder(input io.Reader, opts ...DecoderOption) *Decoder {
 	}
 }
 
-func (d *Decoder) processSchema(data value.Value) (value.Value, error) {
+func (d *Decoder) processSchema(ctx context.Context, data value.Value) (value.Value, error) {
 	f := &eval.File{}
 
 	err := NewDecoder(d.opts.Schema, DecoderOption{
@@ -96,14 +95,14 @@ func (d *Decoder) processSchema(data value.Value) (value.Value, error) {
 		return nil, err
 	}
 
-	schema, ok, err := eval.EvalSchema(d.opts.Context, f)
+	schema, ok, err := eval.EvalSchema(ctx, f)
 	if err != nil {
 		return nil, err
 	} else if !ok {
 		return nil, fmt.Errorf("invalid schema %s yield no schema value", d.opts.SchemaSourceName)
 	}
 
-	return value.Merge(schema, data)
+	return value.Validate(ctx, schema, data)
 }
 
 func (d *Decoder) Decode(out any) error {
@@ -133,31 +132,28 @@ func (d *Decoder) Decode(out any) error {
 		return nil
 	}
 
+	ctx := eval.WithScope(d.opts.Context, eval.Builtin)
+
 	switch n := out.(type) {
-	case *schema.File:
-		fileSchema, err := file.DescribeFile()
+	case *value.FuncSchema:
+		fileSchema, err := file.Describe(ctx)
 		if err != nil {
 			return err
 		}
 		*n = *fileSchema
 		return nil
-	case *schema.Summary:
-		val, ok, err := eval.EvalSchema(d.opts.Context, file)
+	case *value.Summary:
+		val, ok, err := eval.EvalSchema(ctx, file)
 		if err != nil {
 			return err
 		} else if !ok {
 			return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
 		}
-		objSchema, err := value.DescribeObject(value.SchemaContext{}, val)
-		if err != nil {
-			return err
-		}
-
-		*n = schema.Summarize(*objSchema)
+		*n = *value.Summarize(val.(*value.TypeSchema))
 		return nil
 	}
 
-	val, ok, err := eval.EvalExpr(d.opts.Context, file, eval.EvalOption{
+	val, ok, err := eval.EvalExpr(ctx, file, eval.EvalOption{
 		Globals:       d.opts.Globals,
 		GlobalsLookup: d.opts.GlobalsLookup,
 	})
@@ -168,7 +164,7 @@ func (d *Decoder) Decode(out any) error {
 	}
 
 	if d.opts.Schema != nil {
-		val, err = d.processSchema(val)
+		val, err = d.processSchema(ctx, val)
 		if err != nil {
 			return err
 		}

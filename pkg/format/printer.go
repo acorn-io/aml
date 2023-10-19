@@ -360,6 +360,9 @@ func (p *printer) writeByte(ch byte, n int) {
 }
 
 func mayCombine(prev, next token.Token) (before, after bool) {
+	if prev == token.ILLEGAL {
+		return false, false
+	}
 	s := next.String()
 	if 'a' <= s[0] && s[0] < 'z' {
 		return true, true

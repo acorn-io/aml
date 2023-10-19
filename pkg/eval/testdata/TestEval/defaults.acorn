@@ -1,0 +1,17 @@
+foo: default 1
+define bar: {
+	foo: default 1
+	baz: string || 3
+}
+
+baz: foo + 2
+blah: bar({
+	foo: 2
+	baz: "hello"
+})
+blah2: bar({
+	foo: 2
+})
+blah3: bar({
+	baz: 3
+})

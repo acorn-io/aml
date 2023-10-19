@@ -3,6 +3,7 @@ package eval
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/acorn-io/aml/pkg/ast"
 	"github.com/acorn-io/aml/pkg/errors"
@@ -210,6 +211,13 @@ func forToExpression(c *ast.For) (Expression, error) {
 		return nil, err
 	}
 
+	if c.Else != nil {
+		e.Else, err = exprToExpression(c.Else)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	e.Merge = true
 	return e, nil
 }
@@ -228,13 +236,13 @@ func forClauseToFor(comp *ast.ForClause, expr Expression, merge bool) (*For, err
 	if comp.Key != nil {
 		result.Key, err = value.Unquote(comp.Key.Name)
 		if err != nil {
-			return nil, errors.NewErrEval(posValue(comp.Key.Pos()), err)
+			return nil, value.NewErrPosition(posValue(comp.Key.Pos()), err)
 		}
 	}
 
 	result.Value, err = value.Unquote(comp.Value.Name)
 	if err != nil {
-		return nil, errors.NewErrEval(posValue(comp.Value.Pos()), err)
+		return nil, value.NewErrPosition(posValue(comp.Value.Pos()), err)
 	}
 
 	result.Collection, err = exprToExpression(comp.Source)
@@ -254,7 +262,7 @@ func basicListToValue(lit *ast.BasicLit) (Expression, error) {
 	case token.STRING:
 		s, err := value.Unquote(lit.Value)
 		if err != nil {
-			return nil, errors.NewErrEval(posValue(lit.Pos()), err)
+			return nil, value.NewErrPosition(posValue(lit.Pos()), err)
 		}
 		return Value{
 			Value: value.NewValue(s),
@@ -276,15 +284,30 @@ func basicListToValue(lit *ast.BasicLit) (Expression, error) {
 	}
 }
 
-func schemaToExpression(s *ast.SchemaLit) (*Schema, error) {
-	structLit, err := structToExpression(s.Struct)
+func schemaToExpression(s *ast.SchemaLit) (Expression, error) {
+	decl, err := declToField(s.Decl)
 	if err != nil {
 		return nil, err
 	}
+	if field, ok := decl.(*KeyValue); ok {
+		field.Value = &Schema{
+			Comments:   field.Comments,
+			Expression: field.Value,
+		}
+		return &Struct{
+			Position: pos(s.Pos()),
+			Comments: getComments(s),
+			Fields:   []Field{field},
+		}, nil
+	}
 	return &Schema{
 		Comments: getComments(s),
-		Struct:   structLit,
-	}, err
+		Expression: &Struct{
+			Position: pos(s.Pos()),
+			Comments: getComments(s),
+			Fields:   []Field{decl},
+		},
+	}, nil
 }
 
 func structToExpression(s *ast.StructLit) (*Struct, error) {
@@ -339,8 +362,8 @@ func unaryToExpression(bin *ast.UnaryExpr) (Expression, error) {
 	}, nil
 }
 
-func pos(t token.Pos) Position {
-	return Position(t.Position())
+func pos(t token.Pos) value.Position {
+	return value.Position(t.Position())
 }
 
 func posValue(t token.Pos) value.Position {
@@ -378,7 +401,7 @@ func parensToExpression(parens *ast.ParenExpr) (Expression, error) {
 func identToExpression(ident *ast.Ident) (Expression, error) {
 	key, err := value.Unquote(ident.Name)
 	if err != nil {
-		return nil, errors.NewErrEval(posValue(ident.Pos()), err)
+		return nil, value.NewErrPosition(posValue(ident.Pos()), err)
 	}
 	return &Lookup{
 		Comments: getComments(ident),
@@ -388,9 +411,15 @@ func identToExpression(ident *ast.Ident) (Expression, error) {
 }
 
 func selectorToExpression(sel *ast.SelectorExpr) (Expression, error) {
-	key, _, err := labelToExpression(sel.Sel)
+	str, key, _, err := labelToExpression(sel.Sel)
 	if err != nil {
 		return nil, err
+	}
+
+	if key == nil {
+		key = Value{
+			Value: value.NewValue(str),
+		}
 	}
 
 	selExpr, err := exprToExpression(sel.X)
@@ -478,10 +507,15 @@ func funcToExpression(def *ast.Func) (Expression, error) {
 	if err != nil {
 		return nil, err
 	}
+	returnType, err := exprToExpression(def.ReturnType)
+	if err != nil {
+		return nil, err
+	}
 	return &FunctionDefinition{
-		Comments: getComments(def),
-		Pos:      pos(def.Func),
-		Body:     body,
+		Comments:   getComments(def),
+		Pos:        pos(def.Func),
+		Body:       body,
+		ReturnType: returnType,
 	}, nil
 }
 
@@ -556,7 +590,7 @@ func exprToExpression(expr ast.Expr) (Expression, error) {
 }
 
 func labelToKey(label ast.Label, match bool) (FieldKey, error) {
-	expr, stringKey, err := labelToExpression(label)
+	str, expr, stringKey, err := labelToExpression(label)
 	if err != nil {
 		return FieldKey{}, err
 	}
@@ -568,43 +602,78 @@ func labelToKey(label ast.Label, match bool) (FieldKey, error) {
 			Pos: pos(label.Pos()),
 		}, nil
 	} else if match {
+		if expr == nil {
+			expr = Value{
+				Value: value.NewValue(str),
+			}
+		}
 		return FieldKey{
 			Match: expr,
 			Pos:   pos(label.Pos()),
 		}, nil
+	} else if expr != nil {
+		return FieldKey{
+			Interpolation: expr,
+			Pos:           pos(label.Pos()),
+		}, nil
 	}
 	return FieldKey{
-		Key: expr,
+		Key: str,
 		Pos: pos(label.Pos()),
 	}, nil
 }
 
-func labelToExpression(expr ast.Label) (_ Expression, isStringIdent bool, _ error) {
+func labelToExpression(expr ast.Label) (s string, _ Expression, isStringIdent bool, _ error) {
 	if expr == nil {
-		return nil, false, nil
+		return "", nil, false, nil
 	}
 
 	switch n := expr.(type) {
 	case *ast.BasicLit:
 		s, err := value.Unquote(n.Value)
 		if err != nil {
-			return nil, false, errors.NewErrEval(posValue(n.Pos()), err)
+			return "", nil, false, value.NewErrPosition(posValue(n.Pos()), err)
 		}
-		return Value{
-			Value: value.NewValue(s),
-		}, false, nil
+		return s, nil, false, nil
 	case *ast.Ident:
 		s, err := value.Unquote(n.Name)
 		if err != nil {
-			return nil, false, errors.NewErrEval(posValue(n.Pos()), err)
+			return s, nil, false, value.NewErrPosition(posValue(n.Pos()), err)
 		}
-		return Value{
-			Value: value.NewValue(s),
-		}, n.Name == "string", nil
+		return s, nil, n.Name == "string", nil
 	case *ast.Interpolation:
 		i, err := interpolationToExpression(n)
-		return i, false, err
+		return "", i, false, err
 	default:
-		return nil, false, NewErrUnknownError(n)
+		return "", nil, false, NewErrUnknownError(n)
+	}
+}
+
+func getComments(node ast.Node) (result Comments) {
+	for _, cg := range ast.Comments(node) {
+		var group []string
+
+		if cg != nil {
+			for _, c := range cg.List {
+				l := strings.TrimLeftFunc(strings.TrimPrefix(c.Text, "//"), unicode.IsSpace)
+				group = append(group, l)
+			}
+		}
+		result.Comments = append(result.Comments, group)
+	}
+	return
+}
+
+type ErrUnknownError struct {
+	Node ast.Node
+}
+
+func (e *ErrUnknownError) Error() string {
+	return fmt.Sprintf("unknown node %T encountered at %s", e.Node, e.Node.Pos())
+}
+
+func NewErrUnknownError(node ast.Node) error {
+	return &ErrUnknownError{
+		Node: node,
 	}
 }

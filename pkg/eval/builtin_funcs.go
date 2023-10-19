@@ -18,7 +18,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 	"gopkg.in/yaml.v3"
 )
@@ -41,12 +40,12 @@ var (
 		"fromJSON":      NativeFuncValue(FromJSON),
 		"splitHostPort": NativeFuncValue(SplitHostPort),
 		"joinHostPort":  NativeFuncValue(JoinHostPort),
+		"cut":           NativeFuncValue(Cut),
 		"pathJoin":      NativeFuncValue(PathJoin),
 		"dirname":       NativeFuncValue(Dirname),
 		"basename":      NativeFuncValue(Basename),
 		"fileExt":       NativeFuncValue(FileExt),
 		"toTitle":       NativeFuncValue(ToTitle),
-		"contains":      NativeFuncValue(Contains),
 		"isA":           NativeFuncValue(IsA),
 		"split":         NativeFuncValue(Split),
 		"join":          NativeFuncValue(Join),
@@ -65,6 +64,7 @@ var (
 		"error":         NativeFuncValue(Error),
 		"debug":         NativeFuncValue(Debug),
 		"catch":         NativeFuncValue(Catch),
+		"contains":      NativeFuncValue(Contains),
 		"describe":      NativeFuncValue(Describe),
 	}
 )
@@ -127,7 +127,11 @@ func Debug(_ context.Context, args []value.Value) (value.Value, bool, error) {
 			log.Print(append([]any{"AML DEBUG: " + s}, v...))
 		}
 	} else {
-		log.Print("INVALID ARG TO DEBUG:", err.Error())
+		var vs []any
+		for _, v := range args {
+			vs = append(vs, v)
+		}
+		log.Print(vs...)
 	}
 	return nil, false, nil
 }
@@ -429,44 +433,24 @@ func Split(_ context.Context, args []value.Value) (value.Value, bool, error) {
 	return result, true, nil
 }
 
-func IsA(_ context.Context, args []value.Value) (value.Value, bool, error) {
-	schema := args[1]
-	val := args[0]
-	_, err := value.Merge(schema, val)
-	return value.NewValue(err == nil), true, nil
-}
-
-func Contains(_ context.Context, args []value.Value) (value.Value, bool, error) {
-	collection := args[0]
-	key := args[1]
-
-	if collection.Kind() == value.ObjectKind {
-		_, ok, err := value.Lookup(collection, key)
-		return value.NewValue(ok), true, err
-	} else if collection.Kind() == value.StringKind {
-		str, err := value.ToString(collection)
-		if err != nil {
-			return nil, false, err
-		}
-		s, err := value.ToString(key)
-		if err != nil {
-			return nil, false, err
-		}
-		return value.NewValue(strings.Contains(str, s)), true, nil
-	}
-
-	items, err := value.ToValueArray(collection)
+func Describe(ctx context.Context, args []value.Value) (value.Value, bool, error) {
+	data, err := json.Marshal(args[0])
 	if err != nil {
 		return nil, false, err
 	}
+	result := map[string]any{}
+	err = json.Unmarshal(data, &result)
+	return value.NewValue(result), true, err
+}
 
-	for _, item := range items {
-		if isTrue(value.Eq(key, item)) {
-			return value.True, true, nil
-		}
-	}
-
-	return value.False, false, nil
+func IsA(ctx context.Context, args []value.Value) (value.Value, bool, error) {
+	schema := args[1]
+	val := args[0]
+	_, _, err := value.Call(ctx, schema, value.CallArgument{
+		Positional: true,
+		Value:      val,
+	})
+	return value.NewValue(err == nil), true, nil
 }
 
 func ToTitle(_ context.Context, args []value.Value) (value.Value, bool, error) {
@@ -487,6 +471,23 @@ func FileExt(_ context.Context, args []value.Value) (value.Value, bool, error) {
 		return nil, false, err
 	}
 	return value.NewValue(path.Ext(s)), true, nil
+}
+
+func Cut(_ context.Context, args []value.Value) (value.Value, bool, error) {
+	str, err := value.ToString(args[0])
+	if err != nil {
+		return nil, false, err
+	}
+	separator, err := value.ToString(args[1])
+	if err != nil {
+		return nil, false, err
+	}
+	before, after, found := strings.Cut(str, separator)
+	return value.NewValue(map[string]any{
+		"before": before,
+		"after":  after,
+		"found":  found,
+	}), true, nil
 }
 
 func Basename(_ context.Context, args []value.Value) (value.Value, bool, error) {
@@ -721,14 +722,9 @@ func Atoi(_ context.Context, args []value.Value) (value.Value, bool, error) {
 func Int() value.Value {
 	return &value.TypeSchema{
 		KindValue: value.NumberKind,
-		Constraints: []value.Checker{
-			&value.CustomConstraint{
-				CustomID:          "int",
-				CustomDescription: "integer",
-				Checker: func(left value.Value) error {
-					_, err := value.ToInt(left)
-					return err
-				},
+		Constraints: []value.Constraint{
+			{
+				Op: value.MustBeIntOp,
 			},
 		},
 	}
@@ -736,12 +732,10 @@ func Int() value.Value {
 
 func Any(kinds map[string]any) value.Value {
 	result := &value.TypeSchema{
-		KindValue:   value.UnionKind,
-		Constraints: value.MustMatchAlternate(),
+		KindValue: value.UnionKind,
 	}
 	for _, name := range []string{"bool", "number", "string", "object", "array", "null"} {
-		cp := *(kinds[name].(*value.TypeSchema))
-		result.Alternates = append(result.Alternates, cp)
+		result.Alternates = append(result.Alternates, kinds[name].(*value.TypeSchema))
 	}
 	return result
 }
@@ -760,8 +754,8 @@ func Enum(_ context.Context, args []value.Value) (value.Value, bool, error) {
 		}
 		next := value.TypeSchema{
 			KindValue: value.StringKind,
-			Constraints: []value.Checker{
-				&value.Constraint{
+			Constraints: []value.Constraint{
+				{
 					Op:    "==",
 					Right: value.NewValue(s),
 				},
@@ -770,30 +764,56 @@ func Enum(_ context.Context, args []value.Value) (value.Value, bool, error) {
 		if result == nil {
 			result = &next
 		} else {
-			result.Alternates = append(result.Alternates, next)
+			result.Alternates = append(result.Alternates, &next)
 		}
 	}
 
 	return result, true, nil
 }
 
-func Describe(_ context.Context, args []value.Value) (value.Value, bool, error) {
-	objSchema, err := value.DescribeObject(value.SchemaContext{}, args[0])
-	if err != nil {
-		return nil, false, err
+func Contains(ctx context.Context, args []value.Value) (value.Value, bool, error) {
+	collection := args[0]
+	if collection.Kind() == value.ObjectKind {
+		v, ok, err := value.Lookup(collection, args[1])
+		if err != nil {
+			return nil, false, err
+		}
+		if !ok {
+			return value.False, true, nil
+		}
+		if undef := value.IsUndefined(v); undef != nil {
+			return undef, true, nil
+		}
+		return value.True, true, nil
+	} else if collection.Kind() == value.ArrayKind {
+		values, err := value.ToValueArray(collection)
+		if err != nil {
+			return nil, false, err
+		}
+		for _, v := range values {
+			if ret, err := value.Eq(v, args[1]); err != nil {
+				return nil, false, err
+			} else if ret.Kind() == value.UndefinedKind {
+				return ret, true, nil
+			} else {
+				b, err := value.ToBool(ret)
+				if err != nil {
+					return nil, false, err
+				}
+				if b {
+					return value.True, true, nil
+				}
+			}
+		}
 	}
 
-	data, err := json.Marshal(schema.Summarize(*objSchema))
-	if err != nil {
-		return nil, false, err
+	idx, ok, err := IndexOf(ctx, args)
+	if err != nil || !ok {
+		return nil, ok, err
 	}
+	ret, err := value.Neq(idx, value.NewValue(-1))
+	return ret, true, err
 
-	dataMap := map[string]any{}
-	if err := json.Unmarshal(data, &dataMap); err != nil {
-		return nil, false, err
-	}
-
-	return value.NewValue(dataMap), true, nil
 }
 
 func Range(_ context.Context, args []value.Value) (value.Value, bool, error) {
@@ -836,4 +856,47 @@ func Range(_ context.Context, args []value.Value) (value.Value, bool, error) {
 func isTrue(v value.Value, _ error) bool {
 	b, _ := value.ToBool(v)
 	return b
+}
+
+type LoopControl struct {
+	Skip  bool
+	Break bool
+	Value value.Value
+}
+
+func (l *LoopControl) withValue(v value.Value) value.Value {
+	if l == nil {
+		return v
+	}
+	cp := *l
+	cp.Value = v
+	return &cp
+}
+
+func (l *LoopControl) combine(lc *LoopControl) *LoopControl {
+	if l == nil {
+		return lc
+	} else if lc == nil {
+		return l
+	}
+	return &LoopControl{
+		Skip:  l.Skip || lc.Skip,
+		Break: l.Break || lc.Break,
+	}
+}
+
+func (l *LoopControl) Kind() value.Kind {
+	return value.UndefinedKind
+}
+
+func Skip() value.Value {
+	return &LoopControl{
+		Skip: true,
+	}
+}
+
+func Break() value.Value {
+	return &LoopControl{
+		Break: true,
+	}
 }

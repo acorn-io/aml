@@ -1,25 +1,18 @@
 package value
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
 
 var ErrMustMatchAlternate = errors.New("must match alternate")
 
-type Checker interface {
-	Check(left Value) error
-	Description() string
-	ID() string
-	OpString() string
-	RightNative() (any, bool, error)
-}
+type Constraints []Constraint
 
-type Constraints []Checker
-
-func (c Constraints) Check(left Value) error {
+func (c Constraints) Check(ctx context.Context, left Value) error {
 	for _, checker := range c {
-		err := checker.Check(left)
+		err := checker.Check(ctx, left)
 		if err != nil {
 			return err
 		}
@@ -27,14 +20,16 @@ func (c Constraints) Check(left Value) error {
 	return nil
 }
 
-func MustMatchAlternate() []Checker {
-	return []Checker{
-		&CustomConstraint{
-			CustomID:          "or",
-			CustomDescription: "must match alternate",
-			Checker: func(left Value) error {
-				return ErrMustMatchAlternate
-			},
+const (
+	MustBeIntOp          = "mustBeInt"
+	MustMatchAlternateOp = "mustMatchAlternate"
+	MustMatchSchema      = "mustMatchSchema"
+)
+
+func MustMatchAlternate() []Constraint {
+	return []Constraint{
+		{
+			Op: MustMatchAlternateOp,
 		},
 	}
 }
@@ -66,27 +61,8 @@ func (c *CustomConstraint) RightNative() (any, bool, error) {
 }
 
 type Constraint struct {
-	Op    string
-	Right Value
-}
-
-func (c *Constraint) ID() string {
-	return ""
-}
-
-func (c *Constraint) Description() string {
-	return ""
-}
-
-func (c *Constraint) OpString() string {
-	return c.Op
-}
-
-func (c *Constraint) RightNative() (any, bool, error) {
-	if ts, ok := c.Right.(*TypeSchema); ok {
-		return ts, true, nil
-	}
-	return NativeValue(c.Right)
+	Op    string `json:"op,omitempty"`
+	Right Value  `json:"right,omitempty"`
 }
 
 func toConcrete(val Value) (Value, error) {
@@ -118,18 +94,23 @@ func (c *Constraint) check(op Operator, left, right Value) error {
 		return err
 	}
 	if !b {
-		return fmt.Errorf("invalid constraint [value %s %s] where value is [%s]", c.Op, right, left)
+		return fmt.Errorf("constraint [value %s %s] is not true", c.Op, right)
 	}
 	return nil
 }
 
-func (c *Constraint) Check(left Value) error {
+func (c *Constraint) Check(ctx context.Context, left Value) error {
 	switch Operator(c.Op) {
 	case GtOp, GeOp, LtOp, LeOp, EqOp, NeqOp, MatOp, NmatOp:
 		return c.check(Operator(c.Op), left, c.Right)
-	case Operator("type"):
-		_, err := Merge(c.Right, left)
+	case MustMatchSchema:
+		_, err := c.Right.(*TypeSchema).Validate(ctx, left)
 		return err
+	case MustBeIntOp:
+		_, err := ToInt(left)
+		return err
+	case MustMatchAlternateOp:
+		return ErrMustMatchAlternate
 	default:
 		return fmt.Errorf("unknown operator for constraint: %s", c.Op)
 	}

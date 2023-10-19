@@ -1,5 +1,5 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "regexpfield.acorn",
 		Offset:   6,
 		Line:     1,
@@ -10,7 +10,7 @@
 			Match: eval.Value{
 				Value: value.String("hi"),
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "regexpfield.acorn",
 				Offset:   6,
 				Line:     1,
@@ -18,7 +18,7 @@
 			},
 		},
 		Value: eval.Value{Value: value.String("foo")},
-		Pos: eval.Position{
+		Pos: value.Position{
 			Filename: "regexpfield.acorn",
 			Offset:   6,
 			Line:     1,

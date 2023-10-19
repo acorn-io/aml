@@ -1,13 +1,12 @@
-Schema: schema {
+define Foo: {
     foo?: 1
     baz?: number > 2
     bar: "hi"
 }
 
-{
-    Schema
+Foo({
     {
         baz: 3
         bar: "bye"
     }
-}
+})

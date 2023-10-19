@@ -1,0 +1,6 @@
+define empty: {
+    arr: array
+}
+
+empty({
+})

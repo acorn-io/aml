@@ -1,1 +1,1 @@
-"schema violation key top: invalid circular schema, can not render default (circular-schema-invalid.acorn:2:10): circular-schema-invalid.acorn:9:1 (2:10<-1:8<-9:1)"
+undefined value from circular-schema-invalid.acorn:4:12 (typically cause be a circular reference) can not be turned into a native value

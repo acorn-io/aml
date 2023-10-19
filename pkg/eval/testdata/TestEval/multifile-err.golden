@@ -1,1 +1,1 @@
-undefined value from multifile-err.acorn/foo2.acorn:2:4 can not be turned into a native go value
+undefined value from multifile-err.acorn/foo2.acorn:2:4 (typically cause be a circular reference) can not be turned into a native value

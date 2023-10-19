@@ -1,10 +1,11 @@
-Schema: schema {
+define Schema: {
     foo: string
 }
 
 {
-    Schema
+    Schema(
     {
     	bar: "1"
     }
+    )
 }

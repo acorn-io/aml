@@ -1,0 +1,11 @@
+define empty: {
+    obj: {}
+    arr: []
+}
+
+empty({
+    obj: {
+        a: "hi"
+    }
+    arr: [1, 2]
+})

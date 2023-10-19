@@ -1,8 +1,5 @@
-Schema: schema {
+define Schema: {
     foo: "bar"
 }
 
-{
-    Schema
-    {}
-}
+    Schema( {})

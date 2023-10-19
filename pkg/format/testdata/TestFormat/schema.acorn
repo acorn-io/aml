@@ -1,4 +1,9 @@
-x:{      schema         {  a: x,
+x:{      define         {  a: x,
 
 
 } }
+
+y: define Foo: {
+
+	a: 1,
+}

@@ -1,0 +1,6 @@
+args: {
+    one: ""
+    one: ""
+}
+
+x: args.one

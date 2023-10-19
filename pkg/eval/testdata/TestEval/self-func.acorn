@@ -1,11 +1,12 @@
-bar: {
-  {
-  	a: string
-  	b: function {
-  		return: a
-  	}
-  }
-	{
-		a: "hi"
+define Foo: {
+	a: string
+	b: function {
+		return: {
+			"bar": self.a
+		}
 	}
-}.b()
+}
+
+Foo({
+	a: "hi"
+}).b()

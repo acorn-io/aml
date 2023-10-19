@@ -1,8 +1,10 @@
-schema {
+define Foo: {
     a: object
 }
 
+Foo({
 a: {
 		b: 1
 		c: 2
 }
+})

@@ -1,45 +1,44 @@
 {
-  "args": {
-    "path": "args",
-    "fields": [
-      {
-        "name": "key",
-        "description": "First\nSecond",
-        "type": {
-          "kind": "object",
-          "object": {
-            "path": "args.key",
-            "fields": [
-              {
-                "name": "keytwo",
-                "description": "First nested\nSecond nested",
-                "type": {
-                  "kind": "string",
-                  "constraints": [
-                    {
-                      "op": "type",
-                      "right": {
-                        "kind": "string",
-                        "default": "value1"
-                      }
-                    },
-                    {
-                      "op": "type",
-                      "right": {
-                        "kind": "string",
-                        "default": "value2"
-                      }
-                    }
-                  ],
-                  "default": "value1"
-                }
+  "args": [
+    {
+      "key": "key",
+      "match": false,
+      "optional": false,
+      "description": "First\nSecond",
+      "schema": {
+        "kindValue": "object",
+        "object": {
+          "allowNewKeys": true,
+          "description": "",
+          "fields": [
+            {
+              "key": "keytwo",
+              "match": false,
+              "optional": false,
+              "description": "First nested\nSecond nested",
+              "schema": {
+                "kindValue": "string",
+                "object": null,
+                "array": null,
+                "func": null,
+                "constraints": null,
+                "alternates": null,
+                "defaultValue": "value1",
+                "path": "",
+                "reference": false
               }
-            ],
-            "allowNewKeys": true
-          }
-        }
+            }
+          ]
+        },
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": null,
+        "path": "args.key",
+        "reference": false
       }
-    ],
-    "allowNewKeys": true
-  }
+    }
+  ],
+  "profileNames": null
 }

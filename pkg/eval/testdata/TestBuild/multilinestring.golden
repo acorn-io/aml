@@ -1,5 +1,5 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "multilinestring.acorn",
 		Line:     1,
 		Column:   1,
@@ -7,17 +7,15 @@
 	Fields: []eval.Field{
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{
-					Value: value.String("y"),
-				},
-				Pos: eval.Position{
+				Key: "y",
+				Pos: value.Position{
 					Filename: "multilinestring.acorn",
 					Line:     1,
 					Column:   1,
 				},
 			},
 			Value: eval.Value{Value: value.Number("1")},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "multilinestring.acorn",
 				Line:     1,
 				Column:   1,
@@ -25,8 +23,8 @@
 		},
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("z")},
-				Pos: eval.Position{
+				Key: "z",
+				Pos: value.Position{
 					Filename: "multilinestring.acorn",
 					Offset:   5,
 					Line:     2,
@@ -37,7 +35,7 @@
 				`"""
 asfd `,
 				&eval.Lookup{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "multilinestring.acorn",
 						Offset:   19,
 						Line:     3,
@@ -48,7 +46,7 @@ asfd `,
 				`
  fff """`,
 			}},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "multilinestring.acorn",
 				Offset:   5,
 				Line:     2,

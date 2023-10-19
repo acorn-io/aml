@@ -1,0 +1,15 @@
+test: function {
+    args: {
+        first: bar: {
+					baz: 1
+        }
+    }
+    return: args.first.bar.baz
+}
+
+x: test({
+	bar: {
+		baz: 2
+		extra: true
+	}
+})

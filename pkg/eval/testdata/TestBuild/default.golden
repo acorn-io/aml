@@ -1,50 +1,61 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "default.acorn",
-		Offset:   7,
 		Line:     1,
-		Column:   8,
+		Column:   1,
 	},
 	Fields: []eval.Field{&eval.Embedded{
-		Pos: eval.Position{
+		Pos: value.Position{
 			Filename: "default.acorn",
-			Offset:   7,
 			Line:     1,
-			Column:   8,
+			Column:   1,
 		},
-		Expression: &eval.Schema{Struct: &eval.Struct{
-			Position: eval.Position{
+		Expression: &eval.Schema{Expression: &eval.Struct{
+			Position: value.Position{
 				Filename: "default.acorn",
-				Offset:   7,
 				Line:     1,
-				Column:   8,
+				Column:   1,
 			},
-			Fields: []eval.Field{&eval.KeyValue{
-				Key: eval.FieldKey{
-					Key: eval.Value{
-						Value: value.String("x"),
-					},
-					Pos: eval.Position{
-						Filename: "default.acorn",
-						Offset:   10,
-						Line:     2,
-						Column:   2,
-					},
-				},
-				Value: &eval.Default{
-					Expr: eval.Value{Value: value.Number("1")},
-					Pos: eval.Position{
-						Filename: "default.acorn",
-						Offset:   13,
-						Line:     2,
-						Column:   5,
-					},
-				},
-				Pos: eval.Position{
+			Fields: []eval.Field{&eval.Embedded{
+				Pos: value.Position{
 					Filename: "default.acorn",
-					Offset:   10,
-					Line:     2,
-					Column:   2,
+					Offset:   7,
+					Line:     1,
+					Column:   8,
+				},
+				Expression: &eval.Struct{
+					Position: value.Position{
+						Filename: "default.acorn",
+						Offset:   7,
+						Line:     1,
+						Column:   8,
+					},
+					Fields: []eval.Field{&eval.KeyValue{
+						Key: eval.FieldKey{
+							Key: "x",
+							Pos: value.Position{
+								Filename: "default.acorn",
+								Offset:   10,
+								Line:     2,
+								Column:   2,
+							},
+						},
+						Value: &eval.Default{
+							Expr: eval.Value{Value: value.Number("1")},
+							Pos: value.Position{
+								Filename: "default.acorn",
+								Offset:   13,
+								Line:     2,
+								Column:   5,
+							},
+						},
+						Pos: value.Position{
+							Filename: "default.acorn",
+							Offset:   10,
+							Line:     2,
+							Column:   2,
+						},
+					}},
 				},
 			}},
 		}},

@@ -1,5 +1,7 @@
-schema {
+define Foo: {
 	a: [string]
 }
 
+Foo(
 {}
+)

@@ -1,1 +1,1 @@
-"schema violation key items.aPositionNumber: invalid constraint [value > 0] where value is [-4] [schema path items.0]: schema-index-err.acorn:17:1 (3:3<-1:9<-17:1)"
+"schema violation key items.aPositionNumber: constraint [value > 0] is not true [path items[1].aPositionNumber] [schema path Foo.items[0]]: schema-index-err.acorn:17:4 (12:10<-2:11<-2:2<-17:4)"

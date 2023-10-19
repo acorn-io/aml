@@ -1,1 +1,1 @@
-"invalid cycle detected in key args: keyloop-bad-func.acorn:5:10 (5:10<-8:7)"
+undefined value from keyloop-bad-func.acorn:5:13 (typically cause be a circular reference) can not be turned into a native value

@@ -25,7 +25,7 @@ func (e EvalOptions) Merge() (result EvalOption) {
 
 type EvalOption struct {
 	Globals       map[string]any
-	GlobalsLookup ScopeLookuper
+	GlobalsLookup ScopeFunc
 }
 
 func (e EvalOption) Complete() EvalOption {
@@ -34,19 +34,14 @@ func (e EvalOption) Complete() EvalOption {
 
 func EvalExpr(ctx context.Context, expr Expression, opts ...EvalOption) (value.Value, bool, error) {
 	opt := EvalOptions(opts).Merge().Complete()
-	scope := Builtin.Push(ScopeData(opt.Globals), ScopeOption{
-		Context: ctx,
-	})
+	scope, ctx := GetScope(ctx).NewScope(ctx, ScopeData(opt.Globals))
 	if opt.GlobalsLookup != nil {
-		scope = scope.Push(opt.GlobalsLookup)
+		scope, ctx = scope.NewScope(ctx, opt.GlobalsLookup)
 	}
-	return expr.ToValue(scope)
+	return expr.ToValue(ctx)
 }
 
 func EvalSchema(ctx context.Context, expr Expression) (value.Value, bool, error) {
-	scope := Builtin.Push(nil, ScopeOption{
-		Schema:  true,
-		Context: ctx,
-	})
-	return expr.ToValue(scope)
+	ctx = WithSchema(ctx, true)
+	return expr.ToValue(ctx)
 }

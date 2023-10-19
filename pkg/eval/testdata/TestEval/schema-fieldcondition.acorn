@@ -1,4 +1,4 @@
-schema {
+define Foo:{
     compare: number <= 0 || number < 1 || number > 3 || number >= 1
     union: number > 1 || {
         hi: 1
@@ -9,9 +9,9 @@ schema {
     }
 }
 
-{
+Foo({
 		compare: 1
 		union: {
 				hi: "str"
 		}
-}
+})

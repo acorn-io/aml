@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/acorn-io/aml"
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 	"github.com/spf13/pflag"
 )
@@ -20,7 +19,7 @@ type Flags struct {
 }
 
 type fieldFlag struct {
-	Field       schema.Field
+	Field       value.ObjectSchemaField
 	String      *string
 	StringSlice *[]string
 	Bool        *bool
@@ -32,12 +31,12 @@ func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []str
 		return nil, nil, nil, err
 	}
 
-	var file schema.File
+	var file value.FuncSchema
 	if err := aml.NewDecoder(f).Decode(&file); err != nil {
 		return nil, nil, nil, err
 	}
 
-	flags := New(argsFile, filepath.Base(acornFile), file.ProfileNames, file.Args.Fields)
+	flags := New(argsFile, filepath.Base(acornFile), file.ProfileNames, file.Args)
 	argsData, profiles, err := flags.Parse(args)
 	if err != nil {
 		return nil, nil, nil, err
@@ -45,7 +44,7 @@ func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []str
 	return argsData, profiles, flags.FlagSet.Args(), nil
 }
 
-func New(argsFile, filename string, profiles schema.Names, args []schema.Field) *Flags {
+func New(argsFile, filename string, profiles value.Names, args []value.ObjectSchemaField) *Flags {
 	var (
 		flagSet    = pflag.NewFlagSet(filename, pflag.ContinueOnError)
 		fieldFlags = map[string]fieldFlag{}
@@ -72,17 +71,17 @@ func New(argsFile, filename string, profiles schema.Names, args []schema.Field) 
 		flag := fieldFlag{
 			Field: field,
 		}
-		if profile != nil && field.Name == "profile" {
+		if profile != nil && field.Key == "profile" {
 			continue
 		}
-		if field.Type.Kind == schema.BoolKind {
-			flag.Bool = flagSet.Bool(field.Name, false, field.Description)
-		} else if field.Type.Kind == schema.ArrayKind {
-			flag.StringSlice = flagSet.StringSlice(field.Name, nil, field.Description)
+		if field.Schema.TargetKind() == value.BoolKind {
+			flag.Bool = flagSet.Bool(field.Key, false, field.Description)
+		} else if field.Schema.TargetKind() == value.ArrayKind {
+			flag.StringSlice = flagSet.StringSlice(field.Key, nil, field.Description)
 		} else {
-			flag.String = flagSet.String(field.Name, "", field.Description)
+			flag.String = flagSet.String(field.Key, "", field.Description)
 		}
-		fieldFlags[field.Name] = flag
+		fieldFlags[field.Key] = flag
 	}
 
 	return &Flags{
@@ -159,8 +158,8 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 		case field.StringSlice != nil:
 			vals := []any{}
 			for _, str := range *field.StringSlice {
-				isNum := len(field.Field.Type.Array.Types) > 0 &&
-					field.Field.Type.Array.Types[0].Kind == schema.NumberKind
+				isNum := len(field.Field.Schema.Array.Valid) > 0 &&
+					field.Field.Schema.Array.Valid[0].TargetKind() == value.NumberKind
 				val, err := parseValue(str, isNum)
 				if err != nil {
 					return nil, nil, err
@@ -169,7 +168,7 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 			}
 			result[name] = vals
 		default:
-			result[name], err = parseValue(*field.String, field.Field.Type.Kind == schema.NumberKind)
+			result[name], err = parseValue(*field.String, field.Field.Schema.TargetKind() == value.NumberKind)
 			if err != nil {
 				return nil, nil, err
 			}

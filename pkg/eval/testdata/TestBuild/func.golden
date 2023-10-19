@@ -1,5 +1,5 @@
 &eval.File{Body: &eval.Struct{
-	Position: eval.Position{
+	Position: value.Position{
 		Filename: "func.acorn",
 		Line:     1,
 		Column:   1,
@@ -7,24 +7,22 @@
 	Fields: []eval.Field{
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{
-					Value: value.String("x"),
-				},
-				Pos: eval.Position{
+				Key: "x",
+				Pos: value.Position{
 					Filename: "func.acorn",
 					Line:     1,
 					Column:   1,
 				},
 			},
 			Value: &eval.Call{
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "func.acorn",
 					Offset:   4,
 					Line:     1,
 					Column:   5,
 				},
 				Func: &eval.Lookup{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "func.acorn",
 						Offset:   3,
 						Line:     1,
@@ -34,14 +32,14 @@
 				},
 				Args: []eval.Field{
 					&eval.Embedded{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "func.acorn",
 							Offset:   5,
 							Line:     1,
 							Column:   6,
 						},
 						Expression: &eval.Lookup{
-							Pos: eval.Position{
+							Pos: value.Position{
 								Filename: "func.acorn",
 								Offset:   5,
 								Line:     1,
@@ -51,14 +49,14 @@
 						},
 					},
 					&eval.Embedded{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "func.acorn",
 							Offset:   7,
 							Line:     1,
 							Column:   8,
 						},
 						Expression: &eval.Lookup{
-							Pos: eval.Position{
+							Pos: value.Position{
 								Filename: "func.acorn",
 								Offset:   7,
 								Line:     1,
@@ -69,7 +67,7 @@
 					},
 				},
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "func.acorn",
 				Line:     1,
 				Column:   1,
@@ -77,8 +75,8 @@
 		},
 		&eval.KeyValue{
 			Key: eval.FieldKey{
-				Key: eval.Value{Value: value.String("y")},
-				Pos: eval.Position{
+				Key: "y",
+				Pos: value.Position{
 					Filename: "func.acorn",
 					Offset:   10,
 					Line:     2,
@@ -86,14 +84,14 @@
 				},
 			},
 			Value: &eval.Call{
-				Pos: eval.Position{
+				Pos: value.Position{
 					Filename: "func.acorn",
 					Offset:   14,
 					Line:     2,
 					Column:   5,
 				},
 				Func: &eval.Lookup{
-					Pos: eval.Position{
+					Pos: value.Position{
 						Filename: "func.acorn",
 						Offset:   13,
 						Line:     2,
@@ -103,14 +101,14 @@
 				},
 				Args: []eval.Field{
 					&eval.Embedded{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "func.acorn",
 							Offset:   15,
 							Line:     2,
 							Column:   6,
 						},
 						Expression: &eval.Lookup{
-							Pos: eval.Position{
+							Pos: value.Position{
 								Filename: "func.acorn",
 								Offset:   15,
 								Line:     2,
@@ -120,14 +118,14 @@
 						},
 					},
 					&eval.Embedded{
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "func.acorn",
 							Offset:   18,
 							Line:     2,
 							Column:   9,
 						},
 						Expression: &eval.Lookup{
-							Pos: eval.Position{
+							Pos: value.Position{
 								Filename: "func.acorn",
 								Offset:   18,
 								Line:     2,
@@ -138,8 +136,8 @@
 					},
 					&eval.KeyValue{
 						Key: eval.FieldKey{
-							Key: eval.Value{Value: value.String("c")},
-							Pos: eval.Position{
+							Key: "c",
+							Pos: value.Position{
 								Filename: "func.acorn",
 								Offset:   21,
 								Line:     2,
@@ -147,7 +145,7 @@
 							},
 						},
 						Value: eval.Value{Value: value.Number("3")},
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "func.acorn",
 							Offset:   21,
 							Line:     2,
@@ -156,8 +154,8 @@
 					},
 					&eval.KeyValue{
 						Key: eval.FieldKey{
-							Key: eval.Value{Value: value.String("d")},
-							Pos: eval.Position{
+							Key: "d",
+							Pos: value.Position{
 								Filename: "func.acorn",
 								Offset:   27,
 								Line:     2,
@@ -165,7 +163,7 @@
 							},
 						},
 						Value: eval.Value{Value: value.Number("4")},
-						Pos: eval.Position{
+						Pos: value.Position{
 							Filename: "func.acorn",
 							Offset:   27,
 							Line:     2,
@@ -174,7 +172,7 @@
 					},
 				},
 			},
-			Pos: eval.Position{
+			Pos: value.Position{
 				Filename: "func.acorn",
 				Offset:   10,
 				Line:     2,

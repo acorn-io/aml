@@ -4,213 +4,140 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/acorn-io/aml/pkg/errors"
 	"github.com/acorn-io/aml/pkg/value"
 )
 
-type ScopeOption struct {
-	Schema       bool
-	AllowNewKeys bool
-	Default      bool
-	Call         bool
-	Path         string
-	Context      context.Context
-}
-
-func combine(opts []ScopeOption) (result ScopeOption) {
-	for _, opt := range opts {
-		if opt.Schema {
-			result.Schema = true
-		}
-		if opt.AllowNewKeys {
-			result.Schema = true
-			result.AllowNewKeys = true
-		}
-		if opt.Default {
-			result.Default = opt.Default
-		}
-		if opt.Call {
-			result.Call = opt.Call
-		}
-		if opt.Path != "" {
-			result.Path = opt.Path
-		}
-		if opt.Context != nil {
-			result.Context = opt.Context
-		}
-	}
-	if result.Context == nil {
-		result.Context = context.Background()
-	}
-	return
-}
-
 type Scope interface {
-	Context() context.Context
-	Path() string
 	Depth() int
-	Get(key string) (value.Value, bool, error)
-	Push(lookup ScopeLookuper, opts ...ScopeOption) Scope
-	IsSchema() bool
-	AllowNewKeys() bool
+	IsRoot(ctx context.Context) (bool, error)
+	Get(ctx context.Context, key string) (value.Value, bool, error)
+	NewScope(ctx context.Context, data ScopeStorage) (Scope, context.Context)
 }
 
-type ScopeLookuper interface {
-	ScopeLookup(scope Scope, key string) (value.Value, bool, error)
+type ScopeFunc func(ctx context.Context, key string, parent Scope) (value.Value, bool, error)
+
+func (s ScopeFunc) Lookup(ctx context.Context, key string, parent Scope) (value.Value, bool, error) {
+	return s(ctx, key, parent)
+}
+
+type ScopeStorage interface {
+	Lookup(ctx context.Context, key string, parent Scope) (value.Value, bool, error)
 }
 
 type ScopeData map[string]any
 
-func (m ScopeData) ScopeLookup(_ Scope, key string) (value.Value, bool, error) {
+func (m ScopeData) Lookup(ctx context.Context, key string, parent Scope) (value.Value, bool, error) {
 	ret, ok := m[key]
+	if !ok && parent != nil {
+		return parent.Get(ctx, key)
+	}
 	return value.NewValue(ret), ok, nil
 }
 
-func (m ScopeData) Get(key string) (value.Value, bool, error) {
-	obj, ok := m[key]
-	if !ok {
-		return nil, ok, nil
+func EmptyScope(ctx context.Context, data map[string]any) (Scope, context.Context) {
+	scope := &nested{
+		storage: ScopeData(data),
 	}
-	return value.NewValue(obj), true, nil
+	return scope, WithScope(ctx, scope)
 }
 
-type EmptyScope struct {
+type ScopeAsValue struct {
+	Ctx   context.Context
+	Scope Scope
 }
 
-func (e EmptyScope) Path() string {
-	return ""
+func (s ScopeAsValue) LookupValue(key value.Value) (value.Value, bool, error) {
+	str, err := value.ToString(key)
+	if err != nil {
+		return nil, false, err
+	}
+	return s.Scope.Get(s.Ctx, str)
 }
 
-func (e EmptyScope) Depth() int {
-	return 0
-}
-
-func (e EmptyScope) Get(key string) (value.Value, bool, error) {
-	return nil, false, nil
-}
-
-func (a EmptyScope) Context() context.Context {
-	return context.Background()
-}
-
-func (e EmptyScope) Push(lookup ScopeLookuper, opts ...ScopeOption) Scope {
-	return scopePush(e, lookup, opts...)
-}
-
-func (e EmptyScope) IsSchema() bool {
-	return false
-}
-
-func (e EmptyScope) AllowNewKeys() bool {
-	return false
+func (s ScopeAsValue) Kind() value.Kind {
+	return value.ObjectKind
 }
 
 type nested struct {
-	depth    int
-	path     string
-	parent   Scope
-	lookup   ScopeLookuper
-	opts     ScopeOption
-	keyCache map[string]value.Value
+	depth   int
+	parent  Scope
+	storage ScopeStorage
 }
 
-func (n nested) Depth() int {
+func (n *nested) IsRoot(ctx context.Context) (bool, error) {
+	if n.storage == nil {
+		return false, nil
+	}
+	_, ok, err := n.storage.Lookup(ctx, "__root", nil)
+	if e := (*errors.ErrValueNotDefined)(nil); errors.As(err, &e) {
+		return false, nil
+	}
+	return ok, err
+}
+
+func (n *nested) Depth() int {
 	return n.depth
 }
 
-func (n nested) AllowNewKeys() bool {
-	if n.opts.Default {
-		return false
-	}
-	if n.opts.Schema {
-		return n.opts.AllowNewKeys
-	}
-	return n.parent.AllowNewKeys()
-}
-
-func (n nested) IsSchema() bool {
-	if n.opts.Call {
-		return false
-	}
-	if n.opts.Default {
-		return false
-	}
-	if n.opts.Schema {
-		return true
-	}
-	return n.parent.IsSchema()
-}
-
-func (n nested) Context() context.Context {
-	if n.opts.Context != nil {
-		return n.opts.Context
-	}
-	return n.parent.Context()
-}
-
-func (n nested) Get(key string) (ret value.Value, ok bool, err error) {
+func (n *nested) Get(ctx context.Context, key string) (ret value.Value, ok bool, err error) {
 	if n.depth > MaxCallDepth {
 		return nil, false, fmt.Errorf("exceeded max scope depth %d > %d", n.depth, MaxCallDepth)
 	}
-	if v, ok := n.keyCache[key]; ok {
-		return v, true, nil
-	}
 
-	v, ok, err := n.lookup.ScopeLookup(n, key)
-	if err != nil {
-		return nil, false, err
-	} else if ok {
-		if value.IsDefined(v) {
-			n.keyCache[key] = v
+	if key == "$" && n.parent != nil {
+		root, err := n.parent.IsRoot(ctx)
+		if err != nil {
+			return nil, false, err
 		}
-		return v, ok, nil
+		if root {
+			return ScopeAsValue{
+				Ctx:   ctx,
+				Scope: n,
+			}, true, nil
+		}
 	}
 
-	v, ok, err = n.parent.Get(key)
-	if err == nil && ok && value.IsDefined(v) {
-		n.keyCache[key] = v
+	if n.storage != nil {
+		parent := n.parent
+		v, ok, err := n.storage.Lookup(ctx, key, parent)
+		if err != nil {
+			return nil, false, err
+		} else if ok {
+			return v, ok, nil
+		}
+	} else if n.parent != nil {
+		return n.parent.Get(ctx, key)
 	}
-	return v, ok, err
+
+	return nil, false, nil
 }
 
-func (n nested) Path() string {
-	return n.path
-}
-
-func scopePush(n Scope, lookup ScopeLookuper, opts ...ScopeOption) Scope {
-	if lookup == nil {
-		lookup = ScopeData(nil)
-	}
-	o := combine(opts)
-	newPath := appendPath(n.Path(), o.Path)
-	newScope := nested{
-		path:     newPath,
-		parent:   n,
-		lookup:   lookup,
-		opts:     o,
-		depth:    n.Depth() + 1,
-		keyCache: make(map[string]value.Value),
+func scopePush(n Scope, storage ScopeStorage) *nested {
+	newScope := &nested{
+		parent:  n,
+		storage: storage,
+		depth:   n.Depth() + 1,
 	}
 
 	return newScope
 }
 
-func (n nested) Push(lookup ScopeLookuper, opts ...ScopeOption) Scope {
-	return scopePush(n, lookup, opts...)
-}
-
-func appendPath(current, next string) string {
-	if next == "" {
-		return current
-	} else if current == "" {
-		return next
-	}
-	return current + "." + next
+func (n *nested) NewScope(ctx context.Context, storage ScopeStorage) (Scope, context.Context) {
+	newScope := scopePush(n, storage)
+	return newScope, WithScope(ctx, newScope)
 }
 
 type ValueScopeLookup struct {
 	Value value.Value
 }
 
-func (v ValueScopeLookup) ScopeLookup(_ Scope, key string) (value.Value, bool, error) {
-	return value.Lookup(v.Value, value.NewValue(key))
+func (v ValueScopeLookup) Lookup(ctx context.Context, key string, parent Scope) (value.Value, bool, error) {
+	ret, ok, err := value.Lookup(v.Value, value.NewValue(key))
+	if err != nil {
+		return nil, false, err
+	} else if !ok && parent != nil {
+		return parent.Get(ctx, key)
+	}
+	return ret, ok, nil
 }

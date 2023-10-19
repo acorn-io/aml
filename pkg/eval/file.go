@@ -1,9 +1,9 @@
 package eval
 
 import (
+	"context"
 	"sort"
 
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 )
 
@@ -14,46 +14,31 @@ type File struct {
 	Body           *Struct
 }
 
-func (f *File) DescribeFile() (*schema.File, error) {
-	fun, ok, err := f.ToFunction(Builtin)
-	if err != nil {
-		return nil, err
-	} else if !ok {
-		return &schema.File{}, nil
-	}
-
-	args := fun.(*Function).ArgsSchema
-	profiles := fun.(*Function).ProfileNames
-
-	argsSchema, err := value.DescribeObject(value.SchemaContext{}, args)
+func (f *File) Describe(ctx context.Context) (*value.FuncSchema, error) {
+	fileSchema, _, err := f.toFunction(WithSchema(ctx, true), false)
 	if err != nil {
 		return nil, err
 	}
-
-	return &schema.File{
-		Args:         *argsSchema,
-		ProfileNames: profiles.Describe(),
-	}, nil
+	return fileSchema.(*value.TypeSchema).FuncSchema, nil
 }
 
-func (f *File) ToFunction(scope Scope) (value.Value, bool, error) {
+func (f *File) toFunction(ctx context.Context, root bool) (value.Value, bool, error) {
 	def := &FunctionDefinition{
-		Body:             f.Body,
-		ReturnBody:       true,
-		AllowUnknownArgs: true,
-		AssignRoot:       true,
-		SchemaScope:      true,
+		Pos:        f.Body.Position,
+		Body:       f.Body,
+		ReturnBody: true,
+		AssignRoot: root,
 	}
-	return def.ToValue(scope)
+	return def.ToValue(ctx)
 }
 
-func (f *File) ToValue(scope Scope) (value.Value, bool, error) {
-	call, ok, err := f.ToFunction(scope)
+func (f *File) ToValue(ctx context.Context) (value.Value, bool, error) {
+	call, ok, err := f.toFunction(ctx, true)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
 
-	return value.Call(scope.Context(), call, f.CallArgs()...)
+	return value.Call(ctx, call, f.CallArgs()...)
 }
 
 func (f *File) CallArgs() (result []value.CallArgument) {

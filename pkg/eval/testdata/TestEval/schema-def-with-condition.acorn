@@ -1,8 +1,10 @@
-schema {
+define Foo: {
 	a: string != "hi" || default "bye"
 	b: string != "hi" || default "bye"
 	c: string != "hi" || "bye"
 }
 
+Foo({
 a: "hello"
 b: "bye"
+})

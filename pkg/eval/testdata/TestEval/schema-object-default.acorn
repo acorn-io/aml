@@ -1,4 +1,4 @@
-schema {
+define Foo: {
 		args: {
 			a: {x: 1} || default {x: 2}
 			b: {x: 1} || {x: 3} || default {x: 2}
@@ -6,5 +6,5 @@ schema {
 		}
 }
 
-{
-}
+Foo({
+})

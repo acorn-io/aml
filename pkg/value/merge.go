@@ -3,7 +3,7 @@ package value
 import "fmt"
 
 func mergeNative(left, right Value) (Value, error) {
-	if err := assertKindsMatch(left, right); err != nil {
+	if err := AssertKindsMatch(left, right); err != nil {
 		return nil, err
 	}
 	bValue, err := Eq(left, right)
@@ -20,28 +20,65 @@ func mergeNative(left, right Value) (Value, error) {
 	return right, nil
 }
 
+type RightMergePriority int
+
+const (
+	UndefinedPriority   = RightMergePriority(20)
+	LoopControlPriority = RightMergePriority(10)
+	DefaultedPriority   = RightMergePriority(0)
+	TypeSchemaPriority  = RightMergePriority(5)
+)
+
+type RightMerger interface {
+	RightMergePriority() RightMergePriority
+	RightMerge(val Value) (Value, error)
+}
+
 type Merger interface {
 	Merge(val Value) (Value, error)
 }
 
+func rightMerge(left Value, right Value) (Value, bool, error) {
+	rm, ok := right.(RightMerger)
+	if !ok {
+		return nil, false, nil
+	}
+
+	lrm, lrmOk := left.(RightMerger)
+	lm, lmOk := left.(Merger)
+	if lrmOk && lmOk && lrm.RightMergePriority() >= rm.RightMergePriority() {
+		v, err := lm.Merge(right)
+		return v, true, err
+	}
+
+	v, err := rm.RightMerge(left)
+	return v, true, err
+}
+
 func Merge(values ...Value) (result Value, err error) {
+	if undef := IsUndefined(values...); undef != nil {
+		return undef, nil
+	}
+
 	for _, item := range values {
-		if item.Kind() == UndefinedKind {
-			return item, nil
+		if item == nil {
+			continue
 		}
 		if result == nil {
 			result = item
+		} else if v, ok, err := rightMerge(result, item); err != nil {
+			return nil, err
+		} else if ok {
+			return v, nil
+		} else if m, ok := result.(Merger); ok {
+			result, err = m.Merge(item)
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			if m, ok := result.(Merger); ok {
-				result, err = m.Merge(item)
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				result, err = mergeNative(result, item)
-				if err != nil {
-					return nil, fmt.Errorf("can not merge values: %w", err)
-				}
+			result, err = mergeNative(result, item)
+			if err != nil {
+				return nil, fmt.Errorf("can not merge values: %w", err)
 			}
 		}
 	}
@@ -54,12 +91,12 @@ func assertType(val Value, kind Kind) error {
 		return fmt.Errorf("expected kind %s, got nil", kind)
 	}
 	if val.Kind() != kind {
-		return fmt.Errorf("expected kind %s, got %s (value: %s)", kind, val.Kind(), val)
+		return fmt.Errorf("expected kind %s, got %s", kind, val.Kind())
 	}
 	return nil
 }
 
-func assertKindsMatch(left, right Value) error {
+func AssertKindsMatch(left, right Value) error {
 	if left.Kind() != right.Kind() {
 		return fmt.Errorf("can not override field %s [%s] with %s [%s]",
 			left.Kind(), left, right.Kind(), right)

@@ -1,5 +1,10 @@
-`can not merge values: can not override value [
-    xxx
-
-    ] with [xxx
-]: strings.acorn:11:1`
+{
+  "ml": "xxx\n",
+  "mlinline": "xxxx\"\"x",
+  "mlinline2": "xxxx\"\"x",
+  "mlinlineescape": "xxx\"\"\"x",
+  "mlinlineescape2": "xxx\\```x",
+  "mlinlineescape4": "xxx\\",
+  "mlinliner3": "x\\xxx",
+  "quotes": "\"\"\""
+}

@@ -1,42 +1,57 @@
 {
-  "args": {
-    "path": "args",
-    "fields": [
-      {
-        "name": "foo",
-        "description": "A bool",
-        "type": {
-          "kind": "union",
-          "constraints": [
-            {
-              "op": "type",
-              "right": {
-                "kind": "string",
-                "default": "la"
-              }
-            },
-            {
-              "op": "type",
-              "right": {
-                "kind": "bool",
-                "default": true
-              }
-            }
-          ],
-          "default": "la"
-        }
-      },
-      {
-        "name": "bar",
-        "description": "Another bool",
-        "type": {
-          "kind": "bool",
-          "default": true
-        }
+  "args": [
+    {
+      "key": "foo2",
+      "match": false,
+      "optional": false,
+      "description": "",
+      "schema": {
+        "kindValue": "string",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": "la",
+        "path": "",
+        "reference": false
       }
-    ],
-    "allowNewKeys": true
-  },
+    },
+    {
+      "key": "foo",
+      "match": false,
+      "optional": false,
+      "description": "A bool",
+      "schema": {
+        "kindValue": "bool",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": true,
+        "path": "",
+        "reference": false
+      }
+    },
+    {
+      "key": "bar",
+      "match": false,
+      "optional": false,
+      "description": "Another bool",
+      "schema": {
+        "kindValue": "bool",
+        "object": null,
+        "array": null,
+        "func": null,
+        "constraints": null,
+        "alternates": null,
+        "defaultValue": true,
+        "path": "",
+        "reference": false
+      }
+    }
+  ],
   "profileNames": [
     {
       "Name": "one",

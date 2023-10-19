@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -13,29 +14,53 @@ type Parens struct {
 	Expr     Expression
 }
 
+func (p *Parens) ToValue(ctx context.Context) (value.Value, bool, error) {
+	return p.Expr.ToValue(ctx)
+}
+
 type Default struct {
 	Comments Comments
 	Expr     Expression
-	Pos      Position
+	Pos      value.Position
 }
 
-func (d *Default) ToValue(scope Scope) (value.Value, bool, error) {
-	v, ok, err := d.Expr.ToValue(scope.Push(nil, ScopeOption{
-		Default: true,
-	}))
+type defaulted struct {
+	value.Deferred
+
+	defaultValue value.Value
+}
+
+func (d defaulted) RightMergePriority() value.RightMergePriority {
+	return value.DefaultedPriority
+}
+
+func (d defaulted) RightMerge(val value.Value) (value.Value, error) {
+	return d.Merge(val)
+}
+
+func (d defaulted) Merge(val value.Value) (value.Value, error) {
+	if err := value.AssertKindsMatch(d.defaultValue, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+func (d *Default) ToValue(ctx context.Context) (value.Value, bool, error) {
+	v, ok, err := d.Expr.ToValue(WithSchema(ctx, false))
 	if err != nil || !ok {
 		return nil, ok, err
 	}
-	if scope.IsSchema() {
-		return value.NewDefault(value.Position(d.Pos), v), true, nil
-	}
-	return value.NewMatchTypeWithDefault(value.Position(d.Pos), v), true, nil
-}
-
-func (p *Parens) ToValue(scope Scope) (value.Value, bool, error) {
-	return p.Expr.ToValue(scope.Push(nil, ScopeOption{
-		Default: true,
-	}))
+	return defaulted{
+		Deferred: value.Deferred{
+			Resolve: func() (value.Value, error) {
+				return v, nil
+			},
+			KindResolver: func() value.Kind {
+				return v.Kind()
+			},
+		},
+		defaultValue: v,
+	}, true, nil
 }
 
 type Op struct {
@@ -44,11 +69,11 @@ type Op struct {
 	Operator value.Operator
 	Left     Expression
 	Right    Expression
-	Pos      Position
+	Pos      value.Position
 }
 
-func (o *Op) ToValue(scope Scope) (value.Value, bool, error) {
-	left, ok, err := o.Left.ToValue(scope)
+func (o *Op) ToValue(ctx context.Context) (value.Value, bool, error) {
+	left, ok, err := o.Left.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
@@ -58,34 +83,33 @@ func (o *Op) ToValue(scope Scope) (value.Value, bool, error) {
 		return newValue, true, err
 	}
 
-	right, ok, err := o.Right.ToValue(scope)
+	right, ok, err := o.Right.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
 
 	newValue, err := value.BinaryOperation(o.Operator, left, right)
 	if err != nil {
-		return nil, false, errors.NewErrEval(value.Position(o.Pos), err)
+		return nil, false, value.NewErrPosition(o.Pos, err)
 	}
 	return newValue, true, nil
 }
 
 type Lookup struct {
 	Comments Comments
-	Pos      Position
+	Pos      value.Position
 	Key      string
-
-	evaluating bool
 }
 
-func (l *Lookup) ToValue(scope Scope) (value.Value, bool, error) {
-	if l.evaluating {
-		return value.Undefined{Pos: value.Position(l.Pos)}, true, nil
-	}
-	l.evaluating = true
-	defer func() { l.evaluating = false }()
+func (l *Lookup) ToValue(ctx context.Context) (value.Value, bool, error) {
+	scope := GetScope(ctx)
 
-	v, ok, err := scope.Get(l.Key)
+	v, ok, err := scope.Get(ctx, l.Key)
+	if nf := (*errors.ErrValueNotDefined)(nil); errors.As(err, &nf) {
+		return value.Undefined{
+			Pos: l.Pos,
+		}, true, nil
+	}
 	if err != nil {
 		return nil, false, newNotFound(l.Pos, l.Key, err)
 	}
@@ -95,31 +119,57 @@ func (l *Lookup) ToValue(scope Scope) (value.Value, bool, error) {
 	return v, true, nil
 }
 
-func newNotFound(pos Position, key any, err error) error {
+type ErrKeyNotFound struct {
+	Key     string
+	Message string
+	Err     error
+}
+
+func (e *ErrKeyNotFound) Error() string {
+	return e.Message
+}
+
+func (e *ErrKeyNotFound) Unwrap() error {
+	return e.Err
+}
+
+func newNotFound(pos value.Position, key any, err error) error {
 	if err != nil {
-		return errors.NewErrEval(value.Position(pos), fmt.Errorf("key not found \"%s\": %w", key, err))
+		e := fmt.Errorf("key not found \"%s\": %w", key, err)
+		return value.NewErrPosition(pos,
+			&ErrKeyNotFound{
+				Key:     fmt.Sprint(key),
+				Err:     e,
+				Message: e.Error(),
+			})
 	}
-	return errors.NewErrEval(value.Position(pos), fmt.Errorf("key not found \"%s\"", key))
+	e := fmt.Errorf("key not found \"%s\"", key)
+	return value.NewErrPosition(pos,
+		&ErrKeyNotFound{
+			Key:     fmt.Sprint(key),
+			Err:     e,
+			Message: e.Error(),
+		})
 }
 
 type Selector struct {
 	Comments Comments
-	Pos      Position
+	Pos      value.Position
 	Base     Expression
 	Key      Expression
 }
 
-func (s *Selector) ToValue(scope Scope) (_ value.Value, _ bool, retErr error) {
+func (s *Selector) ToValue(ctx context.Context) (_ value.Value, _ bool, retErr error) {
 	defer func() {
-		retErr = errors.NewErrEval(value.Position(s.Pos), retErr)
+		retErr = value.NewErrPosition(s.Pos, retErr)
 	}()
 
-	key, ok, err := s.Key.ToValue(scope)
+	key, ok, err := s.Key.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
 
-	v, ok, err := s.Base.ToValue(scope)
+	v, ok, err := s.Base.ToValue(ctx)
 	if err != nil {
 		return nil, false, err
 	}
@@ -128,11 +178,19 @@ func (s *Selector) ToValue(scope Scope) (_ value.Value, _ bool, retErr error) {
 	}
 
 	newValue, ok, err := value.Lookup(v, key)
-	if err != nil {
+	if nf := (*errors.ErrValueNotDefined)(nil); errors.As(err, &nf) {
+		return value.Undefined{
+			Err: newNotFound(s.Pos, key, nil),
+			Pos: s.Pos,
+		}, true, nil
+	} else if err != nil {
 		return nil, false, newNotFound(s.Pos, key, err)
 	}
 	if !ok {
-		return nil, false, newNotFound(s.Pos, key, nil)
+		return &value.Undefined{
+			Err: newNotFound(s.Pos, key, nil),
+			Pos: s.Pos,
+		}, true, nil
 	}
 
 	return newValue, true, nil
@@ -140,18 +198,18 @@ func (s *Selector) ToValue(scope Scope) (_ value.Value, _ bool, retErr error) {
 
 type Index struct {
 	Comments Comments
-	Pos      Position
+	Pos      value.Position
 	Base     Expression
 	Index    Expression
 }
 
-func (i *Index) ToValue(scope Scope) (value.Value, bool, error) {
-	base, ok, err := i.Base.ToValue(scope)
+func (i *Index) ToValue(ctx context.Context) (value.Value, bool, error) {
+	base, ok, err := i.Base.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
 
-	indexValue, ok, err := i.Index.ToValue(scope)
+	indexValue, ok, err := i.Index.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
@@ -168,38 +226,38 @@ func (i *Index) ToValue(scope Scope) (value.Value, bool, error) {
 
 	result, ok, err := value.Index(base, indexValue)
 	if err != nil {
-		return nil, false, errors.NewErrEval(value.Position(i.Pos), err)
+		return nil, false, value.NewErrPosition(i.Pos, err)
 	}
 	return result, ok, nil
 }
 
 type Slice struct {
 	Comments Comments
-	Pos      Position
+	Pos      value.Position
 	Base     Expression
 	Start    Expression
 	End      Expression
 }
 
-func (s *Slice) ToValue(scope Scope) (value.Value, bool, error) {
+func (s *Slice) ToValue(ctx context.Context) (value.Value, bool, error) {
 	var (
 		start, end value.Value
 	)
 
-	v, ok, err := s.Base.ToValue(scope)
+	v, ok, err := s.Base.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
 
 	if s.Start != nil {
-		start, ok, err = s.Start.ToValue(scope)
+		start, ok, err = s.Start.ToValue(ctx)
 		if err != nil || !ok {
 			return nil, ok, err
 		}
 	}
 
 	if s.End != nil {
-		end, ok, err = s.End.ToValue(scope)
+		end, ok, err = s.End.ToValue(ctx)
 		if err != nil || !ok {
 			return nil, ok, err
 		}
@@ -215,26 +273,25 @@ func (s *Slice) ToValue(scope Scope) (value.Value, bool, error) {
 
 type Call struct {
 	Comments Comments
-	Pos      Position
+	Pos      value.Position
 	Func     Expression
 	Args     []Field
 }
 
-func (c *Call) ToValue(scope Scope) (value.Value, bool, error) {
+func (c *Call) ToValue(ctx context.Context) (value.Value, bool, error) {
 	select {
-	case <-scope.Context().Done():
-		return nil, false, scope.Context().Err()
+	case <-ctx.Done():
+		return nil, false, ctx.Err()
 	default:
 	}
 
-	v, ok, err := c.Func.ToValue(scope)
+	v, ok, err := c.Func.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
 
-	scope = scope.Push(nil, ScopeOption{
-		Call: true,
-	})
+	// Disable schema evaluation
+	ctx = WithSchema(ctx, false)
 
 	var args []value.CallArgument
 	for _, field := range c.Args {
@@ -242,7 +299,7 @@ func (c *Call) ToValue(scope Scope) (value.Value, bool, error) {
 		if posArg, ok := field.(IsPositionalArgument); ok {
 			arg.Positional = posArg.IsPositionalArgument()
 		}
-		v, ok, err := field.ToValue(scope)
+		v, ok, err := field.ToValueForIndex(ctx, 0)
 		if err != nil {
 			return nil, false, err
 		} else if !ok {
@@ -252,23 +309,23 @@ func (c *Call) ToValue(scope Scope) (value.Value, bool, error) {
 		args = append(args, arg)
 	}
 
-	v, ok, err = value.Call(scope.Context(), v, args...)
+	v, ok, err = value.Call(ctx, v, args...)
 	if err != nil {
-		return v, ok, errors.NewErrEval(value.Position(c.Pos), err)
+		return v, ok, value.NewErrPosition(c.Pos, err)
 	}
-	return v, ok, err
+	return v, ok, nil
 }
 
 type If struct {
-	Pos       Position
+	Pos       value.Position
 	Comments  Comments
 	Condition Expression
 	Value     Expression
 	Else      Expression
 }
 
-func (i *If) ToValue(scope Scope) (value.Value, bool, error) {
-	v, ok, err := i.Condition.ToValue(scope)
+func (i *If) ToValue(ctx context.Context) (ret value.Value, ok bool, err error) {
+	v, ok, err := i.Condition.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
@@ -279,30 +336,30 @@ func (i *If) ToValue(scope Scope) (value.Value, bool, error) {
 
 	b, err := value.ToBool(v)
 	if err != nil {
-		return nil, false, errors.NewErrEval(value.Position(i.Pos), err)
+		return nil, false, value.NewErrPosition(i.Pos, err)
 	}
 	if !b {
 		if i.Else != nil {
-			return i.Else.ToValue(scope)
+			return i.Else.ToValue(ctx)
 		}
 		return nil, false, nil
 	}
 
-	return i.Value.ToValue(scope)
+	return i.Value.ToValue(ctx)
 }
 
 type Interpolation struct {
 	Parts []any
 }
 
-func (i *Interpolation) ToValue(scope Scope) (value.Value, bool, error) {
+func (i *Interpolation) ToValue(ctx context.Context) (value.Value, bool, error) {
 	var result []string
 	for _, part := range i.Parts {
 		switch v := part.(type) {
 		case string:
 			result = append(result, v)
 		case Expression:
-			val, ok, err := v.ToValue(scope)
+			val, ok, err := v.ToValue(ctx)
 			if err != nil {
 				return nil, false, err
 			}
@@ -339,8 +396,9 @@ type For struct {
 	Value      string
 	Collection Expression
 	Body       Expression
+	Else       Expression
 	Merge      bool
-	Position   Position
+	Position   value.Position
 }
 
 type entry struct {
@@ -389,8 +447,8 @@ func toList(v value.Value) (result []entry, _ error) {
 	return
 }
 
-func (f *For) ToValue(scope Scope) (value.Value, bool, error) {
-	collection, ok, err := f.Collection.ToValue(scope)
+func (f *For) ToValue(ctx context.Context) (value.Value, bool, error) {
+	collection, ok, err := f.Collection.ToValue(ctx)
 	if err != nil || !ok {
 		return nil, ok, err
 	}
@@ -404,13 +462,16 @@ func (f *For) ToValue(scope Scope) (value.Value, bool, error) {
 		return nil, false, err
 	}
 
-	array := value.Array{}
+	var (
+		array = value.Array{}
+		prev  value.Value
+	)
 
-	for _, item := range list {
+	for i, item := range list {
 		select {
-		case <-scope.Context().Done():
-			return nil, false, errors.NewErrEval(value.Position(f.Position),
-				fmt.Errorf("aborting loop: %w", scope.Context().Err()))
+		case <-ctx.Done():
+			return nil, false, value.NewErrPosition(f.Position,
+				fmt.Errorf("aborting loop: %w", ctx.Err()))
 		default:
 		}
 
@@ -421,8 +482,14 @@ func (f *For) ToValue(scope Scope) (value.Value, bool, error) {
 		if f.Value != "" {
 			data[f.Value] = item.Value
 		}
+		if prev != nil {
+			data["prev"] = prev
+		}
 
-		newValue, ok, err := f.Body.ToValue(scope.Push(ScopeData(data)))
+		ctx := value.WithIndexPath(ctx, i)
+		_, ctx = GetScope(ctx).NewScope(ctx, ScopeData(data))
+
+		newValue, ok, err := f.Body.ToValue(ctx)
 		if err != nil {
 			return nil, false, err
 		}
@@ -430,29 +497,88 @@ func (f *For) ToValue(scope Scope) (value.Value, bool, error) {
 			continue
 		}
 
-		array = append(array, newValue)
+		var (
+			shouldSkip  bool
+			shouldBreak bool
+		)
 
-		if newValue.Kind() == value.ObjectKind {
-			scope = scope.Push(ValueScopeLookup{
-				Value: newValue,
-			})
+		if lc, ok := newValue.(*LoopControl); ok {
+			shouldSkip = lc.Skip
+			if lc.Break {
+				newValue = lc.Value
+				shouldBreak = true
+			}
+		}
+
+		if !shouldSkip {
+			prev, err = appendValue(prev, newValue)
+			if err != nil {
+				return nil, false, err
+			}
+			array = append(array, newValue)
+		}
+
+		if shouldBreak {
+			break
 		}
 	}
 
-	if f.Merge {
-		vals := array.ToValues()
-		if len(vals) == 0 {
-			return value.NewObject(nil), true, nil
+	if len(array) == 0 && f.Else != nil {
+		newValue, ok, err := f.Else.ToValue(ctx)
+		if err != nil || !ok {
+			return nil, ok, err
 		}
-		v, err := value.Merge(vals...)
-		return v, true, err
+		prev = newValue
+		array = append(array, newValue)
+	}
+
+	if f.Merge {
+		return prev, prev != nil, nil
 	}
 
 	return array, true, nil
 }
 
+func appendValue(left, right value.Value) (value.Value, error) {
+	if undef := value.IsUndefined(left, right); undef != nil {
+		return undef, nil
+	}
+
+	if left == nil {
+		return right, nil
+	} else if right == nil {
+		return left, nil
+	}
+
+	if left.Kind() != value.ObjectKind || right.Kind() != value.ObjectKind {
+		return right, nil
+	}
+
+	merged := map[string]any{}
+
+	entries, err := value.Entries(left)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		merged[entry.Key] = entry.Value
+	}
+
+	entries, err = value.Entries(right)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		merged[entry.Key] = entry.Value
+	}
+
+	return value.NewValue(merged), nil
+}
+
 type Expression interface {
-	ToValue(scope Scope) (value.Value, bool, error)
+	ToValue(ctx context.Context) (value.Value, bool, error)
 }
 
 type IsPositionalArgument interface {
@@ -463,6 +589,6 @@ type Value struct {
 	Value value.Value
 }
 
-func (v Value) ToValue(_ Scope) (value.Value, bool, error) {
+func (v Value) ToValue(_ context.Context) (value.Value, bool, error) {
 	return v.Value, true, nil
 }

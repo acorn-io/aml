@@ -1,4 +1,4 @@
-args: foo: "la"
+args: foo2: "la"
 args: {
 	// A bool
 	foo: true

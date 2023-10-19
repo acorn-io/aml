@@ -1,7 +1,7 @@
-schema {
+define Foo: {
 	test: {a: string == "hi"} || {a: "not default"} || default {a: "default"}
 }
 
-{
+Foo({
 	test: {a: true}
-}
+})

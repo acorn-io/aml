@@ -1,7 +1,6 @@
-schema {
-    foo: "hi"
-    foo: "bye"
+define Foo: {
+    foo: (string || "hi") && (string ||  "bye")
 }
 
-foo: "huh"
+Foo({foo: "huh"})
 

@@ -1,0 +1,6 @@
+define empty: {
+    obj: object
+}
+
+empty({
+})

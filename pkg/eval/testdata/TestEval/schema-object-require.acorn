@@ -1,7 +1,9 @@
-schema {
+define Foo: {
 	a: {
 		b?: "x"
 	}
 }
 
+Foo(
 {}
+)

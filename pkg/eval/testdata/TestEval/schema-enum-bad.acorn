@@ -1,5 +1,5 @@
-schema {
+define Foo: {
     a: enum("a", "b", "c")
 }
 
-a: "f"
+Foo({a: "f"})

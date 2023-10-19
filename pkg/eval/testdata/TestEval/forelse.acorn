@@ -1,0 +1,16 @@
+for x in [] {
+} else {
+	x: 4
+}
+for x in [1] {
+	5
+  skip
+} else {
+	y: 5
+}
+for x in [1, 2] {
+  break
+	{z: x}
+} else {
+	y: 5
+}

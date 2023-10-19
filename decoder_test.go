@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/acorn-io/aml/pkg/schema"
 	"github.com/acorn-io/aml/pkg/value"
 	"github.com/hexops/autogold/v2"
 	"github.com/stretchr/testify/require"
@@ -14,12 +13,9 @@ const testDocument = `
 args: {
 	// Foo
 	foo: 1
-	// Foo2
-	foo: number
 }
 args: two: 10
-args: bar: 1
-args: bar: number < 10
+args: bar: number < 10 || 1
 x: args.foo + args.bar + args.two
 profiles: baz: two: 2
 `
@@ -57,71 +53,70 @@ b: string
 }
 
 func TestSchemaUnmarshal(t *testing.T) {
-	out := &schema.File{}
+	out := &value.FuncSchema{}
 	err := Unmarshal([]byte(testDocument), out)
 	require.NoError(t, err)
 
-	autogold.Expect(&schema.File{
-		Args: schema.Object{
-			Path: "args",
-			Fields: []schema.Field{
-				{
-					Name:        "foo",
-					Description: "Foo\nFoo2",
-					Type: schema.FieldType{
-						Kind: schema.Kind("number"),
-						Contstraints: []schema.Constraint{
-							{
-								Op: "type",
-								Right: schema.FieldType{
-									Kind:    schema.Kind("number"),
-									Default: value.Number("1"),
-								},
-							},
-							{
-								Op:    "type",
-								Right: schema.FieldType{Kind: schema.Kind("number")},
-							},
-						},
-						Default: value.Number("1"),
-					},
+	// autogold can't handle this
+	out.Returns = nil
+
+	autogold.Expect(&value.FuncSchema{
+		Returns: nil,
+		Args: []value.ObjectSchemaField{
+			{
+				Key:         "foo",
+				Description: "Foo",
+				Schema: &value.TypeSchema{
+					Positions: []value.Position{{
+						Filename: "<inline>",
+						Offset:   18,
+						Line:     4,
+						Column:   2,
+					}},
+					KindValue:    value.Kind("number"),
+					DefaultValue: value.Number("1"),
 				},
-				{
-					Name: "two",
-					Type: schema.FieldType{
-						Kind:    schema.Kind("number"),
-						Default: value.Number("10"),
-					},
+			},
+			{
+				Key: "two",
+				Schema: &value.TypeSchema{
+					Positions: []value.Position{{
+						Filename: "<inline>",
+						Offset:   33,
+						Line:     6,
+						Column:   7,
+					}},
+					KindValue:    value.Kind("number"),
+					DefaultValue: value.Number("10"),
 				},
-				{
-					Name: "bar",
-					Type: schema.FieldType{
-						Kind: schema.Kind("number"),
-						Contstraints: []schema.Constraint{
-							{
-								Op: "type",
-								Right: schema.FieldType{
-									Kind:    schema.Kind("number"),
-									Default: value.Number("1"),
-								},
-							},
-							{
-								Op: "type",
-								Right: schema.FieldType{
-									Kind: schema.Kind("number"),
-									Contstraints: []schema.Constraint{{
-										Op:    "<",
-										Right: value.Number("10"),
-									}},
-								},
-							},
+			},
+			{
+				Key: "bar",
+				Schema: &value.TypeSchema{
+					Positions:   []value.Position{{}},
+					KindValue:   value.Kind("number"),
+					Constraints: []value.Constraint{{Op: "mustMatchAlternate"}},
+					Alternates: []*value.TypeSchema{
+						{
+							KindValue: value.Kind("number"),
+							Constraints: []value.Constraint{{
+								Op:    "<",
+								Right: value.Number("10"),
+							}},
 						},
-						Default: value.Number("1"),
+						{
+							Positions: []value.Position{{}},
+							KindValue: value.Kind("number"),
+							Constraints: []value.Constraint{{
+								Op:    "==",
+								Right: value.Number("1"),
+							}},
+							DefaultValue: value.Number("1"),
+						},
 					},
 				},
 			},
-			AllowNewKeys: true,
 		},
-		ProfileNames: schema.Names{schema.Name{Name: "baz"}},
+		ProfileNames: value.Names{value.Name{Name: "baz"}},
 	}).Equal(t, out)
 }

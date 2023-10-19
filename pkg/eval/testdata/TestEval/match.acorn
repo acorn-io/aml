@@ -1,4 +1,4 @@
-Test: schema {
+Test: define {
 	match ".*": 2
 	a: number
 	missing: string
@@ -7,7 +7,7 @@ Test: schema {
 let x: 1
 
 {
-	Test
+	Test(
 	{
 		blah: 5
 		f: 11
@@ -15,5 +15,5 @@ let x: 1
 		y: x
 		missing: "nope it's here"
 		blah2: blah
-	}
+	})
 }

@@ -1,18 +1,18 @@
 package eval
 
 import (
+	"context"
+
 	"github.com/acorn-io/aml/pkg/value"
 )
 
 type Schema struct {
 	Comments       Comments
-	Struct         *Struct
+	Expression     Expression
 	AllowNewFields bool
 }
 
-func (s *Schema) ToValue(scope Scope) (value.Value, bool, error) {
-	return s.Struct.ToValue(scope.Push(nil, ScopeOption{
-		Schema:       true,
-		AllowNewKeys: s.AllowNewFields,
-	}))
+func (s *Schema) ToValue(ctx context.Context) (value.Value, bool, error) {
+	return s.Expression.ToValue(
+		WithAllowNewKeys(WithSchema(ctx, true), s.AllowNewFields))
 }

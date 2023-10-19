@@ -1,142 +1,181 @@
 package value
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
-
-	"github.com/acorn-io/aml/pkg/schema"
 )
 
-type DescribeObjecter interface {
-	DescribeObject(ctx SchemaContext) (*schema.Object, bool, error)
-}
-
-func DescribeObject(ctx SchemaContext, val Value) (*schema.Object, error) {
-	if err := assertType(val, SchemaKind); err != nil {
-		return nil, err
-	}
-	if s, ok := val.(DescribeObjecter); ok {
-		schema, ok, err := s.DescribeObject(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if !ok {
-			return nil, fmt.Errorf("value kind %s did not provide a schema object description", val.Kind())
-		}
-		return schema, nil
-	}
-	return nil, fmt.Errorf("value kind %s can not be converted to schema object description", val.Kind())
-}
-
 type ObjectSchema struct {
-	Contract Contract
+	Positions    []Position          `json:"-"`
+	AllowNewKeys bool                `json:"allowNewKeys"`
+	Description  string              `json:"description"`
+	Fields       []ObjectSchemaField `json:"fields"`
 }
 
-type Contract interface {
-	Position() Position
-	Path() string
-	Description() string
-	Fields(ctx SchemaContext) ([]schema.Field, error)
-	AllKeys() ([]string, error)
-	RequiredKeys() ([]string, error)
-	LookupValueForKeyEquals(key string) (Value, bool, error)
-	LookupValueForKeyPatternMatch(key string) (Value, bool, error)
-	AllowNewKeys() bool
+type ObjectSchemaField struct {
+	Key         string      `json:"key"`
+	Match       bool        `json:"match"`
+	Optional    bool        `json:"optional"`
+	Description string      `json:"description"`
+	Schema      *TypeSchema `json:"schema"`
 }
 
-func GetContract(v Value) (Contract, bool) {
-	if c, ok := v.(interface {
-		GetContract() (Contract, bool)
-	}); ok {
-		return c.GetContract()
+func NewOpenObject() *TypeSchema {
+	return &TypeSchema{
+		KindValue: ObjectKind,
+		Object: &ObjectSchema{
+			AllowNewKeys: true,
+		},
 	}
-	return nil, false
 }
 
 func NewClosedObject() *TypeSchema {
 	return &TypeSchema{
 		KindValue: ObjectKind,
-		Object: &ObjectSchema{
-			Contract: noFields{},
-		},
+		Object:    &ObjectSchema{},
 	}
 }
 
-func NewObjectSchema(contract Contract) *TypeSchema {
-	return &TypeSchema{
-		Position:  contract.Position(),
-		KindValue: ObjectKind,
-		Object: &ObjectSchema{
-			Contract: contract,
-		},
-	}
+func mergePath(left, right Path) Path {
+	return left
 }
 
-func (n *ObjectSchema) GetContract() (Contract, bool) {
-	return n.Contract, true
-}
-
-func (n *ObjectSchema) TargetKind() Kind {
-	return ObjectKind
-}
-
-func (n *ObjectSchema) Kind() Kind {
-	return SchemaKind
-}
-
-func (n *ObjectSchema) DescribeObject(ctx SchemaContext) (*schema.Object, bool, error) {
-	if ctx.haveSeen(n.Contract.Path()) {
-		return &schema.Object{
-			Description:  n.Contract.Description(),
-			Path:         n.Contract.Path(),
-			Reference:    true,
-			AllowNewKeys: n.Contract.AllowNewKeys(),
-		}, true, nil
+func (n *ObjectSchema) Merge(right *ObjectSchema) (*ObjectSchema, error) {
+	if n == nil {
+		return right, nil
+	} else if right == nil {
+		return n, nil
 	}
 
-	ctx.addSeen(n.Contract.Path())
-	fields, err := n.Contract.Fields(ctx)
-	ctx.remoteSeen(n.Contract.Path())
+	fields, err := mergeObjectSchemaFields(n, right)
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
-
-	return &schema.Object{
-		Description:  n.Contract.Description(),
-		Path:         n.Contract.Path(),
-		AllowNewKeys: n.Contract.AllowNewKeys(),
+	return &ObjectSchema{
+		Positions:    mergePositions(n.Positions, right.Positions),
+		AllowNewKeys: n.AllowNewKeys || right.AllowNewKeys,
+		Description:  mergeDescription(n.Description, right.Description),
 		Fields:       fields,
-	}, true, nil
+	}, nil
 }
 
-func (n *ObjectSchema) Keys() ([]string, error) {
-	return n.Contract.AllKeys()
-}
-
-func (n *ObjectSchema) LookupValue(key Value) (Value, bool, error) {
-	s, err := ToString(key)
-	if err != nil {
-		return nil, false, err
-	}
-	return n.Contract.LookupValueForKeyEquals(s)
-}
-
-func (n *ObjectSchema) getSchemaForKey(key string) (Value, bool, error) {
-	schemaValue, ok, err := n.Contract.LookupValueForKeyEquals(key)
-	if err != nil {
-		return nil, false, err
-	} else if ok {
-		return schemaValue, true, nil
+func mergeObjectSchemaFields(left, right *ObjectSchema) (result []ObjectSchemaField, err error) {
+	if left == nil && right == nil {
+		return nil, nil
+	} else if left == nil {
+		return right.Fields, nil
+	} else if right == nil {
+		return left.Fields, nil
 	}
 
-	return n.Contract.LookupValueForKeyPatternMatch(key)
+	existing := map[string]int{}
+	for _, leftField := range left.Fields {
+		existing[leftField.Key] = len(result)
+		result = append(result, leftField)
+	}
+
+	for _, rightField := range right.Fields {
+		if leftFieldIndex, ok := existing[rightField.Key]; ok {
+			leftField := result[leftFieldIndex]
+			schema, err := leftField.Schema.MergeType(rightField.Schema)
+			if err != nil {
+				return nil, err
+			}
+			mergedField := ObjectSchemaField{
+				Key:         rightField.Key,
+				Match:       leftField.Match || rightField.Match,
+				Optional:    leftField.Optional && rightField.Optional,
+				Description: mergeDescription(leftField.Description, rightField.Description),
+				Schema:      schema,
+			}
+			result[leftFieldIndex] = mergedField
+		} else {
+			result = append(result, rightField)
+		}
+	}
+
+	return result, nil
+}
+
+func (n *ObjectSchema) ImpliedDefault() (Value, bool, error) {
+	data := map[string]any{}
+	for _, field := range n.Fields {
+		if field.Match || field.Optional {
+			continue
+		}
+		v, ok, err := DefaultValue(field.Schema)
+		if err != nil {
+			return nil, false, err
+		} else if !ok {
+			return nil, false, nil
+		}
+		data[field.Key] = v
+	}
+
+	return NewValue(data), true, nil
+}
+
+func (n *ObjectSchema) validateKey(ctx context.Context, key string, value Value, schemaPath Path) (newValue Value, matched bool, _ error) {
+	for _, field := range n.Fields {
+		// look for matches next
+		if field.Match {
+			continue
+		}
+
+		if field.Key == key {
+			v, err := field.Schema.Validate(ctx, value)
+			if err != nil {
+				return nil, true, &ErrSchemaViolation{
+					Key:        key,
+					DataPath:   GetDataPath(ctx),
+					SchemaPath: schemaPath,
+					Err:        err,
+				}
+			}
+			return v, true, nil
+		}
+	}
+
+	for _, field := range n.Fields {
+		// Only looking for matches next
+		if !field.Match {
+			continue
+		}
+
+		if matched, err := regexp.MatchString(field.Key, key); err != nil {
+			return nil, true, &ErrSchemaViolation{
+				Key:        key,
+				DataPath:   GetDataPath(ctx),
+				SchemaPath: schemaPath,
+				Err:        err,
+			}
+		} else if !matched {
+			continue
+		}
+
+		v, err := field.Schema.Validate(ctx, value)
+		if err != nil {
+			return v, true, &ErrSchemaViolation{
+				Key:        key,
+				DataPath:   GetDataPath(ctx),
+				SchemaPath: schemaPath,
+				Err:        err,
+			}
+		}
+		return v, true, nil
+	}
+
+	return nil, false, nil
 }
 
 type ErrSchemaViolation struct {
-	Path string
-	Key  string
-	Err  error
+	DataPath   Path
+	SchemaPath Path
+	Key        string
+	Err        error
 }
 
 func (e *ErrSchemaViolation) Unwrap() error {
@@ -177,11 +216,8 @@ func (e *ErrSchemaViolation) Error() string {
 
 	var (
 		keyPath = strings.Join(keyPaths, ".")
-		suffix  = ""
+		suffix  = pathSuffix(last.DataPath, last.SchemaPath)
 	)
-	if last.Path != "" {
-		suffix = fmt.Sprintf(" [schema path %s]", last.Path)
-	}
 	s := fmt.Sprintf("schema violation key %s: %v%s", keyPath, last.Err, suffix)
 	if len(s) > 1000 {
 		return s[:1000] + "..."
@@ -189,39 +225,23 @@ func (e *ErrSchemaViolation) Error() string {
 	return s
 }
 
-func (n *ObjectSchema) MergeContract(right *ObjectSchema) *ObjectSchema {
-	return &ObjectSchema{
-		Contract: &mergedContract{
-			Left:  n.Contract,
-			Right: right.Contract,
-		},
+func pathSuffix(dataPath, schemaPath Path) (suffix string) {
+	if dataPathString := dataPath.String(); dataPathString != "" {
+		suffix = fmt.Sprintf(" [path %s]", dataPathString)
 	}
+	if pathString := schemaPath.String(); pathString != "" {
+		suffix += fmt.Sprintf(" [schema path %s]", pathString)
+	}
+	return
 }
 
-func (n *ObjectSchema) Merge(right Value) (Value, error) {
+func (n *ObjectSchema) Validate(ctx context.Context, right Value, schemaPath Path) (Value, error) {
 	var (
 		head []Entry
 		tail []Entry
 	)
 
-	if schema, ok := right.(*ObjectSchema); ok {
-		return NewValue(&mergedContract{
-			Left:  n.Contract,
-			Right: schema.Contract,
-		}), nil
-	}
-
 	if err := assertType(right, ObjectKind); err != nil {
-		// This is a check that the schema doesn't have an invalid embeeded
-		_, _, serr := n.DescribeObject(SchemaContext{})
-		if serr != nil {
-			return nil, errors.Join(err, serr)
-		}
-		return nil, err
-	}
-
-	requiredKeys, err := n.Contract.RequiredKeys()
-	if err != nil {
 		return nil, err
 	}
 
@@ -233,6 +253,7 @@ func (n *ObjectSchema) Merge(right Value) (Value, error) {
 	keysSeen := map[string]struct{}{}
 
 	for _, key := range keys {
+		ctx := WithDataKeyPath(ctx, key)
 		rightValue, ok, err := Lookup(right, NewValue(key))
 		if err != nil {
 			return nil, err
@@ -242,23 +263,17 @@ func (n *ObjectSchema) Merge(right Value) (Value, error) {
 		}
 		keysSeen[key] = struct{}{}
 
-		schemaValue, ok, err := n.getSchemaForKey(key)
+		newValue, ok, err := n.validateKey(ctx, key, rightValue, schemaPath)
 		if err != nil {
 			return nil, err
 		}
 		if ok {
-			rightValue, err = Merge(schemaValue, rightValue)
-			if err != nil {
-				return nil, &ErrSchemaViolation{
-					Key:  key,
-					Path: n.Contract.Path(),
-					Err:  err,
-				}
-			}
-		} else if !n.Contract.AllowNewKeys() {
+			rightValue = newValue
+		} else if !n.AllowNewKeys {
 			return nil, &ErrUnknownField{
-				Path: n.Contract.Path(),
-				Key:  key,
+				DataPath:   GetDataPath(ctx),
+				SchemaPath: schemaPath,
+				Key:        key,
 			}
 		}
 
@@ -269,228 +284,69 @@ func (n *ObjectSchema) Merge(right Value) (Value, error) {
 	}
 
 	var missingKeys []string
-	for _, k := range requiredKeys {
-		if _, seen := keysSeen[k]; seen {
+	for _, field := range n.Fields {
+		if field.Match || field.Optional {
 			continue
 		}
-		def, ok, err := n.getSchemaForKey(k)
-		if err != nil {
-			return nil, err
+		if _, seen := keysSeen[field.Key]; seen {
+			continue
 		}
-		if def, hasDefault, err := DefaultValue(def); err != nil {
+		if def, hasDefault, err := DefaultValue(field.Schema); err != nil {
 			return nil, err
-		} else if ok && hasDefault {
+		} else if hasDefault {
 			head = append(head, Entry{
-				Key:   k,
+				Key:   field.Key,
 				Value: def,
 			})
 		} else {
-			missingKeys = append(missingKeys, k)
+			missingKeys = append(missingKeys, field.Key)
 		}
 	}
 
 	if len(missingKeys) > 0 {
 		return nil, &ErrMissingRequiredKeys{
-			Path: n.Contract.Path(),
-			Keys: missingKeys,
+			DataPath:   GetDataPath(ctx),
+			SchemaPath: schemaPath,
+			Keys:       missingKeys,
 		}
 	}
 
-	return &Object{
+	result := &Object{
 		Entries: append(head, tail...),
-	}, nil
-}
-
-var _ Contract = (*mergedContract)(nil)
-
-type mergedContract struct {
-	Left, Right Contract
-}
-
-func (m *mergedContract) Position() Position {
-	if pos := m.Left.Position(); pos != NoPosition {
-		return pos
-	}
-	return m.Right.Position()
-}
-
-func (m *mergedContract) Description() string {
-	left, right := m.Left.Description(), m.Right.Description()
-	var parts []string
-	if left != "" {
-		parts = append(parts, left)
-	}
-	if right != "" {
-		parts = append(parts, right)
-	}
-	return strings.Join(parts, "\n")
-}
-
-func (m *mergedContract) Fields(ctx SchemaContext) ([]schema.Field, error) {
-	leftFields, err := m.Left.Fields(ctx)
-	if err != nil {
-		return nil, err
 	}
 
-	rightFields, err := m.Right.Fields(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return schema.MergeFields(append(leftFields, rightFields...))
-}
-
-func (m *mergedContract) Path() string {
-	return m.Left.Path()
-}
-
-func (m *mergedContract) AllKeys() ([]string, error) {
-	result, err := m.Left.AllKeys()
-	if err != nil {
-		return nil, err
-	}
-	seen := map[string]struct{}{}
-	for _, key := range result {
-		seen[key] = struct{}{}
-	}
-
-	rightKeys, err := m.Right.AllKeys()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, key := range rightKeys {
-		if _, ok := seen[key]; !ok {
-			result = append(result, key)
-			seen[key] = struct{}{}
+	// Bind functions
+	for i, entry := range result.Entries {
+		if entry.Value.Kind() == FuncKind {
+			result.Entries[i].Value = ObjectFunc{
+				Self: result,
+				Func: entry.Value,
+			}
 		}
 	}
 
 	return result, nil
-}
-
-func (m *mergedContract) RequiredKeys() ([]string, error) {
-	result, err := m.Left.RequiredKeys()
-	if err != nil {
-		return nil, err
-	}
-	seen := map[string]struct{}{}
-	for _, key := range result {
-		seen[key] = struct{}{}
-	}
-
-	rightKeys, err := m.Right.RequiredKeys()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, key := range rightKeys {
-		if _, ok := seen[key]; !ok {
-			result = append(result, key)
-			seen[key] = struct{}{}
-		}
-	}
-
-	return result, nil
-}
-
-func (m *mergedContract) LookupValueForKeyEquals(key string) (Value, bool, error) {
-	return m.lookupValue(
-		m.Left.LookupValueForKeyEquals,
-		m.Right.LookupValueForKeyEquals,
-		key)
-}
-
-func (m *mergedContract) LookupValueForKeyPatternMatch(key string) (Value, bool, error) {
-	return m.lookupValue(
-		m.Left.LookupValueForKeyPatternMatch,
-		m.Right.LookupValueForKeyPatternMatch,
-		key)
-}
-
-func (m *mergedContract) lookupValue(leftLookup, rightLookup func(string) (Value, bool, error), key string) (Value, bool, error) {
-	leftValue, ok, err := leftLookup(key)
-	if err != nil {
-		return nil, false, err
-	}
-
-	if !ok {
-		return rightLookup(key)
-	}
-
-	rightValue, ok, err := rightLookup(key)
-	if err != nil {
-		return nil, false, err
-	}
-
-	if !ok {
-		return leftValue, true, nil
-	}
-
-	result, err := Merge(leftValue, rightValue)
-	return result, true, err
-}
-
-func (m *mergedContract) AllowNewKeys() bool {
-	return m.Left.AllowNewKeys() || m.Right.AllowNewKeys()
 }
 
 type ErrUnknownField struct {
-	Path string
-	Key  string
+	SchemaPath Path
+	DataPath   Path
+	Key        string
 }
 
 func (e *ErrUnknownField) Error() string {
-	return fmt.Sprintf("unknown field %s", e.Key)
+	return fmt.Sprintf("unknown field %s%s", e.Key, pathSuffix(e.DataPath, e.SchemaPath))
 }
 
 type ErrMissingRequiredKeys struct {
-	Path string
-	Keys []string
+	SchemaPath Path
+	DataPath   Path
+	Keys       []string
 }
 
 func (e *ErrMissingRequiredKeys) Error() string {
 	if len(e.Keys) == 1 {
-		return fmt.Sprintf("missing required key %s", e.Keys[0])
+		return fmt.Sprintf("missing required key %s%s", e.Keys[0], pathSuffix(e.DataPath, e.SchemaPath))
 	}
-	return fmt.Sprintf("missing required keys %v", e.Keys)
-}
-
-type noFields struct {
-}
-
-func (n noFields) Position() Position {
-	return Position{}
-}
-
-func (n noFields) Path() string {
-	return ""
-}
-
-func (n noFields) Description() string {
-	return ""
-}
-
-func (n noFields) Fields(ctx SchemaContext) ([]schema.Field, error) {
-	return nil, nil
-}
-
-func (n noFields) AllKeys() ([]string, error) {
-	return nil, nil
-}
-
-func (n noFields) RequiredKeys() ([]string, error) {
-	return nil, nil
-}
-
-func (n noFields) LookupValueForKeyEquals(key string) (Value, bool, error) {
-	return nil, false, nil
-}
-
-func (n noFields) LookupValueForKeyPatternMatch(key string) (Value, bool, error) {
-	return nil, false, nil
-}
-
-func (n noFields) AllowNewKeys() bool {
-	return false
+	return fmt.Sprintf("missing required keys %v%s", e.Keys, pathSuffix(e.DataPath, e.SchemaPath))
 }
