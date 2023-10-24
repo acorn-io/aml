@@ -1,0 +1,5 @@
+Usage of testdata/TestParseArgs/input.acorn:
+      --foo string        
+      --foo2 string       
+      --foo3 string       
+      --profile strings   Available profiles (one, two: Two profile)

@@ -1,4 +1,8 @@
-args: foo: "la"
+args: {
+	foo: "from-acorn-file"
+	foo2: "from-acorn-file"
+	foo3: "from-acorn-file"
+}
 profiles: one: {}
 profiles: {
 	// Two profile

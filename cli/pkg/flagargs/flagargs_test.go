@@ -12,28 +12,27 @@ import (
 )
 
 func TestParseArgs(t *testing.T) {
-	args, profiles, err := ParseArgs(
+	argsData, profiles, args, err := ParseArgs(
 		"testdata/TestParseArgs/input-args.acorn",
 		"testdata/TestParseArgs/input.acorn",
-		[]string{"--foo", "bar", "--profile=one", "--profile", "two"})
+		[]string{"--foo", "from-cli", "--profile=one", "--profile", "two", "arg1", "arg2"})
 	require.NoError(t, err)
 
 	autogold.Expect([]string{
 		"one",
 		"two",
 	}).Equal(t, profiles)
-	autogold.Expect(map[string]interface{}{
-		"foo": "bar",
-	}).Equal(t, args)
+	autogold.Expect(map[string]interface{}{"foo": "from-cli", "foo2": "from-arg-file"}).Equal(t, argsData)
+	autogold.Expect([]string{"arg1", "arg2"}).Equal(t, args)
 }
 
 func TestParseInvalidFlag(t *testing.T) {
-	_, _, err := ParseArgs(
+	_, _, _, err := ParseArgs(
 		"testdata/TestParseArgs/input-args.acorn",
 		"testdata/TestParseArgs/input.acorn",
-		[]string{"--foo2", "bar"})
+		[]string{"--foo4", "bar"})
 
-	autogold.Expect("unknown flag: --foo2").Equal(t, err.Error())
+	autogold.Expect("unknown flag: --foo4").Equal(t, err.Error())
 }
 
 func TestHelp(t *testing.T) {
