@@ -1,2 +1,6 @@
 foo: "from-arg-file"
 foo2: "from-arg-file"
+anObject: {
+		aThree: 5
+		aFour: "six"
+}

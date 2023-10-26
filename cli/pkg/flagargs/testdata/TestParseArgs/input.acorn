@@ -2,6 +2,12 @@ args: {
 	foo: "from-acorn-file"
 	foo2: "from-acorn-file"
 	foo3: "from-acorn-file"
+	anObject: {
+		aKey: 1
+		aTwo: "two"
+		aThree: 3
+		aFour: "four"
+	}
 }
 profiles: one: {}
 profiles: {
