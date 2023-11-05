@@ -33,6 +33,31 @@ func (f *FunctionDefinition) ToValue(ctx context.Context) (value.Value, bool, er
 		Fields:   bodyFields,
 	}
 	scope := GetScope(ctx)
+
+	var args []value.ObjectSchemaField
+	if argsSchema.Object != nil {
+		args = argsSchema.Object.Fields
+	}
+
+	funcSchema := &value.FuncSchema{
+		Args:         args,
+		ProfileNames: profileNames,
+		Returns: func(ctx context.Context) (value.Schema, bool, error) {
+			if f.ReturnType == nil {
+				return nil, false, err
+			}
+			v, ok, err := f.ReturnType.ToValue(WithScope(ctx, scope))
+			if err != nil || !ok {
+				return nil, ok, err
+			}
+			if s, ok := v.(value.Schema); ok {
+				return s, true, nil
+			}
+			return nil, false, value.NewErrPosition(f.Pos,
+				fmt.Errorf("return value is does not a schema type, got kind: %s", v.Kind()))
+		},
+	}
+
 	returnFunc := &Function{
 		Pos:            f.Pos,
 		Scope:          scope,
@@ -44,33 +69,14 @@ func (f *FunctionDefinition) ToValue(ctx context.Context) (value.Value, bool, er
 		ProfilesSchema: profileSchema,
 		ReturnBody:     f.ReturnBody,
 		AssignRoot:     f.AssignRoot,
+		FuncSchema:     funcSchema,
 	}
+
 	if IsSchema(ctx) && !f.AssignRoot {
-		var args []value.ObjectSchemaField
-		if argsSchema.Object != nil {
-			args = argsSchema.Object.Fields
-		}
 		return &value.TypeSchema{
-			Positions: []value.Position{f.Pos},
-			KindValue: value.FuncKind,
-			FuncSchema: &value.FuncSchema{
-				Args:         args,
-				ProfileNames: returnFunc.ProfileNames,
-				Returns: func(ctx context.Context) (value.Schema, bool, error) {
-					if f.ReturnType == nil {
-						return nil, false, err
-					}
-					v, ok, err := f.ReturnType.ToValue(WithScope(ctx, scope))
-					if err != nil || !ok {
-						return nil, ok, err
-					}
-					if s, ok := v.(value.Schema); ok {
-						return s, true, nil
-					}
-					return nil, false, value.NewErrPosition(f.Pos,
-						fmt.Errorf("return value is does not a schema type, got kind: %s", v.Kind()))
-				},
-			},
+			Positions:    []value.Position{f.Pos},
+			KindValue:    value.FuncKind,
+			FuncSchema:   funcSchema,
 			DefaultValue: returnFunc,
 		}, true, nil
 	}
@@ -153,6 +159,7 @@ type Function struct {
 	ArgNames       value.Names
 	ProfilesSchema value.Schema
 	ProfileNames   value.Names
+	FuncSchema     *value.FuncSchema
 	ReturnBody     bool
 	AssignRoot     bool
 	UnscopedArgs   bool
