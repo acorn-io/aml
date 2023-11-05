@@ -54,7 +54,7 @@ func (f *FunctionDefinition) ToValue(ctx context.Context) (value.Value, bool, er
 				return s, true, nil
 			}
 			return nil, false, value.NewErrPosition(f.Pos,
-				fmt.Errorf("return value is does not a schema type, got kind: %s", v.Kind()))
+				fmt.Errorf("return value is not a schema type, got kind: %s", v.Kind()))
 		},
 	}
 
