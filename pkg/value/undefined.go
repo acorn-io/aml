@@ -40,7 +40,7 @@ func (u Undefined) NativeValue() (any, bool, error) {
 	if u.Err != nil {
 		return nil, false, u.Err
 	}
-	return nil, false, fmt.Errorf("undefined value from %s (typically cause be a circular reference) can not be turned into a native value", u.Pos)
+	return nil, false, fmt.Errorf("undefined value from %s (typically caused by a missing key or circular reference) can not be turned into a native value", u.Pos)
 }
 
 func (u Undefined) String() string {

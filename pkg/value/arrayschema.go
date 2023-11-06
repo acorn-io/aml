@@ -8,9 +8,9 @@ import (
 )
 
 type ArraySchema struct {
-	Positions   []Position    `json:"-"`
-	Description string        `json:"description"`
-	Valid       []*TypeSchema `json:"valid"`
+	Positions   []Position `json:"-"`
+	Description string     `json:"description"`
+	Valid       []Schema   `json:"valid"`
 }
 
 func (n *ArraySchema) ImpliedDefault() (Value, bool, error) {

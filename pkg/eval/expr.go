@@ -107,6 +107,7 @@ func (l *Lookup) ToValue(ctx context.Context) (value.Value, bool, error) {
 	v, ok, err := scope.Get(ctx, l.Key)
 	if nf := (*errors.ErrValueNotDefined)(nil); errors.As(err, &nf) {
 		return value.Undefined{
+			Err: newNotFound(l.Pos, l.Key, nil),
 			Pos: l.Pos,
 		}, true, nil
 	}
@@ -463,9 +464,20 @@ func (f *For) ToValue(ctx context.Context) (value.Value, bool, error) {
 	}
 
 	var (
-		array = value.Array{}
-		prev  value.Value
+		array     = value.Array{}
+		prev      value.Value
+		elseValue value.Value
 	)
+
+	if f.Else != nil {
+		newValue, ok, err := f.Else.ToValue(ctx)
+		if err != nil {
+			return nil, ok, err
+		} else if ok {
+			elseValue = newValue
+			prev = elseValue
+		}
+	}
 
 	for i, item := range list {
 		select {
@@ -482,7 +494,9 @@ func (f *For) ToValue(ctx context.Context) (value.Value, bool, error) {
 		if f.Value != "" {
 			data[f.Value] = item.Value
 		}
-		if prev != nil {
+		if prev == nil {
+			data["prev"] = value.NewObject(nil)
+		} else {
 			data["prev"] = prev
 		}
 
@@ -523,13 +537,9 @@ func (f *For) ToValue(ctx context.Context) (value.Value, bool, error) {
 		}
 	}
 
-	if len(array) == 0 && f.Else != nil {
-		newValue, ok, err := f.Else.ToValue(ctx)
-		if err != nil || !ok {
-			return nil, ok, err
-		}
-		prev = newValue
-		array = append(array, newValue)
+	if len(array) == 0 && elseValue != nil {
+		prev = elseValue
+		array = append(array, elseValue)
 	}
 
 	if f.Merge {

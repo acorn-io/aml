@@ -9,9 +9,11 @@ type Schema interface {
 	Value
 	Validate(ctx context.Context, v Value) (Value, error)
 	TargetKind() Kind
+	MergeType(right Schema) (Schema, error)
+	DefaultWithImplicit(renderImplicit bool) (Value, bool, error)
 
 	ValidArrayItems() []Schema
-	GetPath() string
+	GetPath() Path
 }
 
 func Validate(ctx context.Context, schema Value, v Value) (Value, error) {

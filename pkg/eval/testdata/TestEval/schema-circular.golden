@@ -1,1 +1,1 @@
-undefined value from schema-circular.acorn:3:12 (typically cause be a circular reference) can not be turned into a native value
+key not found "node": schema-circular.acorn:3:12

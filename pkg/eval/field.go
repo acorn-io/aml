@@ -59,8 +59,8 @@ func (k *KeyValue) returnTuple(ctx context.Context, key string) (value.Value, bo
 	}
 
 	if IsSchema(ctx) {
-		var resultTS *value.TypeSchema
-		if ts, ok := v.(*value.TypeSchema); ok {
+		var resultTS value.Schema
+		if ts, ok := v.(value.Schema); ok {
 			resultTS = ts
 		} else {
 			resultTS = value.NewMatchTypeWithDefault(k.Pos, v).(*value.TypeSchema)

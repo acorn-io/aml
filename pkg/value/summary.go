@@ -1,25 +1,26 @@
 package value
 
 type Summary struct {
-	Types map[string]*TypeSchema `json:"types,omitempty"`
+	Types map[string]Schema `json:"types,omitempty"`
 }
 
-func makeReference(types map[string]*TypeSchema, ts *TypeSchema) *TypeSchema {
-	if ts.Reference {
-		return ts
-	}
-
+func makeReference(types map[string]Schema, schema Schema) Schema {
 	result := &TypeSchema{
-		Path:      ts.Path,
+		Path:      schema.GetPath(),
 		Reference: true,
 	}
 
-	s := ts.Path.String()
+	s := schema.GetPath().String()
 	if s == "" {
-		return ts
+		return schema
 	}
 	if _, ok := types[s]; ok {
 		return result
+	}
+
+	ts, ok := schema.(*TypeSchema)
+	if ok && ts.Reference {
+		return ts
 	}
 
 	cp := *ts
@@ -32,7 +33,7 @@ func makeReference(types map[string]*TypeSchema, ts *TypeSchema) *TypeSchema {
 		cp.Object.Fields = fields
 	}
 	if cp.Array != nil {
-		var valids []*TypeSchema
+		var valids []Schema
 		for _, valid := range cp.Array.Valid {
 			valids = append(valids, makeReference(types, valid))
 		}
@@ -44,14 +45,14 @@ func makeReference(types map[string]*TypeSchema, ts *TypeSchema) *TypeSchema {
 	return result
 }
 
-func Summarize(obj *TypeSchema) *Summary {
+func Summarize(obj Schema) *Summary {
 	result := &Summary{
-		Types: map[string]*TypeSchema{},
+		Types: map[string]Schema{},
 	}
 
-	if len(obj.Path) == 0 {
+	if ts, ok := obj.(*TypeSchema); ok && len(obj.GetPath().String()) == 0 {
 		root := "$"
-		cp := *obj
+		cp := *ts
 		cp.Path = Path{
 			PathElement{
 				Key: &root,

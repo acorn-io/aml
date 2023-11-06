@@ -86,11 +86,39 @@ func Merge(values ...Value) (result Value, err error) {
 	return result, nil
 }
 
+type TargetCompatibler interface {
+	TargetCompatible(target Value) bool
+}
+
+func TargetCompatible(schema Schema, target Value) bool {
+	if schema.TargetKind() == target.Kind() {
+		return true
+	}
+	if tg, ok := schema.(TargetCompatibler); ok {
+		return tg.TargetCompatible(target)
+	}
+	return false
+}
+
+type Compatibler interface {
+	Compatible(kind Kind) bool
+}
+
+func Compatible(val Value, kind Kind) bool {
+	if val.Kind() == kind {
+		return true
+	}
+	if c, ok := val.(Compatibler); ok {
+		return c.Compatible(kind)
+	}
+	return false
+}
+
 func assertType(val Value, kind Kind) error {
 	if val == nil {
 		return fmt.Errorf("expected kind %s, got nil", kind)
 	}
-	if val.Kind() != kind {
+	if !Compatible(val, kind) {
 		return fmt.Errorf("expected kind %s, got %s", kind, val.Kind())
 	}
 	return nil

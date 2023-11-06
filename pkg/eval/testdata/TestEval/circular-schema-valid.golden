@@ -1,1 +1,1 @@
-undefined value from circular-schema-valid.acorn:4:13 (typically cause be a circular reference) can not be turned into a native value
+key not found "top": circular-schema-valid.acorn:4:13

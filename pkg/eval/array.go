@@ -17,7 +17,7 @@ func (a *Array) ToValue(ctx context.Context) (value.Value, bool, error) {
 	var (
 		objs      []any
 		kinds     = map[value.Kind]struct{}{}
-		schema    []*value.TypeSchema
+		schema    []value.Schema
 		allSimple = true
 	)
 
@@ -52,7 +52,7 @@ func (a *Array) ToValue(ctx context.Context) (value.Value, bool, error) {
 			} else {
 				allSimple = false
 			}
-			if ts, ok := v.(*value.TypeSchema); ok {
+			if ts, ok := v.(value.Schema); ok {
 				schema = append(schema, ts)
 			} else {
 				return nil, false, value.NewErrPosition(a.Pos,

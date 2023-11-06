@@ -96,15 +96,15 @@ func TestSchemaUnmarshal(t *testing.T) {
 					Positions:   []value.Position{{}},
 					KindValue:   value.Kind("number"),
 					Constraints: []value.Constraint{{Op: "mustMatchAlternate"}},
-					Alternates: []*value.TypeSchema{
-						{
+					Alternates: []value.Schema{
+						&value.TypeSchema{
 							KindValue: value.Kind("number"),
 							Constraints: []value.Constraint{{
 								Op:    "<",
 								Right: value.Number("10"),
 							}},
 						},
-						{
+						&value.TypeSchema{
 							Positions: []value.Position{{}},
 							KindValue: value.Kind("number"),
 							Constraints: []value.Constraint{{

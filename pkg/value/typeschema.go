@@ -14,7 +14,7 @@ type TypeSchema struct {
 	Array        *ArraySchema  `json:"array"`
 	FuncSchema   *FuncSchema   `json:"func"`
 	Constraints  []Constraint  `json:"constraints"`
-	Alternates   []*TypeSchema `json:"alternates"`
+	Alternates   []Schema      `json:"alternates"`
 	DefaultValue Value         `json:"defaultValue"`
 	Path         Path          `json:"path"`
 	Reference    bool          `json:"reference"`
@@ -34,8 +34,8 @@ func (n *TypeSchema) ValidArrayItems() (result []Schema) {
 	return result
 }
 
-func (n *TypeSchema) GetPath() string {
-	return n.Path.String()
+func (n *TypeSchema) GetPath() Path {
+	return n.Path
 }
 
 func (n *TypeSchema) Call(ctx context.Context, args []CallArgument) (Value, bool, error) {
@@ -294,18 +294,25 @@ func (n *TypeSchema) Or(right Value) (Value, error) {
 		Positions:   mergePositions(n.Positions, rightSchema.Positions),
 		KindValue:   typeOrUnion(n.KindValue, rightSchema.KindValue),
 		Constraints: MustMatchAlternate(),
-		Alternates: []*TypeSchema{
+		Alternates: []Schema{
 			n, rightSchema,
 		},
 	}, nil
 }
 
 func (n *TypeSchema) Default() (Value, bool, error) {
+	return n.DefaultWithImplicit(true)
+}
+
+func (n *TypeSchema) DefaultWithImplicit(renderImplicit bool) (Value, bool, error) {
 	v, ok, err := n.getDefault(false)
 	if err != nil || ok {
 		return v, ok, err
 	}
-	return n.getDefault(true)
+	if renderImplicit {
+		return n.getDefault(true)
+	}
+	return nil, false, nil
 }
 
 func (n *TypeSchema) getDefault(renderImplicit bool) (Value, bool, error) {
@@ -326,7 +333,7 @@ func (n *TypeSchema) getDefault(renderImplicit bool) (Value, bool, error) {
 	}
 
 	for _, alt := range n.Alternates {
-		v, ok, err := alt.getDefault(renderImplicit)
+		v, ok, err := alt.DefaultWithImplicit(renderImplicit)
 		if err != nil {
 			return nil, false, err
 		}
@@ -435,7 +442,7 @@ func (e *ErrUnmatchedType) Error() string {
 func checkType(ctx context.Context, schema *TypeSchema, right Value) (Value, error) {
 	var errs []error
 
-	if schema.TargetKind() == right.Kind() || schema.TargetKind() == UnionKind {
+	if TargetCompatible(schema, right) || schema.TargetKind() == UnionKind {
 		if schema.Object != nil {
 			v, err := schema.Object.Validate(ctx, right, schema.Path)
 			if err == nil {
@@ -473,11 +480,11 @@ func checkType(ctx context.Context, schema *TypeSchema, right Value) (Value, err
 	}
 
 	for _, alt := range schema.Alternates {
-		ret, newErrs := checkType(ctx, alt, right)
-		if newErrs == nil {
+		ret, newErr := alt.Validate(ctx, right)
+		if newErr == nil {
 			return ret, nil
 		}
-		retErr.Alternates = append(retErr.Alternates, newErrs)
+		retErr.Alternates = append(retErr.Alternates, newErr)
 	}
 
 	return nil, retErr
@@ -502,11 +509,16 @@ func (n *TypeSchema) Merge(right Value) (Value, error) {
 		fmt.Errorf("can not merge kinds %s and %s", SchemaKind, right.Kind()))
 }
 
-func (n *TypeSchema) MergeType(right *TypeSchema) (*TypeSchema, error) {
+func (n *TypeSchema) MergeType(rightSchema Schema) (Schema, error) {
 	if n == nil {
-		return right, nil
-	} else if right == nil {
+		return rightSchema, nil
+	} else if rightSchema == nil {
 		return n, nil
+	}
+
+	right, ok := rightSchema.(*TypeSchema)
+	if !ok {
+		return nil, fmt.Errorf("Can not merge incompatible go structs %T and %T", n, rightSchema)
 	}
 
 	if n.KindValue != right.KindValue {
@@ -553,13 +565,13 @@ func (n *TypeSchema) MergeType(right *TypeSchema) (*TypeSchema, error) {
 	}, nil
 }
 
-func mergeAlternates(left, right []*TypeSchema) ([]*TypeSchema, error) {
+func mergeAlternates(left, right []Schema) ([]Schema, error) {
 	if len(left) != len(right) {
 		return nil, fmt.Errorf("can not merge schemas with different alternates length %d != %d",
 			len(left), len(right))
 	}
 
-	var result []*TypeSchema
+	var result []Schema
 	for i, left := range left {
 		newValue, err := left.MergeType(right[i])
 		if err != nil {

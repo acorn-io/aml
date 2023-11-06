@@ -16,11 +16,11 @@ type ObjectSchema struct {
 }
 
 type ObjectSchemaField struct {
-	Key         string      `json:"key"`
-	Match       bool        `json:"match"`
-	Optional    bool        `json:"optional"`
-	Description string      `json:"description"`
-	Schema      *TypeSchema `json:"schema"`
+	Key         string `json:"key"`
+	Match       bool   `json:"match"`
+	Optional    bool   `json:"optional"`
+	Description string `json:"description"`
+	Schema      Schema `json:"schema"`
 }
 
 func NewOpenObject() *TypeSchema {
@@ -242,7 +242,7 @@ func (n *ObjectSchema) Validate(ctx context.Context, right Value, schemaPath Pat
 	)
 
 	if err := assertType(right, ObjectKind); err != nil {
-		return nil, err
+		return nil, NewErrPosition(lastPos(n.Positions, nil), err)
 	}
 
 	keys, err := Keys(right)

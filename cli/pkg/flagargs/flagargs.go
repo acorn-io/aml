@@ -158,8 +158,8 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 		case field.StringSlice != nil:
 			vals := []any{}
 			for _, str := range *field.StringSlice {
-				isNum := len(field.Field.Schema.Array.Valid) > 0 &&
-					field.Field.Schema.Array.Valid[0].TargetKind() == value.NumberKind
+				isNum := len(field.Field.Schema.ValidArrayItems()) > 0 &&
+					field.Field.Schema.ValidArrayItems()[0].TargetKind() == value.NumberKind
 				val, err := parseValue(str, isNum)
 				if err != nil {
 					return nil, nil, err

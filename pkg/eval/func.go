@@ -313,7 +313,33 @@ func (c *Function) validateReturn(ctx context.Context, ret value.Value, ok bool,
 		return ret, ok, err
 	}
 	ret, err = value.Validate(ctx, check, ret)
+	if err != nil {
+		return nil, false, value.NewErrPosition(c.Pos, fmt.Errorf("return object does not match schema: %w", err))
+	}
 	return ret, true, err
+}
+
+type selfScope struct {
+	selfValue value.Value
+}
+
+func (s selfScope) Lookup(ctx context.Context, key string, parent Scope) (value.Value, bool, error) {
+	if key == "self" {
+		return s.selfValue, true, nil
+	}
+	if value.IsLookupSupported(s.selfValue) {
+		v, ok, err := value.Lookup(s.selfValue, value.NewValue(key))
+		if err != nil {
+			return nil, false, err
+		}
+		if ok {
+			return v, true, nil
+		}
+	}
+	if parent != nil {
+		return parent.Get(ctx, key)
+	}
+	return nil, false, nil
 }
 
 func (c *Function) Call(ctx context.Context, args []value.CallArgument) (ret value.Value, ok bool, err error) {
@@ -344,8 +370,8 @@ func (c *Function) Call(ctx context.Context, args []value.CallArgument) (ret val
 
 	for _, arg := range args {
 		if arg.Self {
-			scope, _ = scope.NewScope(ctx, ScopeData{
-				"self": arg.Value,
+			scope, _ = scope.NewScope(ctx, selfScope{
+				selfValue: arg.Value,
 			})
 			break
 		}
