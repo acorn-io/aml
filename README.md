@@ -153,6 +153,32 @@ value: {
 reference: value.nested
 ```
 
+### Object Merge
+The `+` operator can be used to recursively merge objects where the non-object values from the right object will
+the value from the left.
+```cue
+{
+    a: 1
+    b: 2
+} + {
+    b: 3
+    c: 4
+    d: e: 5
+}
+```
+The above will evaluate to
+```json
+{
+  "a": 1,
+  "b": 3,
+  "c": 4,
+  "d": {
+    "e": 5
+  }
+}
+```
+
+
 ### Index, Slice
 ```cue
 array: [1, 2, 3, 4, 5]
@@ -489,6 +515,12 @@ examples of AML syntax. Try this [GitHub search](https://github.com/search?q=pat
 
 For an example of schema, you can refer the [schema file used to validate Acornfile](https://github.com/acorn-io/runtime/blob/main/pkg/appdefinition/app.acorn)
 which is quite a complete example of most all schema features.
+
+## Go API
+
+The go API is documented at [pkg.go.dev](https://pkg.go.dev/github.com/acorn-io/aml). The main supported API is the
+github.com/acorn-io/aml package. Every thing else in pkg/ is considered internal and subject to change. It really
+should be marked named internal, but I personally feel internal is just mean.
 
 ## License
 
