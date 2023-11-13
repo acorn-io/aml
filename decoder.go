@@ -48,6 +48,9 @@ func (o DecoderOptions) Merge() (result DecoderOption) {
 		if opt.SourceName != "" {
 			result.SourceName = opt.SourceName
 		}
+		if opt.SchemaSourceName != "" {
+			result.SchemaSourceName = opt.SchemaSourceName
+		}
 		if opt.Context != nil {
 			result.Context = opt.Context
 		}
