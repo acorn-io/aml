@@ -11,6 +11,10 @@ type Object struct {
 	Entries []Entry
 }
 
+func (n *Object) Len() (Value, error) {
+	return NewValue(len(n.Entries)), nil
+}
+
 func NewObject(data map[string]any) *Object {
 	o := &Object{}
 
