@@ -7,5 +7,4 @@ for x in [2, 3] {
 for i, x in ["x", "y"] {
     "a\(i)\(x)": a + i + 1
 }
-// should be 9
 b: a

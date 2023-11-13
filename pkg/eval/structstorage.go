@@ -32,8 +32,7 @@ func mergeUndef(left, right value.Value) (newValue value.Value, changed bool, _ 
 		return value.MergeObjects(left, right, true, mergeUndef)
 	}
 
-	v, err := value.Merge(left, right)
-	return v, false, err
+	return right, false, nil
 }
 
 func (s *structScopeStorage) Store(v value.Value) (retry bool, err error) {

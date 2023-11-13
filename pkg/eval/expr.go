@@ -564,27 +564,7 @@ func appendValue(left, right value.Value) (value.Value, error) {
 		return right, nil
 	}
 
-	merged := map[string]any{}
-
-	entries, err := value.Entries(left)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, entry := range entries {
-		merged[entry.Key] = entry.Value
-	}
-
-	entries, err = value.Entries(right)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, entry := range entries {
-		merged[entry.Key] = entry.Value
-	}
-
-	return value.NewValue(merged), nil
+	return value.Add(left, right)
 }
 
 type Expression interface {

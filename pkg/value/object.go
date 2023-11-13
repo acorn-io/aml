@@ -53,6 +53,15 @@ func (n *Object) IsDefined() bool {
 }
 
 func (n *Object) LookupValue(key Value) (Value, bool, error) {
+	if sKey, ok := key.(String); ok {
+		for _, e := range n.Entries {
+			if e.Key == (string)(sKey) {
+				return e.Value, true, nil
+			}
+		}
+		return nil, false, nil
+	}
+
 	for _, e := range n.Entries {
 		b, err := Eq(key, NewValue(e.Key))
 		if err != nil {
@@ -62,12 +71,6 @@ func (n *Object) LookupValue(key Value) (Value, bool, error) {
 		if b, err := ToBool(b); err != nil {
 			return nil, false, err
 		} else if b {
-			//if e.Value.Kind() == FuncKind {
-			//	return ObjectFunc{
-			//		Self: n,
-			//		Func: e.Value,
-			//	}, true, nil
-			//}
 			return e.Value, true, nil
 		}
 	}
@@ -81,6 +84,10 @@ func (n *Object) Add(right Value) (Value, error) {
 	}
 
 	v, _, err := MergeObjects(n, right, true, func(left, right Value) (newValue Value, changed bool, _ error) {
+		if left.Kind() == ObjectKind && right.Kind() == ObjectKind {
+			nv, err := Add(left, right)
+			return nv, false, err
+		}
 		return right, false, nil
 	})
 	return v, err
@@ -123,9 +130,17 @@ func (n *Object) Eq(right Value) (Value, error) {
 			return False, err
 		}
 
+		if undef := IsUndefined(leftValue, rightValue); undef != nil {
+			return undef, nil
+		}
+
 		bValue, err := Eq(leftValue, rightValue)
 		if err != nil {
 			return nil, err
+		}
+
+		if undef := IsUndefined(bValue); undef != nil {
+			return undef, nil
 		}
 
 		b, err := ToBool(bValue)

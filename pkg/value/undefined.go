@@ -32,6 +32,10 @@ type Undefined struct {
 	Pos Position
 }
 
+func (u Undefined) Eq(v Value) (Value, error) {
+	return u, nil
+}
+
 func (u Undefined) IsDefined() bool {
 	return false
 }

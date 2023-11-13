@@ -20,6 +20,7 @@ type DecoderOption struct {
 	SourceName       string
 	SchemaSourceName string
 	Schema           io.Reader
+	SchemaValue      value.Value
 	Globals          map[string]any
 	GlobalsLookup    eval.ScopeFunc
 	Context          context.Context
@@ -59,6 +60,9 @@ func (o DecoderOptions) Merge() (result DecoderOption) {
 		if opt.Schema != nil {
 			result.Schema = opt.Schema
 		}
+		if opt.SchemaValue != nil {
+			result.SchemaValue = opt.SchemaValue
+		}
 		if len(opt.Globals) > 0 && result.Globals == nil {
 			result.Globals = map[string]any{}
 		}
@@ -85,6 +89,10 @@ func NewDecoder(input io.Reader, opts ...DecoderOption) *Decoder {
 }
 
 func (d *Decoder) processSchema(ctx context.Context, data value.Value) (value.Value, error) {
+	if d.opts.SchemaValue != nil {
+		return value.Validate(ctx, d.opts.SchemaValue, data)
+	}
+
 	f := &eval.File{}
 
 	err := NewDecoder(d.opts.Schema, DecoderOption{
@@ -142,6 +150,15 @@ func (d *Decoder) Decode(out any) error {
 		}
 		*n = *fileSchema
 		return nil
+	case *value.Schema:
+		val, ok, err := eval.EvalSchema(ctx, file)
+		if err != nil {
+			return err
+		} else if !ok {
+			return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
+		}
+		*n = val.(value.Schema)
+		return nil
 	case *value.Summary:
 		val, ok, err := eval.EvalSchema(ctx, file)
 		if err != nil {
@@ -163,7 +180,7 @@ func (d *Decoder) Decode(out any) error {
 		return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
 	}
 
-	if d.opts.Schema != nil {
+	if d.opts.Schema != nil || d.opts.SchemaValue != nil {
 		val, err = d.processSchema(ctx, val)
 		if err != nil {
 			return err
