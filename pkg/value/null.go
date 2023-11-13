@@ -14,6 +14,10 @@ func (n *Null) Eq(right Value) (Value, error) {
 	return False, nil
 }
 
+func (n *Null) MarshalJSON() ([]byte, error) {
+	return []byte("null"), nil
+}
+
 func (n *Null) Neq(right Value) (Value, error) {
 	if right.Kind() == NullKind {
 		return False, nil

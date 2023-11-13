@@ -7,6 +7,9 @@ import (
 
 type Schema interface {
 	Value
+	Orer
+
+	GetPositions() []Position
 	Validate(ctx context.Context, v Value) (Value, error)
 	TargetKind() Kind
 	MergeType(right Schema) (Schema, error)
@@ -17,6 +20,9 @@ type Schema interface {
 }
 
 func Validate(ctx context.Context, schema Value, v Value) (Value, error) {
+	if undef := IsUndefined(v); undef != nil {
+		return undef, nil
+	}
 	if s, ok := schema.(Schema); ok {
 		return s.Validate(ctx, v)
 	}

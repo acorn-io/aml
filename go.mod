@@ -5,7 +5,6 @@ go 1.21
 require (
 	github.com/hexops/autogold/v2 v2.2.1
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	gopkg.in/yaml.v3 v3.0.1
 )
 

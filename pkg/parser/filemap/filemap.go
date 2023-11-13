@@ -8,14 +8,13 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"golang.org/x/exp/maps"
 )
 
 var Header = []byte("//aml:filemap")
 
 type FileMap struct {
-	files map[string][]byte
+	files   map[string][]byte
+	Trailer []byte
 }
 
 type Entry struct {
@@ -24,13 +23,22 @@ type Entry struct {
 }
 
 func (f *FileMap) Files() (result []Entry) {
-	filenames := maps.Keys(f.files)
+	var filenames []string
+	for k := range f.files {
+		filenames = append(filenames, k)
+	}
 	sort.Strings(filenames)
 
 	for _, filename := range filenames {
 		result = append(result, Entry{
 			Filename: filename,
 			Data:     f.files[filename],
+		})
+	}
+
+	if len(f.Trailer) != 0 {
+		result = append(result, Entry{
+			Data: f.Trailer,
 		})
 	}
 
@@ -72,13 +80,19 @@ func FromBytes(filename string, data []byte) (*FileMap, error) {
 	}
 
 	files := map[string]string{}
-	if err := json.Unmarshal(data[i:], &files); err != nil {
+	dec := json.NewDecoder(bytes.NewReader(data[i:]))
+	if err := dec.Decode(&files); err != nil {
 		return nil, err
 	}
 
 	result := &FileMap{
 		files: map[string][]byte{},
 	}
+
+	if dec.More() {
+		result.Trailer = data[i+int(dec.InputOffset()):]
+	}
+
 	for k, v := range files {
 		if filename == "" {
 			result.files[k] = []byte(v)

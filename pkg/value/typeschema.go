@@ -22,6 +22,10 @@ type TypeSchema struct {
 	rendering bool
 }
 
+func (n *TypeSchema) GetPositions() []Position {
+	return n.Positions
+}
+
 func (n *TypeSchema) ValidArrayItems() (result []Schema) {
 	if n.Array == nil {
 		panic("Array is nil")
@@ -222,20 +226,20 @@ func (e *posError) Pos() Position {
 	return e.Position
 }
 
-func checkNoMultipleDefault(left, right *TypeSchema) error {
-	_, ok, err := left.getDefault(false)
+func checkNoMultipleDefault(left, right Schema) error {
+	_, ok, err := left.DefaultWithImplicit(false)
 	if err != nil {
 		return err
 	}
 	if ok {
-		_, ok, err = right.getDefault(false)
+		_, ok, err = right.DefaultWithImplicit(false)
 		if err != nil {
 			return err
 		}
 		if ok {
 			return &posError{
-				Position: lastPos(left.Positions, right.Positions),
-				Err:      fmt.Errorf("multiple defaults can not be defined (%s %s)", lastPos(left.Positions, nil), lastPos(right.Positions, nil)),
+				Position: lastPos(left.GetPositions(), right.GetPositions()),
+				Err:      fmt.Errorf("multiple defaults can not be defined (%s %s)", lastPos(left.GetPositions(), nil), lastPos(right.GetPositions(), nil)),
 			}
 		}
 	}
@@ -283,19 +287,23 @@ func typeOrUnion(left, right Kind) Kind {
 }
 
 func (n *TypeSchema) Or(right Value) (Value, error) {
-	rightSchema, ok := right.(*TypeSchema)
+	return SchemaOr(n, right)
+}
+
+func SchemaOr(left Schema, right Value) (Value, error) {
+	rightSchema, ok := right.(Schema)
 	if !ok {
-		rightSchema = NewDefault(lastPos(n.Positions, nil), right).(*TypeSchema)
+		rightSchema = NewDefault(lastPos(left.GetPositions(), nil), right).(Schema)
 	}
-	if err := checkNoMultipleDefault(n, rightSchema); err != nil {
+	if err := checkNoMultipleDefault(left, rightSchema); err != nil {
 		return nil, err
 	}
 	return &TypeSchema{
-		Positions:   mergePositions(n.Positions, rightSchema.Positions),
-		KindValue:   typeOrUnion(n.KindValue, rightSchema.KindValue),
+		Positions:   mergePositions(left.GetPositions(), rightSchema.GetPositions()),
+		KindValue:   typeOrUnion(left.TargetKind(), rightSchema.TargetKind()),
 		Constraints: MustMatchAlternate(),
 		Alternates: []Schema{
-			n, rightSchema,
+			left, rightSchema,
 		},
 	}, nil
 }
