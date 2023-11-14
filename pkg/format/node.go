@@ -560,6 +560,7 @@ func (f *formatter) exprRaw(expr ast.Expr, prec1, depth int) {
 func (f *formatter) clause(clause ast.Clause) {
 	switch n := clause.(type) {
 	case *ast.ForClause:
+		f.print(indent)
 		if n.Key != nil {
 			f.label(n.Key, token.ILLEGAL)
 			f.print(n.Comma, token.COMMA, blank)
