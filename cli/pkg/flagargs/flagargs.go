@@ -92,15 +92,20 @@ func New(argsFile, filename string, profiles value.Names, args []value.ObjectSch
 	}
 }
 
-func parseValue(v string, isNumber bool) (any, error) {
+func parseValue(v string, kind value.Kind) (any, error) {
 	if !strings.HasPrefix(v, "@") {
-		if isNumber {
+		if kind == value.NumberKind {
 			return value.Number(v), nil
 		}
 		return v, nil
 	}
 
 	v = v[1:]
+	if kind == value.StringKind {
+		data, err := os.ReadFile(v)
+		return string(data), err
+	}
+
 	data := map[string]any{}
 	if strings.HasPrefix(v, "{") {
 		if err := aml.Unmarshal([]byte(v), &data); err != nil {
@@ -158,9 +163,11 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 		case field.StringSlice != nil:
 			vals := []any{}
 			for _, str := range *field.StringSlice {
-				isNum := len(field.Field.Schema.ValidArrayItems()) > 0 &&
-					field.Field.Schema.ValidArrayItems()[0].TargetKind() == value.NumberKind
-				val, err := parseValue(str, isNum)
+				kind := value.StringKind
+				if len(field.Field.Schema.ValidArrayItems()) > 0 {
+					kind = field.Field.Schema.ValidArrayItems()[0].TargetKind()
+				}
+				val, err := parseValue(str, kind)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -168,7 +175,7 @@ func (f *Flags) Parse(args []string) (map[string]any, []string, error) {
 			}
 			result[name] = vals
 		default:
-			result[name], err = parseValue(*field.String, field.Field.Schema.TargetKind() == value.NumberKind)
+			result[name], err = parseValue(*field.String, field.Field.Schema.TargetKind())
 			if err != nil {
 				return nil, nil, err
 			}

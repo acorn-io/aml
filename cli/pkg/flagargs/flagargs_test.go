@@ -26,6 +26,23 @@ func TestParseArgs(t *testing.T) {
 	autogold.Expect([]string{"arg1", "arg2"}).Equal(t, args)
 }
 
+func TestParseStringObject(t *testing.T) {
+	argsData, _, _, err := ParseArgs(
+		"",
+		"testdata/TestParseArgs/input.acorn",
+		[]string{
+			"--foo3", "@testdata/TestParseArgs/input.yaml",
+			"--anObject", "@testdata/TestParseArgs/input.yaml",
+		})
+
+	require.NoError(t, err)
+	autogold.Expect(map[string]any{
+		"anObject": map[string]any{
+			"aKey": 3,
+		}, "foo3": "aKey: 3",
+	}).Equal(t, argsData)
+}
+
 func TestParseInvalidFlag(t *testing.T) {
 	_, _, _, err := ParseArgs(
 		"testdata/TestParseArgs/input-args.acorn",
