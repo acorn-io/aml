@@ -68,11 +68,26 @@
         "func": null,
         "constraints": [
           {
-            "op": "==",
-            "right": "one"
+            "op": "mustMatchAlternate"
           }
         ],
         "alternates": [
+          {
+            "kindValue": "string",
+            "object": null,
+            "array": null,
+            "func": null,
+            "constraints": [
+              {
+                "op": "==",
+                "right": "one"
+              }
+            ],
+            "alternates": null,
+            "defaultValue": null,
+            "path": "",
+            "reference": false
+          },
           {
             "kindValue": "string",
             "object": null,

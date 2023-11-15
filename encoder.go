@@ -35,9 +35,13 @@ func NewEncoder(output io.Writer, opts ...EncoderOption) *Encoder {
 }
 
 func (d *Encoder) Encode(out any) error {
-	data, err := json.Marshal(out)
+	data, err := json.MarshalIndent(out, "", "  ")
 	if err != nil {
 		return err
+	}
+
+	if len(data) > 2 && data[0] == '{' && data[len(data)-1] == '}' {
+		data = data[1 : len(data)-1]
 	}
 
 	parsed, err := parser.ParseFile("", bytes.NewReader(data))

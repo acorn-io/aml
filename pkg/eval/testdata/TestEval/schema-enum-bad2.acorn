@@ -1,0 +1,5 @@
+define Foo: {
+    a: enum("a", 1, "c")
+}
+
+Foo({a: 2})

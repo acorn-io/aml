@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"strings"
 	"unicode/utf8"
 )
 
@@ -20,21 +19,18 @@ func IsValidIdent(ident string) bool {
 	}
 
 	consumed := false
-	if strings.HasPrefix(ident, "#") {
-		ident = ident[1:]
-		// Note: _#0 is not allowed by the spec, although _0 is.
-		// TODO: set consumed to true here to allow #0.
-		consumed = false
-	}
-
 	if !consumed {
 		if r, _ := utf8.DecodeRuneInString(ident); isAllowedDigit(r) {
 			return false
 		}
 	}
 
-	for _, r := range ident {
-		if isAllowedCharacter(r) || isAllowedDigit(r) || r == '_' || r == '$' {
+	if ident == "$" {
+		return true
+	}
+
+	for i, r := range ident {
+		if isAllowedCharacter(r) || isAllowedDigit(r) || (r == '_' && i > 0) {
 			continue
 		}
 		return false

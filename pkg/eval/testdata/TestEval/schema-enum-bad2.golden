@@ -1,0 +1,3 @@
+`schema violation key a:
+option 1: [expected kind string but got kind number],
+option 2: [constraint [value == 1] is not true] [path a] [schema path Foo]: schema-enum-bad2.acorn:5:4 (2:5<-5:4)`

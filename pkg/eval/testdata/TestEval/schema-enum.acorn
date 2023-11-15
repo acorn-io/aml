@@ -1,5 +1,6 @@
 define Foo: {
     a: enum("a", "b", "c")
+    b: enum("a", 1, true)
 }
 
-Foo({a: "b"})
+Foo({a: "b", b: 1})

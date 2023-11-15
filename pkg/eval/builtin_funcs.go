@@ -741,31 +741,34 @@ func Any(kinds map[string]any) value.Value {
 }
 
 func Enum(_ context.Context, args []value.Value) (value.Value, bool, error) {
-	var result *value.TypeSchema
+	result := &value.TypeSchema{
+		Constraints: []value.Constraint{
+			{
+				Op: value.MustMatchAlternateOp,
+			},
+		},
+	}
 
 	if len(args) == 0 {
 		return nil, false, fmt.Errorf("can not create an empty enum")
 	}
 
 	for _, arg := range args {
-		s, err := value.ToString(arg)
-		if err != nil {
-			return nil, false, err
-		}
 		next := value.TypeSchema{
-			KindValue: value.StringKind,
+			KindValue: arg.Kind(),
 			Constraints: []value.Constraint{
 				{
 					Op:    "==",
-					Right: value.NewValue(s),
+					Right: arg,
 				},
 			},
 		}
-		if result == nil {
-			result = &next
-		} else {
-			result.Alternates = append(result.Alternates, &next)
+		if result.KindValue == "" {
+			result.KindValue = next.KindValue
+		} else if result.KindValue != next.KindValue {
+			result.KindValue = value.UnionKind
 		}
+		result.Alternates = append(result.Alternates, &next)
 	}
 
 	return result, true, nil
