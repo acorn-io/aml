@@ -2,6 +2,8 @@ package ast
 
 import (
 	"unicode/utf8"
+
+	"github.com/acorn-io/aml/pkg/token"
 )
 
 func isAllowedCharacter(ch rune) bool {
@@ -35,5 +37,6 @@ func IsValidIdent(ident string) bool {
 		}
 		return false
 	}
-	return true
+
+	return ident != "string" && ident != "match" && token.Lookup(ident) == token.IDENT
 }

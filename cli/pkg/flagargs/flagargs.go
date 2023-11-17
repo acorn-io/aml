@@ -32,7 +32,7 @@ func ParseArgs(argsFile, acornFile string, args []string) (map[string]any, []str
 	}
 
 	var file value.FuncSchema
-	if err := aml.NewDecoder(f).Decode(&file); err != nil {
+	if err := aml.NewDecoder(f, aml.DecoderOption{SourceName: acornFile}).Decode(&file); err != nil {
 		return nil, nil, nil, err
 	}
 
