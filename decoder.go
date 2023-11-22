@@ -92,13 +92,18 @@ func NewDecoder(input io.Reader, opts ...DecoderOption) *Decoder {
 }
 
 func (d *Decoder) processSchema(ctx context.Context, data value.Value) (value.Value, error) {
+	_, _, err := value.NativeValue(data)
+	if err != nil {
+		return nil, err
+	}
+
 	if d.opts.SchemaValue != nil {
 		return value.Validate(ctx, d.opts.SchemaValue, data)
 	}
 
 	f := &eval.File{}
 
-	err := NewDecoder(d.opts.Schema, DecoderOption{
+	err = NewDecoder(d.opts.Schema, DecoderOption{
 		Context:    d.opts.Context,
 		SourceName: d.opts.SchemaSourceName,
 	}).Decode(f)
@@ -160,7 +165,7 @@ func (d *Decoder) Decode(out any) error {
 		} else if !ok {
 			return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
 		}
-		*n = val.(value.Schema)
+		*n = val
 		return nil
 	case *value.Summary:
 		val, ok, err := eval.EvalSchema(ctx, file)

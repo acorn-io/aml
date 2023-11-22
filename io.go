@@ -40,9 +40,38 @@ func Open(name string) (io.ReadCloser, error) {
 		}
 		r, err := fm.ToReader()
 		return io.NopCloser(r), err
+	} else if err != nil && !os.IsNotExist(err) {
+		return nil, err
 	}
 
-	return os.Open(name)
+	f, err := os.Open(name)
+	if err != nil {
+		return nil, err
+	}
+
+	dotD := name + ".d"
+	fi, err = os.Stat(dotD)
+	if err == nil && fi.IsDir() {
+		defer f.Close()
+
+		fm, err := filemap.FromDirectory(dotD)
+		if err != nil {
+			return nil, err
+		}
+
+		data, err := io.ReadAll(f)
+		if err != nil {
+			return nil, err
+		}
+		fm.AddFile(name, data)
+
+		r, err := fm.ToReader()
+		return io.NopCloser(r), err
+	} else if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+
+	return f, nil
 }
 
 func ReadFile(name string) ([]byte, error) {

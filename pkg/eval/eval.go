@@ -2,6 +2,7 @@ package eval
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/acorn-io/aml/pkg/value"
 )
@@ -41,7 +42,19 @@ func EvalExpr(ctx context.Context, expr Expression, opts ...EvalOption) (value.V
 	return expr.ToValue(ctx)
 }
 
-func EvalSchema(ctx context.Context, expr Expression) (value.Value, bool, error) {
+func EvalSchema(ctx context.Context, expr Expression) (value.Schema, bool, error) {
 	ctx = WithSchema(ctx, true)
-	return expr.ToValue(ctx)
+	val, ok, err := expr.ToValue(ctx)
+	if err != nil || !ok {
+		return nil, ok, err
+	}
+	s, ok := val.(value.Schema)
+	if !ok {
+		v, ok, err := value.NativeValue(val)
+		if err != nil || !ok {
+			return nil, ok, err
+		}
+		return nil, false, fmt.Errorf("expected schema but evaluated to: %v", v)
+	}
+	return s, true, nil
 }

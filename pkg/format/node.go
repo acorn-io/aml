@@ -221,8 +221,10 @@ func (f *formatter) decl(decl ast.Decl) {
 	case *ast.Field:
 		if n.Match != token.NoPos {
 			f.print(n.Match, "match", blank)
+			f.label(n.Label, n.Constraint, false)
+		} else {
+			f.label(n.Label, n.Constraint, true)
 		}
-		f.label(n.Label, n.Constraint)
 		f.print(noblank, nooverride, n.Colon, token.COLON)
 
 		if mem := f.inlineField(n); mem != nil {
@@ -313,7 +315,7 @@ func (f *formatter) nextNeedsFormfeed(n ast.Expr) bool {
 	return false
 }
 
-func (f *formatter) label(l ast.Label, constraint token.Token) {
+func (f *formatter) label(l ast.Label, constraint token.Token, canUnquote bool) {
 	f.before(l)
 	defer f.after(l)
 	switch n := l.(type) {
@@ -325,9 +327,9 @@ func (f *formatter) label(l ast.Label, constraint token.Token) {
 		f.print(n.NamePos, name)
 	case *ast.BasicLit:
 		str := n.Value
-		if strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\"") {
+		if canUnquote && strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\"") {
 			s := str[1 : len(str)-1]
-			if ast.IsValidIdent(s) {
+			if ast.IsValidIdent(s) && s != "string" {
 				str = s
 			}
 		}
@@ -567,13 +569,13 @@ func (f *formatter) clause(clause ast.Clause) {
 	case *ast.ForClause:
 		f.print(indent)
 		if n.Key != nil {
-			f.label(n.Key, token.ILLEGAL)
+			f.label(n.Key, token.ILLEGAL, true)
 			f.print(n.Comma, token.COMMA, blank)
 		} else {
 			f.current.pos++
 			f.visitComments(f.current.pos)
 		}
-		f.label(n.Value, token.ILLEGAL)
+		f.label(n.Value, token.ILLEGAL, true)
 		f.print(blank, n.In, "in", blank)
 		f.expr(n.Source)
 		f.markUnindentLine()

@@ -2,3 +2,8 @@ hi:        1
 "match":   1
 "default": 1
 "string":  1
+string:    1
+x:         function {
+	args: foo: string:      string
+	args: foo2: match "hi": string
+}

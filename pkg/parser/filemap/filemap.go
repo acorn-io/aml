@@ -22,6 +22,23 @@ type Entry struct {
 	Data     []byte
 }
 
+func (f *FileMap) AddAll(fm *FileMap) {
+	if f.files == nil {
+		f.files = map[string][]byte{}
+	}
+	for k, v := range fm.files {
+		f.files[k] = v
+	}
+
+}
+
+func (f *FileMap) AddFile(name string, data []byte) {
+	if f.files == nil {
+		f.files = map[string][]byte{}
+	}
+	f.files[name] = data
+}
+
 func (f *FileMap) Files() (result []Entry) {
 	var filenames []string
 	for k := range f.files {

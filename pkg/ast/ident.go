@@ -38,5 +38,5 @@ func IsValidIdent(ident string) bool {
 		return false
 	}
 
-	return ident != "string" && ident != "match" && token.Lookup(ident) == token.IDENT
+	return ident != "match" && token.Lookup(ident) == token.IDENT
 }
