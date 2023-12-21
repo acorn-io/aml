@@ -1,4 +1,41 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "f": {
+        "$ref": "#/$defs/Foo.f"
+      }
+    },
+    "defs": {
+      "Foo.f": {
+        "type": "array",
+        "items": [
+          {
+            "$ref": "#/$defs/Foo.f[0]"
+          },
+          {
+            "$ref": "#/$defs/Foo.f[1]"
+          }
+        ]
+      },
+      "Foo.f[0]": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string"
+          }
+        }
+      },
+      "Foo.f[1]": {
+        "type": "object",
+        "properties": {
+          "b": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
   "f": [
     {
       "b": 2

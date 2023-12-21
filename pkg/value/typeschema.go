@@ -473,7 +473,11 @@ func checkType(ctx context.Context, schema *TypeSchema, right Value) (Value, err
 			errs = append(errs, err)
 		}
 	} else {
-		errs = append(errs, fmt.Errorf("expected kind %s but got kind %s", schema.TargetKind(), right.Kind()))
+		suffix := ""
+		if schema.TargetKind() == SchemaKind && right.Kind() == ObjectKind {
+			suffix = " (Are you missing the \"define\" keyword?)"
+		}
+		errs = append(errs, fmt.Errorf("expected kind %s but got kind %s%s", schema.TargetKind(), right.Kind(), suffix))
 	}
 
 	if len(errs) == 0 && schema.TargetKind() != UnionKind {
@@ -659,4 +663,9 @@ func DefaultValue(v Value) (Value, bool, error) {
 		return nil, false, nil
 	}
 	return v, true, nil
+}
+
+func (n *TypeSchema) NativeValue() (any, bool, error) {
+	jsonSchema, err := jsonSchemaConvert(n.Path.String(), Summarize(n))
+	return jsonSchema, jsonSchema != nil, err
 }

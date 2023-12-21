@@ -7,6 +7,7 @@ import (
 
 	"github.com/acorn-io/aml/pkg/format"
 	"github.com/acorn-io/aml/pkg/parser"
+	"github.com/acorn-io/aml/pkg/value"
 )
 
 type EncoderOption struct {
@@ -35,6 +36,18 @@ func NewEncoder(output io.Writer, opts ...EncoderOption) *Encoder {
 }
 
 func (d *Encoder) Encode(out any) error {
+	if v, ok := out.(value.Value); ok {
+		nv, ok, err := value.NativeValue(v)
+		if err != nil {
+			return err
+		}
+		if ok {
+			out = nv
+		} else {
+			out = nil
+		}
+	}
+
 	data, err := json.MarshalIndent(out, "", "  ")
 	if err != nil {
 		return err

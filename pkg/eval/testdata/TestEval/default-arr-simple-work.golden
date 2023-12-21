@@ -16,5 +16,32 @@
       "blah",
       5
     ]
+  },
+  "empty": {
+    "type": "object",
+    "properties": {
+      "arr": {
+        "$ref": "#/$defs/empty.arr"
+      }
+    },
+    "defs": {
+      "empty.arr": {
+        "type": "array",
+        "items": [
+          {
+            "$ref": "#/$defs/empty.arr[0]"
+          },
+          {
+            "$ref": "#/$defs/empty.arr[2]"
+          }
+        ]
+      },
+      "empty.arr[0]": {
+        "type": "string"
+      },
+      "empty.arr[2]": {
+        "type": "number"
+      }
+    }
   }
 }

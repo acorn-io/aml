@@ -1,4 +1,12 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "test": {
+        "type": "object"
+      }
+    }
+  },
   "test": {
     "a": "not default"
   }

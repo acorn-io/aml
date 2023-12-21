@@ -3,6 +3,25 @@
     1,
     2
   ],
+  "empty": {
+    "type": "object",
+    "properties": {
+      "arr": {
+        "$ref": "#/$defs/empty.arr"
+      },
+      "obj": {
+        "$ref": "#/$defs/empty.obj"
+      }
+    },
+    "defs": {
+      "empty.arr": {
+        "type": "array"
+      },
+      "empty.obj": {
+        "type": "object"
+      }
+    }
+  },
   "obj": {
     "a": "hi"
   }

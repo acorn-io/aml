@@ -52,6 +52,9 @@ func (n Boolean) Neq(right Value) (Value, error) {
 }
 
 func (n Boolean) And(right Value) (Value, error) {
+	if !n {
+		return False, nil
+	}
 	b, err := ToBool(right)
 	if err != nil {
 		return nil, err
@@ -60,6 +63,9 @@ func (n Boolean) And(right Value) (Value, error) {
 }
 
 func (n Boolean) Or(right Value) (Value, error) {
+	if n {
+		return True, nil
+	}
 	b, err := ToBool(right)
 	if err != nil {
 		return nil, err

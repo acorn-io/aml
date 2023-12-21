@@ -377,11 +377,11 @@ func (c *Function) Call(ctx context.Context, args []value.CallArgument) (ret val
 		}
 	}
 
-	if c.UnscopedArgs {
-		scope, _ = scope.NewScope(WithSchema(ctx, false), ValueScopeLookup{
-			Value: argsValue,
-		})
-	} else {
+	scope, _ = scope.NewScope(WithSchema(ctx, false), ValueScopeLookup{
+		Value: argsValue,
+	})
+
+	if !c.UnscopedArgs {
 		rootData := map[string]any{
 			"args": argsValue,
 		}

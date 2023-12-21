@@ -1,1 +1,10 @@
-{}
+{
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "hi": {
+        "type": "string"
+      }
+    }
+  }
+}

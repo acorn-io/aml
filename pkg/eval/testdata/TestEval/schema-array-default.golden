@@ -1,4 +1,33 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "args": {
+        "$ref": "#/$defs/Foo.args"
+      }
+    },
+    "defs": {
+      "Foo.args": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "array"
+          },
+          "b": {
+            "$ref": "#/$defs/Foo.args.b"
+          }
+        }
+      },
+      "Foo.args.b": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    }
+  },
   "args": {
     "a": [
       "val"

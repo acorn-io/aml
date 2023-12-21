@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/acorn-io/aml/pkg/parser"
 	"github.com/acorn-io/aml/pkg/value"
 )
+
+var ErrNoOutput = errors.New("value did not produce any output")
 
 type DecoderOption struct {
 	PositionalArgs   []any
@@ -163,7 +166,7 @@ func (d *Decoder) Decode(out any) error {
 		if err != nil {
 			return err
 		} else if !ok {
-			return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
+			return fmt.Errorf("source <%s>: %w", d.opts.SourceName, ErrNoOutput)
 		}
 		*n = val
 		return nil
@@ -172,7 +175,7 @@ func (d *Decoder) Decode(out any) error {
 		if err != nil {
 			return err
 		} else if !ok {
-			return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
+			return fmt.Errorf("source <%s>: %w", d.opts.SourceName, ErrNoOutput)
 		}
 		*n = *value.Summarize(val.(*value.TypeSchema))
 		return nil
@@ -185,7 +188,7 @@ func (d *Decoder) Decode(out any) error {
 	if err != nil {
 		return err
 	} else if !ok {
-		return fmt.Errorf("source <%s> did not produce a value", d.opts.SourceName)
+		return fmt.Errorf("source <%s>: %w", d.opts.SourceName, ErrNoOutput)
 	}
 
 	if d.opts.Schema != nil || d.opts.SchemaValue != nil {
@@ -215,7 +218,7 @@ func (d *Decoder) Decode(out any) error {
 	if err != nil {
 		return err
 	} else if !ok {
-		return fmt.Errorf("value kind %s from source %s did not produce a native value", val.Kind(), d.opts.SourceName)
+		return fmt.Errorf("value kind %s from source <%s> did not produce a native value: %w", val.Kind(), d.opts.SourceName, ErrNoOutput)
 	}
 
 	buf := &bytes.Buffer{}
@@ -228,4 +231,20 @@ func (d *Decoder) Decode(out any) error {
 
 func Unmarshal(data []byte, v any, opts ...DecoderOption) error {
 	return NewDecoder(bytes.NewReader(data), opts...).Decode(v)
+}
+
+func NewValueReader(value value.Value) io.Reader {
+	data, err := Marshal(value)
+	if err != nil {
+		return errReader{err: err}
+	}
+	return bytes.NewReader(data)
+}
+
+type errReader struct {
+	err error
+}
+
+func (e errReader) Read(p []byte) (n int, err error) {
+	return 0, e.err
 }

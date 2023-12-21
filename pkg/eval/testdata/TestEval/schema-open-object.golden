@@ -1,4 +1,12 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "object"
+      }
+    }
+  },
   "a": {
     "b": 1,
     "c": 2

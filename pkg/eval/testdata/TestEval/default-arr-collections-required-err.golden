@@ -1,3 +1,11 @@
 {
-  "arr": []
+  "arr": [],
+  "empty": {
+    "type": "object",
+    "properties": {
+      "arr": {
+        "type": "array"
+      }
+    }
+  }
 }

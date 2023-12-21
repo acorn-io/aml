@@ -1,3 +1,11 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "string"
+      }
+    }
+  },
   "a": "high"
 }

@@ -1,4 +1,22 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "items": {
+        "$ref": "#/$defs/Foo.items"
+      }
+    },
+    "defs": {
+      "Foo.items": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object"
+          }
+        ]
+      }
+    }
+  },
   "items": [
     {
       "item": "hello"

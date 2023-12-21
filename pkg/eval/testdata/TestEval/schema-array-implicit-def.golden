@@ -1,4 +1,53 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "bar": {
+        "$ref": "#/$defs/Foo.bar"
+      },
+      "baz": {
+        "$ref": "#/$defs/Foo.baz"
+      },
+      "foo": {
+        "$ref": "#/$defs/Foo.foo"
+      }
+    },
+    "defs": {
+      "Foo.bar": {
+        "type": "array",
+        "items": [
+          {
+            "$ref": "#/$defs/Foo.bar[0]"
+          }
+        ]
+      },
+      "Foo.bar[0]": {
+        "type": "string"
+      },
+      "Foo.baz": {
+        "type": "array",
+        "items": [
+          {
+            "$ref": "#/$defs/Foo.baz[0]"
+          }
+        ]
+      },
+      "Foo.baz[0]": {
+        "type": "string"
+      },
+      "Foo.foo": {
+        "type": "array",
+        "items": [
+          {
+            "$ref": "#/$defs/Foo.foo[0]"
+          }
+        ]
+      },
+      "Foo.foo[0]": {
+        "type": "string"
+      }
+    }
+  },
   "bar": [
     "a",
     "b"

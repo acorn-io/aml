@@ -1,4 +1,28 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "args": {
+        "$ref": "#/$defs/Foo.args"
+      }
+    },
+    "defs": {
+      "Foo.args": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "object"
+          },
+          "b": {
+            "type": "object"
+          },
+          "c": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
   "args": {
     "a": {
       "x": 2

@@ -313,8 +313,8 @@ func (x *Interpolation) End() token.Pos  { return x.Elts[len(x.Elts)-1].Pos() }
 
 // A Func node represents a function expression.
 type Func struct {
-	Func token.Pos // position of "function"
-	Body *StructLit
+	Func       token.Pos // position of "function"
+	Body       *StructLit
 	ReturnType Expr
 
 	comments

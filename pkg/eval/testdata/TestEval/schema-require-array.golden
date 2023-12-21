@@ -1,3 +1,21 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "$ref": "#/$defs/Foo.a"
+      }
+    },
+    "defs": {
+      "Foo.a": {
+        "type": "array",
+        "items": [
+          {
+            "type": "string"
+          }
+        ]
+      }
+    }
+  },
   "a": []
 }

@@ -1,4 +1,18 @@
 {
+  "Test": {
+    "type": "object",
+    "properties": {
+      ".*": {
+        "type": "number"
+      },
+      "a": {
+        "type": "number"
+      },
+      "missing": {
+        "type": "string"
+      }
+    }
+  },
   "a": 3,
   "blah": 5,
   "blah2": 5,

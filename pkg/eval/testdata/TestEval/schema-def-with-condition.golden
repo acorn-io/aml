@@ -1,4 +1,18 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "string"
+      },
+      "b": {
+        "type": "string"
+      },
+      "c": {
+        "type": "string"
+      }
+    }
+  },
   "a": "hello",
   "b": "bye",
   "c": "bye"

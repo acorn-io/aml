@@ -1,4 +1,18 @@
 {
+  "Foo": {
+    "type": "object",
+    "properties": {
+      "bar": {
+        "type": "string"
+      },
+      "baz": {
+        "type": "number"
+      },
+      "foo": {
+        "type": "number"
+      }
+    }
+  },
   "bar": "bye",
   "baz": 3
 }

@@ -1,3 +1,11 @@
 {
+  "Schema": {
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "string"
+      }
+    }
+  },
   "foo": "bar"
 }
