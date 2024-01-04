@@ -43,6 +43,10 @@ func (n *TypeSchema) GetPath() Path {
 }
 
 func (n *TypeSchema) Call(ctx context.Context, args []CallArgument) (Value, bool, error) {
+	if n.KindValue == FuncKind && n.FuncSchema != nil && n.DefaultValue != nil {
+		return Call(ctx, n.DefaultValue, args...)
+	}
+
 	for _, arg := range args {
 		if arg.Self || !arg.Positional {
 			continue
@@ -227,16 +231,19 @@ func (e *posError) Pos() Position {
 }
 
 func checkNoMultipleDefault(left, right Schema) error {
-	_, ok, err := left.DefaultWithImplicit(false)
+	leftDef, ok, err := left.DefaultWithImplicit(false)
 	if err != nil {
 		return err
 	}
 	if ok {
-		_, ok, err = right.DefaultWithImplicit(false)
+		rightDef, ok, err := right.DefaultWithImplicit(false)
 		if err != nil {
 			return err
 		}
 		if ok {
+			if undef := IsUndefined(leftDef, rightDef); undef != nil {
+				return nil
+			}
 			return &posError{
 				Position: lastPos(left.GetPositions(), right.GetPositions()),
 				Err:      fmt.Errorf("multiple defaults can not be defined (%s %s)", lastPos(left.GetPositions(), nil), lastPos(right.GetPositions(), nil)),

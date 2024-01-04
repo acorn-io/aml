@@ -81,11 +81,9 @@ func (c *Constraint) check(op Operator, left, right Value) error {
 	if err != nil {
 		return err
 	}
-	right, err = toConcrete(right)
-	if err != nil {
-		return err
-	}
-	v, err := BinaryOperation(op, left, right)
+	v, err := BinaryOperation(op, left, func() (Value, error) {
+		return toConcrete(right)
+	})
 	if err != nil {
 		return err
 	}

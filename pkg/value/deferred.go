@@ -73,7 +73,7 @@ func (d Deferred) Div(right Value) (Value, error) {
 	return Div(v, right)
 }
 
-func (d Deferred) And(right Value) (Value, error) {
+func (d Deferred) And(right Valuer) (Value, error) {
 	v, err := d.Resolve()
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (d Deferred) And(right Value) (Value, error) {
 	return And(v, right)
 }
 
-func (d Deferred) Or(right Value) (Value, error) {
+func (d Deferred) Or(right Valuer) (Value, error) {
 	v, err := d.Resolve()
 	if err != nil {
 		return nil, err

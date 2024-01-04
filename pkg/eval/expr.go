@@ -83,12 +83,17 @@ func (o *Op) ToValue(ctx context.Context) (value.Value, bool, error) {
 		return newValue, true, err
 	}
 
-	right, ok, err := o.Right.ToValue(ctx)
-	if err != nil || !ok {
-		return nil, ok, err
+	toRight := func() (value.Value, error) {
+		right, ok, err := o.Right.ToValue(ctx)
+		if err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, value.NewErrPosition(o.Pos, fmt.Errorf("right operand did not yield a value"))
+		}
+		return right, nil
 	}
 
-	newValue, err := value.BinaryOperation(o.Operator, left, right)
+	newValue, err := value.BinaryOperation(o.Operator, left, toRight)
 	if err != nil {
 		return nil, false, value.NewErrPosition(o.Pos, err)
 	}

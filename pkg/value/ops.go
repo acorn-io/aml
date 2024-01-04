@@ -256,7 +256,9 @@ func UnaryOperation(op Operator, val Value) (Value, error) {
 
 	switch op {
 	case AddOp, SubOp:
-		return BinaryOperation(op, NewValue(0), val)
+		return BinaryOperation(op, NewValue(0), func() (Value, error) {
+			return val, nil
+		})
 	case NotOp:
 		return Not(val)
 	default:
@@ -295,8 +297,8 @@ type AllBinaryOps interface {
 	Suber
 	Muler
 	Diver
-	Ander
-	Orer
+	DeferredAnder
+	DeferredOrer
 	Lter
 	Leer
 	Gter
@@ -328,9 +330,27 @@ type AllOps interface {
 	// RightMerger
 }
 
-func BinaryOperation(op Operator, left, right Value) (Value, error) {
-	if undef := IsUndefined(left, right); undef != nil {
+type Valuer func() (Value, error)
+
+func BinaryOperation(op Operator, left Value, deferredRight Valuer) (Value, error) {
+	if undef := IsUndefined(left); undef != nil {
 		return undef, nil
+	}
+
+	var (
+		right Value
+		err   error
+	)
+
+	if op != AndOp && op != OrOp {
+		right, err = deferredRight()
+		if err != nil {
+			return nil, err
+		}
+
+		if undef := IsUndefined(right); undef != nil {
+			return undef, nil
+		}
 	}
 
 	switch op {
@@ -343,9 +363,9 @@ func BinaryOperation(op Operator, left, right Value) (Value, error) {
 	case DivOp:
 		return Div(left, right)
 	case AndOp:
-		return And(left, right)
+		return And(left, deferredRight)
 	case OrOp:
-		return Or(left, right)
+		return Or(left, deferredRight)
 	case LtOp:
 		return Lt(left, right)
 	case LeOp:
@@ -431,10 +451,25 @@ type Ander interface {
 	And(right Value) (Value, error)
 }
 
-func And(left, right Value) (Value, error) {
+type DeferredAnder interface {
+	And(right Valuer) (Value, error)
+}
+
+func And(left Value, right Valuer) (Value, error) {
 	adder, ok := left.(Ander)
 	if ok {
+		right, err := right()
+		if err != nil {
+			return nil, err
+		}
+		if undef := IsUndefined(right); undef != nil {
+			return undef, nil
+		}
 		return adder.And(right)
+	}
+	deferredAdder, ok := left.(DeferredAnder)
+	if ok {
+		return deferredAdder.And(right)
 	}
 	return nil, fmt.Errorf("value kind %s does not support && operation", left.Kind())
 }
@@ -443,10 +478,25 @@ type Orer interface {
 	Or(right Value) (Value, error)
 }
 
-func Or(left, right Value) (Value, error) {
+type DeferredOrer interface {
+	Or(right Valuer) (Value, error)
+}
+
+func Or(left Value, right Valuer) (Value, error) {
 	adder, ok := left.(Orer)
 	if ok {
+		right, err := right()
+		if err != nil {
+			return nil, err
+		}
+		if undef := IsUndefined(right); undef != nil {
+			return undef, nil
+		}
 		return adder.Or(right)
+	}
+	deferredOrer, ok := left.(DeferredOrer)
+	if ok {
+		return deferredOrer.Or(right)
 	}
 	return nil, fmt.Errorf("value kind %s does not support || operation", left.Kind())
 }

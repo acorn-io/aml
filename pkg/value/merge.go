@@ -119,7 +119,7 @@ func assertType(val Value, kind Kind) error {
 		return fmt.Errorf("expected kind %s, got nil", kind)
 	}
 	if !Compatible(val, kind) {
-		return fmt.Errorf("expected kind %s, got %s", kind, val.Kind())
+		return fmt.Errorf("expected kind %s, got incompatible %s", kind, val.Kind())
 	}
 	return nil
 }

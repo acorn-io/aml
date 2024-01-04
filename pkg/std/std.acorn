@@ -1,4 +1,4 @@
- let internal: builtin["__internal"]
+let internal: builtin["__internal"]
 
 catch: function {
 	args: {
@@ -228,7 +228,7 @@ split: function {
 
 cut: function {
 	args: {
-		str:   string
+		str:       string
 		separator: string
 	}
 	return: internal.cut(args.str, args.separator)

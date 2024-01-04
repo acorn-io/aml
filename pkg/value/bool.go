@@ -51,9 +51,16 @@ func (n Boolean) Neq(right Value) (Value, error) {
 	return NewValue(bool(n) != rightBool), nil
 }
 
-func (n Boolean) And(right Value) (Value, error) {
+func (n Boolean) And(deferredRight Valuer) (Value, error) {
 	if !n {
 		return False, nil
+	}
+	right, err := deferredRight()
+	if err != nil {
+		return nil, err
+	}
+	if undef := IsUndefined(right); undef != nil {
+		return undef, nil
 	}
 	b, err := ToBool(right)
 	if err != nil {
@@ -62,9 +69,16 @@ func (n Boolean) And(right Value) (Value, error) {
 	return NewValue((bool)(n) && b), nil
 }
 
-func (n Boolean) Or(right Value) (Value, error) {
+func (n Boolean) Or(deferredRight Valuer) (Value, error) {
 	if n {
 		return True, nil
+	}
+	right, err := deferredRight()
+	if err != nil {
+		return nil, err
+	}
+	if undef := IsUndefined(right); undef != nil {
+		return undef, nil
 	}
 	b, err := ToBool(right)
 	if err != nil {

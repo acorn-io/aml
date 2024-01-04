@@ -335,7 +335,7 @@ type ErrUnknownField struct {
 }
 
 func (e *ErrUnknownField) Error() string {
-	return fmt.Sprintf("unknown field %s%s", e.Key, pathSuffix(e.DataPath, e.SchemaPath))
+	return fmt.Sprintf("unknown field \"%s\"%s", e.Key, pathSuffix(e.DataPath, e.SchemaPath))
 }
 
 type ErrMissingRequiredKeys struct {
@@ -346,7 +346,7 @@ type ErrMissingRequiredKeys struct {
 
 func (e *ErrMissingRequiredKeys) Error() string {
 	if len(e.Keys) == 1 {
-		return fmt.Sprintf("missing required key %s%s", e.Keys[0], pathSuffix(e.DataPath, e.SchemaPath))
+		return fmt.Sprintf("missing required key \"%s\"%s", e.Keys[0], pathSuffix(e.DataPath, e.SchemaPath))
 	}
 	return fmt.Sprintf("missing required keys %v%s", e.Keys, pathSuffix(e.DataPath, e.SchemaPath))
 }

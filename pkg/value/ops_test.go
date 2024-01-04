@@ -94,7 +94,9 @@ func TestBinary(t *testing.T) {
 
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%s%d - %s %s %s", t.Name(), i, test.left, test.op, test.right), func(t *testing.T) {
-			v, err := BinaryOperation(Operator(test.op), NewValue(test.left), NewValue(test.right))
+			v, err := BinaryOperation(Operator(test.op), NewValue(test.left), func() (Value, error) {
+				return NewValue(test.right), nil
+			})
 			require.NoError(t, err)
 			nv, _, err := NativeValue(v)
 			require.NoError(t, err)
