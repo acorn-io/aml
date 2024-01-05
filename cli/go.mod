@@ -3,7 +3,7 @@ module github.com/acorn-io/aml/cli
 go 1.21.0
 
 require (
-	github.com/acorn-io/aml v0.0.0-20231104205047-c9ec7a21af04
+	github.com/acorn-io/aml v0.0.0-20240104225813-e936fb3bc7b6
 	github.com/acorn-io/cmd v0.0.0-20230929053520-ebe1b9879b38
 	github.com/hexops/autogold/v2 v2.2.1
 	github.com/spf13/cobra v1.7.0
@@ -22,7 +22,6 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect

@@ -2,4 +2,3 @@ go 1.21.0
 
 use .
 use ./cli
-use ./legacy
