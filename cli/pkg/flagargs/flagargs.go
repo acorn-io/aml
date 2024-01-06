@@ -129,7 +129,9 @@ func (f *Flags) readArgsFile() (map[string]any, error) {
 		return result, nil
 	}
 
-	if err := aml.NewDecoder(input).Decode(&result); err != nil {
+	if err := aml.NewDecoder(input, aml.DecoderOption{
+		SourceName: f.argsFile,
+	}).Decode(&result); err != nil {
 		return nil, err
 	}
 
