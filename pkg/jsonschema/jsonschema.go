@@ -10,7 +10,7 @@ type Schema struct {
 
 	ID         string              `json:"$id,omitempty"`
 	Title      string              `json:"title,omitempty"`
-	Properties map[string]Property `json:"properties,omitempty"`
+	Properties map[string]Property `json:"properties"`
 	Required   []string            `json:"required,omitempty"`
 	Defs       map[string]Schema   `json:"defs,omitempty"`
 
